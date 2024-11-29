@@ -26,7 +26,7 @@ const BlogSingle = () => {
 
   const fetchBlogData = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-blog/${id}`)
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-blog/${id}`)
       setData(data.data)
     } catch (error) {
       console.log("Internal server error in fetching blog data");
@@ -46,7 +46,7 @@ const BlogSingle = () => {
       blogId: id
     }
     try {
-      const res = await axios.post('http://localhost:5000/api/v1/create-blog-comment', newFormData)
+      const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-blog-comment', newFormData)
       toast.success("Comment added successfully");
       setFormData({
         comment: ""

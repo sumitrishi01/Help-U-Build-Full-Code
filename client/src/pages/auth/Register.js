@@ -34,7 +34,7 @@ function Register() {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/api/v1/register', formData)
+            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register', formData)
             console.log(res.data)
             toast.success(res.data.message)
             window.location.href = `/otp-verification/user?email=${formData.email}&expires=${res.data?.data}`

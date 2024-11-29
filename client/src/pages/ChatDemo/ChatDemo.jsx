@@ -4,7 +4,7 @@ import './chat.css';
 import { MdAttachment } from "react-icons/md";
 import ScrollToBottom from 'react-scroll-to-bottom';
 
-const ENDPOINT = 'http://localhost:5000/';
+const ENDPOINT = 'https://api.helpubuild.co.in/';
 
 const ChatDemo = () => {
     const [message, setMessage] = useState('');

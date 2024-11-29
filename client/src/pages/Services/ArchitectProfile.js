@@ -54,7 +54,7 @@ function ArchitectProfile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
                 setProfile(data.data);
                 setLoading(false);
             } catch (error) {
@@ -74,7 +74,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
+                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);
