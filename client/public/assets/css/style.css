@@ -4131,10 +4131,23 @@ form.d_block {
   color:#fff;
 }
 .step-bg{
-  box-shadow: 7px 7px 24px #0222523d;
-    padding: 10px;
+  /* box-shadow: 7px 7px 24px #0222523d; */
+    padding: 30px;
     border-radius: 10px;
 }
+
+.fordisplaydirection{
+  display: flex;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 19px !important;
+  min-height: 210px;
+  background-color: aliceblue;
+  padding: 10px;
+  border-radius: 10px;
+}
+
 .extra-mobile{
   padding: 0 2%;
 }
@@ -4239,4 +4252,10 @@ form.d_block {
 .info-box {
   height: auto;
 }
+}
+
+.slick-dots{
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }

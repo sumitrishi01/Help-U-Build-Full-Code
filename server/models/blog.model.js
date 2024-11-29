@@ -32,7 +32,8 @@ const BlogSchema = new mongoose.Schema({
     writer: {
         type: String,
         default: "Admin"
-    }
+    },
+    comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'BlogComment' }],
 }, { timestamps: true })
 
 const Blog = mongoose.model('Blog', BlogSchema)

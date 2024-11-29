@@ -29,6 +29,7 @@ import ChatDemo from "./pages/ChatDemo/ChatDemo";
 import TalkToArchitect from "./pages/Services/TalkToArchitecture";
 import ArchitectProfile from "./pages/Services/ArchitectProfile";
 import StepWizard from "./components/StepWizard";
+import Blog_Page from "./pages/Blog_Page/Blog_Page";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -56,14 +57,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog" element={<Blog_Page />} />
         <Route path="/Architecture" element={<Architecture />} />
         <Route path="/talk-to-architect" element={<TalkToArchitect />} />
         <Route path="/architect-profile/:id" element={<ArchitectProfile />} />
         <Route path="/Interior" element={<Interior />} />
         <Route path="/Vastu" element={<Vastu />} />
         <Route path="/Construction-mall" element={<ConstructionMall />} />
-        <Route path="/Blog-Details" element={<BlogSingle />} />
+        <Route path="/blog-details/:id" element={<BlogSingle />} />
         <Route path="/Basic-details" element={<Basic_details />} />
         <Route path="/profile-details" element={<Profiles />} />
         {/* user authontication rout */}

@@ -1,5 +1,5 @@
 const Blog = require('../models/blog.model');
-const { uploadToCloudinary } = require('../utils/Cloudnary');
+const { uploadToCloudinary, deleteImageFromCloudinary, uploadImage } = require('../utils/Cloudnary');
 
 exports.createBlog = async (req, res) => {
     try {
@@ -61,7 +61,7 @@ exports.createBlog = async (req, res) => {
 
 exports.getAllBlog = async (req, res) => {
     try {
-        const blogs = await Blog.find();
+        const blogs = await Blog.find().populate('comments');
         if (!blogs) {
             return res.status(400).json({
                 success: false,
@@ -106,5 +106,67 @@ exports.getSingleBlog = async (req, res) => {
             message: "Internal server error",
             error: error.message
         })
+    }
+}
+
+exports.deleteBlog = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const blog = await Blog.findByIdAndDelete(id);
+        if (!blog) {
+            return res.status(400).json({
+                success: false,
+                message: "Blog not found",
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Blog deleted successfully",
+        })
+
+    } catch (error) {
+        console.log("Internal server error in deleting blog", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
+exports.updateBlog = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const blogs = await Blog.findById(id)
+        const {title, content} = req.body;
+        if (!blogs) {
+            return res.status(400).json({
+                success: false,
+                message: "Blog not found",
+            })
+        }
+        if(title) blogs.title = title;
+        if(content) blogs.content = content;
+        if(req.files){
+            const { image, largeImage } = req.files;
+            if(image){
+                await deleteImageFromCloudinary(blogs?.image?.public_id)
+                const {imageUrl,public_id} = await uploadToCloudinary(image[0].buffer)
+                blogs.image = {public_id, url:imageUrl}
+            }
+            if(largeImage){
+                await deleteImageFromCloudinary(blogs?.largeImage?.public_id)
+                const {imageUrl,public_id} = await uploadToCloudinary(largeImage[0].buffer)
+                blogs.largeImage = {public_id, url:imageUrl}
+            }
+        }
+        await blogs.save()
+        res.status(200).json({
+            success: true,
+            message: "Blog updated successfully",
+            data:blogs
+        })
+    } catch (error) {
+        console.log("Internal server error in updating blog", error)
     }
 }

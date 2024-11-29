@@ -1,42 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import BreadCrumbs from "./BreadCrumbs";
-
-const data = [
-  {
-    id: 1,
-    image: "https://i.ibb.co/dc4rvxF/interior-designer-1285513030.webp",
-    date: "July 29, 2024",
-    author: "Admin",
-    comments: 0,
-    href: "/Interior",
-    title: "Interior design is all about how we experience spaces",
-    summary:
-      "Interior design is the art and science of enhancing the interior of a building to achieve...F.",
-  },
-  {
-    id: 2,
-    image: "https://i.ibb.co/MPkm4fK/cmp.jpg",
-    date: "August 10, 2024",
-    author: "Admin",
-    comments: 2,
-    href: "/Construction-mall",
-    title: "It's fastest growing marketplace for Construction sector",
-    summary:
-      "Construction Marketplace is a building materials management and procurement platform.",
-  },
-  {
-    id: 3,
-    image: "https://i.ibb.co/875Y52m/arct.jpg",
-    date: "August 20, 2024",
-    author: "Admin",
-    comments: 5,
-    href: "/Architecture",
-    title: "Architecture is the art and technique of designing",
-    summary:
-      "A general term to describe buildings and other physical structures",
-  },
-];
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const Blog = () => {
   const [show, setShow] = useState(false);
@@ -47,6 +13,24 @@ const Blog = () => {
       setShow(true);
     }
   }, [location]);
+  const [data, setData] = useState([])
+
+  const fetchBlogs = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-blog')
+      const blogs = data.data
+      const reversedBlogs = blogs.reverse();
+      setData(reversedBlogs)
+      // setData
+    } catch (error) {
+      console.log("Internal server error in getting blogs");
+      toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
+    }
+  }
+
+  useEffect(() => {
+    fetchBlogs()
+  })
 
   return (
     <div>
@@ -64,28 +48,33 @@ const Blog = () => {
 
               <div className="v3_blog_wrapper">
                 <div className="row text-left" data-aos="fade-up" data-aos-offset="300" data-aos-easing="ease-in-sine">
-                  {data.map((post) => (
-                    <div
-                      key={post.id}
+                  {data && data.slice(0, 3).map((post, index) => (
+                    <Link
+                      to={`/blog-details/${post._id}`}
+                      key={index}
                       className="col-lg-4 col-md-6 col-sm-6 col-12"
                     >
                       <div className="as_blog_box">
                         <div className="as_blog_img">
                           <a href={`${post.href}`}>
                             <img
-                              src={post.image}
+                              src={post?.image?.url}
                               alt={post.title}
-                              className="img-responsive"
+                              className="img-responsive forblogheight"
                             />
                           </a>
-                          <span className="as_btn">{post.date}</span>
+                          <span className="as_btn">{new Date(post.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          }) || "Not-Available"}</span>
                         </div>
                         <div className="as_blog_detail">
                           <ul>
                             <li>
                               <a>
                                 <img src="assets/images/svg/user2.svg" alt="" />
-                                By - {post.author}
+                                By - {post.writer}
                               </a>
                             </li>
                             <li>
@@ -94,26 +83,26 @@ const Blog = () => {
                                   src="assets/images/svg/comment1.svg"
                                   alt=""
                                 />
-                                {post.comments} comments
+                                {post.comments.length} comments
                               </a>
                             </li>
                           </ul>
-                          <h4 className="as_subheading">
-                            <a href={`${post.href}`}>
+                          <h4 className="as_subheading ">
+                            <Link className="two-line-clamp" to={`/blog-details/${post._id}`}>
                               {post.title}
-                            </a>
+                            </Link>
                           </h4>
-                          <p className="as_font14 as_margin0">{post.summary}</p>
+                          <p className="as_font14 as_margin0 two-line-clamp">{post.content}</p>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </div>
               <div className="text-center as_padderTop60">
-                <a href="/blog" className="as_btn">
+                <Link to="/blog" className="as_btn">
                   View More
-                </a>
+                </Link>
               </div>
             </div>
           </div>

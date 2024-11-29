@@ -10,7 +10,8 @@ const { createDescribeWork, getAllDescribeWork, deleteDescribeWork } = require('
 const { createplanJourneyImage, getAllJourneyImage, deleteJourneyImage } = require('../controllers/planJourneyImage.controller');
 const { createAboutImage, getAllAboutImage, deleteAboutImage } = require('../controllers/aboutImage.controller');
 const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial } = require('../controllers/testimonial.controller');
-const { createBlog, getAllBlog } = require('../controllers/blog.controller');
+const { createBlog, getAllBlog, getSingleBlog, updateBlog, deleteBlog } = require('../controllers/blog.controller');
+const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogComment } = require('../controllers/blogCommont.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
@@ -128,5 +129,18 @@ router.post('/create-blog',upload.fields([
 ]),createBlog)
 
 router.get('/get-all-blog',getAllBlog)
+router.get('/get-single-blog/:id',getSingleBlog)
+router.put('/update-blog/:id',upload.fields([
+    {name: 'image', maxCount: 1},
+    {name: 'largeImage', maxCount: 1},
+]),updateBlog)
+router.delete('/delete-blog/:id',deleteBlog)
+
+// blog comment router here 
+
+router.post('/create-blog-comment',createBlogComment)
+router.get('/get-all-blog-comment',getAllComments),
+router.get('/get-comment-by-blogId/:blogId',getBlogCommentByBlogId)
+router.delete('/delete-blog-comment/:id',deleteBlogComment)
 
 module.exports = router;

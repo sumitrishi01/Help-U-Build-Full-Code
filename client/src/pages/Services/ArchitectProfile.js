@@ -191,15 +191,76 @@ function ArchitectProfile() {
                                 </div>
                             </div>
                             <div className='col-lg-12 mt-4' >
-                                <div className="gallery profile-about-gallery row">
-                                    {
-                                        profile?.portfolio?.GalleryImages && profile?.portfolio?.GalleryImages.map((item, index) => (
-                                            <div key={index} className="col-6 col-sm-4">
-                                                <img src={item.url} alt="Profile Picture" className="img-fluid rounded" />
+                                {/* <!-- Pills navs --> */}
+                                <ul className="nav nav-pills gap-3 mb-3 d-flex justify-content-center" id="ex1" role="tablist">
+                                    <li className="nav-item" role="presentation">
+                                        <a
+                                            className="nav-link active"
+                                            id="ex2-tab-1"
+                                            data-bs-toggle="pill"
+                                            href="#ex2-pills-1"
+                                            role="tab"
+                                            aria-controls="ex2-pills-1"
+                                            aria-selected="true"
+                                        >
+                                            Gallery
+                                        </a>
+                                    </li>
+                                    <li className="nav-item" role="presentation">
+                                        <a
+                                            className="nav-link"
+                                            id="ex2-tab-2"
+                                            data-bs-toggle="pill"
+                                            href="#ex2-pills-2"
+                                            role="tab"
+                                            aria-controls="ex2-pills-2"
+                                            aria-selected="false"
+                                        >
+                                            Portfolio
+                                        </a>
+                                    </li>
+                                </ul>
+                                {/* <!-- Pills navs --> */}
+
+                                {/* <!-- Pills content --> */}
+                                <div className="tab-content" id="ex2-content">
+                                    <div
+                                        className="tab-pane show active"
+                                        id="ex2-pills-1"
+                                        role="tabpanel"
+                                        aria-labelledby="ex2-tab-1"
+                                    >
+                                        <div className="gallery profile-about-gallery row">
+                                            {
+                                                profile?.portfolio?.GalleryImages && profile?.portfolio?.GalleryImages.map((image, index) => (
+                                                    <div key={index} className="col-6 col-sm-4">
+                                                        <img src={image?.url} alt="Profile Picture" className="img-fluid rounded" />
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    </div>
+                                    <div
+                                        className="tab-pane"
+                                        id="ex2-pills-2"
+                                        role="tabpanel"
+                                        aria-labelledby="ex2-tab-2"
+                                    >
+                                        <div className="gallery profile-about-gallery row">
+                                            <div className="col-6 col-sm-4 d-flex align-items-center justify-content-center w-100">
+                                                <iframe
+                                                    src={profile?.portfolio?.PortfolioLink?.url}
+                                                    width="100%"
+                                                    height="600px"
+                                                    title="Portfolio PDF"
+                                                ></iframe>
                                             </div>
-                                        ))
-                                    }
+                                        </div>
+                                    </div>
                                 </div>
+                                {/* <!-- Pills content --> */}
+
+
                             </div>
                         </div>
                     </div>
