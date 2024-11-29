@@ -15,15 +15,16 @@ Cloudinary.config({
 
 exports.CreateProvider = async (req, res) => {
     try {
-
-        const { adhaarCard, panCard, qualificationProof, photo } = req.files || {};
-        if (!adhaarCard || !panCard || !qualificationProof || !photo) {
+        // console.log("im hit")
+        // console.log(req.files)
+        const { adhaarCard, panCard, qualificationProof } = req.files || {};
+        if (!adhaarCard || !panCard || !qualificationProof) {
             return res.status(400).json({
                 success: false,
                 message: 'All required documents (Adhaar, Pan Card, Qualification Proof) must be uploaded.'
             });
         }
-        const { type, name, email, password,DOB, age, language, mobileNumber, gstDetails, coaNumber, expertiseSpecialization, location } = req.body;
+        const { type, name, email, password, DOB, age, language, mobileNumber, gstDetails, coaNumber, expertiseSpecialization, location } = req.body;
         const existingMobile = await providersModel.findOne({ mobileNumber });
         const existingEmail = await providersModel.findOne({ email });
 
@@ -53,10 +54,10 @@ exports.CreateProvider = async (req, res) => {
         if (qualificationProof) {
             uploadedFiles.qualificationProof = await uploadToCloudinary(qualificationProof[0].buffer);
         }
-        if (photo) {
-            uploadedFiles.photo = await uploadToCloudinary(photo[0].buffer);
-        }
-        console.log(uploadedFiles)
+        // if (photo) {
+        //     uploadedFiles.photo = await uploadToCloudinary(photo[0].buffer);
+        // }
+        // console.log(uploadedFiles)
         const newProvider = new providersModel({
             DOB,
             type,
@@ -64,13 +65,13 @@ exports.CreateProvider = async (req, res) => {
             email,
             password: password,
             age,
-            language: language.split(','),
+            // language: language.split(','),
             mobileNumber,
             gstDetails,
             coaNumber,
-            expertiseSpecialization: expertiseSpecialization.split(','),
+            // expertiseSpecialization: expertiseSpecialization.split(','),
             location,
-            photo: uploadedFiles.photo,
+            // photo: uploadedFiles.photo,
             adhaarCard: uploadedFiles.adhaarCard,
             panCard: uploadedFiles.panCard,
             qualificationProof: uploadedFiles.qualificationProof
@@ -244,9 +245,119 @@ exports.addPortfolio = async (req, res) => {
     }
 };
 
+exports.getAllProvider = async (req, res) => {
+    try {
+        const providers = await providersModel.find().populate('portfolio').exec();
+        if (!providers) {
+            return res.status(404).json({
+                success: false,
+                message: "No providers found."
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'Provider founded successfully',
+            data: providers
+        });
+    } catch (error) {
+        console.log("Internal server error in getAllProvider");
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
 
+exports.getSingleProvider = async (req, res) => {
+    try {
+        const providerId = req.params._id;
+        const provider = await providersModel.findById(providerId).populate('portfolio').exec();
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: "Provider not found."
+            });
+        }
+        res.status(200).json({
+            success: true,
+            message: 'Provider founded successfully',
+            data: provider
+        })
+    } catch (error) {
+        console.log("Internal server error in getting provider", error)
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error in getting provider',
+            error: error.message
+        })
+    }
+}
 
+exports.updateProvider = async (req, res) => {
+    try {
+        const providerId = req.params._id;
+        const {
+            name,
+            email,
+            DOB,
+            language,
+            mobileNumber,
+            coaNumber,
+            location,
+            pricePerMin,
+            bio,
+            expertiseSpecialization
+        } = req.body;
 
+        const provider = await providersModel.findById(providerId);
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: "Provider not found."
+            });
+        }
+
+        // Update only provided fields
+        if (name) provider.name = name;
+        if (email) provider.email = email;
+        if (DOB) provider.DOB = DOB;
+        if (language) provider.language = language.split(', ');
+        if (mobileNumber) provider.mobileNumber = mobileNumber;
+        if (coaNumber) provider.coaNumber = coaNumber;
+        if (location) provider.location = location;
+        if (pricePerMin) provider.pricePerMin = pricePerMin;
+        if (bio) provider.bio = bio;
+        if (expertiseSpecialization) provider.expertiseSpecialization = expertiseSpecialization.split(', ');
+
+        // Calculate age if DOB is updated
+        if (DOB) {
+            const birthDate = new Date(DOB);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--; // Adjust age if birthday hasn't occurred yet this year
+            }
+            provider.age = age;
+        }
+
+        await provider.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Provider updated successfully.",
+            provider
+        });
+    } catch (error) {
+        console.log("Internal server error in update provider", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error in update provider',
+            error: error.message
+        });
+    }
+};
 
 // Utility function to upload an image to Cloudinary
 const uploadToCloudinary = (fileBuffer) => {

@@ -14,8 +14,6 @@ const UserDashboard = () => {
   const [reUploadTrue, setReUploadTrue] = useState(true);
   const [showGalleryUpload, setShowGalleryUpload] = useState(false);
 
-
-
   const [token, setToken] = useState(null);
   const [myProfile, setMyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +31,7 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
+      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       console.log(data)
@@ -72,7 +70,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -119,10 +117,10 @@ const UserDashboard = () => {
           <div className="col col-xl-12">
             <div className="card  profile-card-header" style={{ borderRadius: 15 }}>
               <div className="card-body p-4">
-                <div className='d-flex'>
+                <div style={{ alignItems: 'center' }} className='d-flex mb-2'>
                   <a href="#!">
                     <img
-                      src={myProfile?.photo.imageUrl}
+                      src={myProfile?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(myProfile.name || 'User')}&background=random`}
                       alt="avatar"
                       className="img-fluid d-flex object-cover rounded-circle me-3"
                       width={95}
@@ -135,27 +133,42 @@ const UserDashboard = () => {
                 <p className="small mb-0">
                   <i className="fas fa-star fa-lg text-warning" />{" "}<span>{myProfile?.type}</span>
                   <span className="mx-2">|</span>
-                  {myProfile?.email} <span className="mx-2">|</span>My Age {""}
-                  <strong>{myProfile?.age}</strong>
+                  {`₹ ${myProfile.pricePerMin}/min`} <span className="mx-2">|</span>
+
+                  <span>{myProfile.language && myProfile.language.map((lang, index) => {
+                    return (
+                      <span key={index} className="archi-language-tag">
+                        {lang}{index < myProfile.language.length - 1 ? ', ' : ''}
+                      </span>
+                    );
+                  }) || ''}</span>
+                    <span className="mx-2">|</span>
+                  <span>{myProfile.expertiseSpecialization && myProfile.expertiseSpecialization.map((lang, index) => {
+                    return (
+                      <span key={index} className="archi-language-tag">
+                        {lang}{index < myProfile.expertiseSpecialization.length - 1 ? ', ' : ''}
+                      </span>
+                    );
+                  }) || ''}</span>
                 </p>
                 <hr className="my-4" />
                 <div className="featured-list d-flex justify-content-start align-items-center">
-                  <p onClick={() => setActiveTab('settings')} className="mb-0 text-uppercase">
+                  <p onClick={() => setActiveTab('settings')} style={{fontWeight:'700'}} className="mb-0 text-uppercase">
                     <i className="fas fa-cog me-2" />{" "}
-                    <span className={`cursor-pointer ${activeTab === 'settings' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
+                    <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'settings' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       settings
                     </span>
                   </p>
-                  <p onClick={() => setActiveTab('Portfolio')} className="mb-0 cursor-pointer text-uppercase">
+                  <p onClick={() => setActiveTab('Portfolio')} style={{fontWeight:'700'}} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-link ms-4 me-2" />{" "}
-                    <span className={`cursor-pointer ${activeTab === 'Portfolio' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
+                    <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Portfolio' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Portfolio
                     </span>
                   </p>
 
-                  <p onClick={() => setActiveTab('Gallery')} className="mb-0 cursor-pointer text-uppercase">
+                  <p onClick={() => setActiveTab('Gallery')} style={{fontWeight:'700'}} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-ellipsis-h ms-4 me-2" />{" "}
-                    <span className={`cursor-pointer ${activeTab === 'Gallery' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
+                    <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Gallery' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Gallery
                     </span>
                     <span className="ms-3 me-4">|</span>

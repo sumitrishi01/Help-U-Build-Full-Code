@@ -60,6 +60,12 @@ const userSchema = new mongoose.Schema({
     isBanned: {
         type: Boolean,
         default: false,
+    },
+    about: {
+        type: String
+    },
+    roomId: {
+        type: String
     }
 }, { timestamps: true });
 

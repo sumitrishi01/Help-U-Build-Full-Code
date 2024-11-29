@@ -3,6 +3,8 @@ import { useLocation, useParams, Link } from "react-router-dom";
 import BreadCrumbs from "../../components/BreadCrumbs";
 import image from '../../components/what-we-do.webp';
 import './about.css'
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const About = () => {
     const [show, setShow] = useState(false);
@@ -12,6 +14,21 @@ const About = () => {
             setShow(true);
         }
     }, [location]);
+    const [aboutImage,setAboutImage] = useState([])
+    const fetchAboutImage = async () => {
+        try {
+            const {data} = await axios.get('http://localhost:5000/api/v1/get-all-about-image')
+            const allData = data.data;
+            const filterData = allData.filter(item => item.active === true)
+            setAboutImage(filterData)
+        } catch (error) {
+            console.log("Internal server error in fetching about image",error)
+            toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
+        }
+    }
+    useEffect(()=>{
+        fetchAboutImage();
+    },[])
     return (
         <div>
             {show ? (
@@ -26,7 +43,11 @@ const About = () => {
                         </div> */}
                         <div data-aos="fade-right" class="col-lg-6 col-md-6">
                             <div class="as_aboutimg text-right ">
-                                <img src={image} alt="" class="img-responsive" />
+                                {
+                                    aboutImage && aboutImage.slice(0,1).map((item,index)=>(
+                                        <img key={index} src={item?.image?.url} alt="" class="about image" />
+                                    ))
+                                }
                                 {/* <span class="as_play"><img src="assets/images/play.png" alt="" /></span> */}
                             </div>
                         </div>

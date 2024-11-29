@@ -34,7 +34,7 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-   
+
     const isAuthenticatedValue = GetData('islogin')
     const convertToBoolean = Boolean(isAuthenticatedValue);
 
@@ -43,8 +43,9 @@ const Header = () => {
       isAuthenticated: convertToBoolean
     }));
 
-    const UserData = GetData('User')
-
+    const Data = GetData('user')
+    const UserData = JSON.parse(Data)
+    
     // Check if UserData exists and has a role
     if (UserData && UserData.role === 'provider') {
       setSessionData(prevState => ({
@@ -55,7 +56,7 @@ const Header = () => {
       }));
     }
   }, []);
-console.log(sessionData)
+  // console.log(sessionData)
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
 
@@ -63,7 +64,7 @@ console.log(sessionData)
     setActive(location.pathname);
   }, [location]);
 
-  console.log("i am sss", sessionData.isAuthenticated);
+  // console.log("i am sss", sessionData.isAuthenticated);
 
   return (
     <div>
@@ -101,7 +102,7 @@ console.log(sessionData)
                         </Link>
                       </li>
                       <li>
-                        <Link onClick={handleLinkClick} to="/Architecture" className={active === "/Architecture" ? "active" : ""}>
+                        <Link onClick={handleLinkClick} to="/talk-to-architect" className={active === "/Architecture" ? "active" : ""}>
                           Talk to Architect
                         </Link>
                       </li>
@@ -123,6 +124,7 @@ console.log(sessionData)
 
                       <li>
                         {sessionData.isAuthenticated ? (
+
                           <Link onClick={handleLinkClick}
                             className={`as_btn ${active === "/Profile" ? "active" : ""}`}
                             to={`${sessionData.role === 'provider' ? `/profile?role=${sessionData.role}` : 'profile?role=user'

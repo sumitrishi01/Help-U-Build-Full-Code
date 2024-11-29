@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import howwework from './how-we-work.webp';
+import toast from 'react-hot-toast';
+import axios from 'axios';
 
 const Extra = () => {
+    const [image,setImage] = useState([])
+    const fetchWorkImage = async () => {
+        try {
+            const {data} = await axios.get('http://localhost:5000/api/v1/get-all-describe-work-image')
+            const allData = data.data;
+            const filterData = allData.filter((item) => item.active === true)
+            setImage(filterData)
+        } catch (error) {
+            console.log("Internal server error")
+            toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
+        }
+    }
+
+    useEffect(()=>{
+        fetchWorkImage();
+    },[])
     return (
         <div className="mx-5 extra-mobile">
             <div className='my-4'>
@@ -47,10 +65,13 @@ const Extra = () => {
                                 </div>
                             ))}
                         </div>
-
                     </div>
                     <div className='col-lg-5 col-md-6'>
-                        <img className='img-fluid object-cover' src={howwework} alt="" data-aos="flip-left" data-aos-easing="ease-out-cubic" data-aos-duration="3000"/>
+                        {
+                            image && image.slice(0,1).map((item,index)=>(
+                                <img key={index} className='img-fluid object-cover' src={item?.image?.url} alt="" data-aos="flip-left" data-aos-easing="ease-out-cubic" data-aos-duration="3000"/>
+                            ))
+                        }
                     </div>
                 </div>
             </div>

@@ -159,6 +159,7 @@
 .cursor-ppointer {
   cursor: pointer;
 }
+
 .bento-item {
   height: 200px;
   border-radius: 15px;
@@ -176,4 +177,32 @@
 
 .bento-tall {
   height: 410px;
+}
+
+.video-time{
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 7px;
+  border: 1px solid rgb(187, 187, 187);
+  border-radius: 5px;
+}
+
+.video-time-box{
+  display: none;
+  /* display: flex; */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 70%;
+  margin-top: 10px;
+}
+
+.video-time-box p{
+  cursor: pointer;
+}
+
+.video-time-box-show{
+  display: flex !important;
 }

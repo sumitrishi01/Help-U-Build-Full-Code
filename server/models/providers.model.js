@@ -4,12 +4,12 @@ const bcrypt = require('bcrypt');
 const ProviderProfileSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        // required: true,
         trim: true
     },
-    email:{
+    email: {
         type: String,
-        required: true,
+        // required: true,
         unique: true,
     },
     password: {
@@ -26,7 +26,7 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: Number,
         min: 0
     },
-    DOB:{
+    DOB: {
         type: Date
     },
     language: {
@@ -36,7 +36,6 @@ const ProviderProfileSchema = new mongoose.Schema({
     mobileNumber: {
         type: String,
     },
-
     adhaarCard: {
         imageUrl: {
             type: String
@@ -67,7 +66,7 @@ const ProviderProfileSchema = new mongoose.Schema({
         ref: 'Portfolio'
     },
     expertiseSpecialization: {
-        type: [],
+        type: [String],
         default: []
     },
     gallery: [
@@ -85,10 +84,6 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: String,
         default: 'provider'
     },
-    reviews: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Review'
-    }],
     type: {
         type: String,
         enum: ["Architect", "Interior", "Vastu"],
@@ -102,11 +97,23 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    resetPasswordOtp:{
+    resetPasswordOtp: {
         type: String,
     },
-    resetPasswordExpiresAt:{
+    resetPasswordExpiresAt: {
         type: Date,
+    },
+    averageRating: {
+        type: Number
+    },
+    pricePerMin: {
+        type: Number
+    },
+    roomId: {
+        type: String
+    },
+    bio: {
+        type: String
     }
 });
 

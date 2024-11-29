@@ -24,6 +24,11 @@ import MemberProfile from "./pages/Profiles/MemberProfile";
 import UserDashboard from "./pages/User_Dashboard/UserDashboard";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
+import Chat from "./pages/Chat/Chat";
+import ChatDemo from "./pages/ChatDemo/ChatDemo";
+import TalkToArchitect from "./pages/Services/TalkToArchitecture";
+import ArchitectProfile from "./pages/Services/ArchitectProfile";
+import StepWizard from "./components/StepWizard";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -32,8 +37,7 @@ function ScrollToTop() {
       top: 0,
       behavior: 'smooth',
     });
-  }, [location.pathname]);
-
+  }, [location.pathname]); 
   return null;
 }
 
@@ -54,6 +58,8 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/Architecture" element={<Architecture />} />
+        <Route path="/talk-to-architect" element={<TalkToArchitect />} />
+        <Route path="/architect-profile/:id" element={<ArchitectProfile />} />
         <Route path="/Interior" element={<Interior />} />
         <Route path="/Vastu" element={<Vastu />} />
         <Route path="/Construction-mall" element={<ConstructionMall />} />
@@ -67,10 +73,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/otp-verification/user" element={<VerifyEmail />} />
         <Route path="/talk-to-interior" element={<TalkToInterior />} />
-        <Route path="/member-registration" element={<MembershipRegistration />} />
+        {/* <Route path="/member-registration" element={<MembershipRegistration />} /> */}
+        <Route path="/member-registration" element={<StepWizard />} />
         <Route path="/profile-page/:id" element={<MemberProfile />} />
 
 
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/chat-demo" element={<ChatDemo />} />
+
+        {/* <Route path="/demo-register" element={<StepWizard />} /> */}
       </Routes>
       <Toaster />
       <Footer />

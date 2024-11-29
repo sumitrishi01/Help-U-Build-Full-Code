@@ -394,7 +394,7 @@ i.fa.fa-search {
   object-fit: cover;
 }
 .profile-call-btn{
-  border: 2px solid #e74207;
+  border: 2px solid #e74207 !important;
   border-radius: 150px;
 }
 .profile-call-btn>i{

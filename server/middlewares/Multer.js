@@ -19,13 +19,9 @@ const UploadViaFieldName = (fields) => {
   return upload.fields(fieldConfigs); 
 };
 
-
 const singleUploadImage = upload.single('image');
 
-
 const multipleImages = upload.array('images', 10);
-
-
 
 module.exports = {
   handleMulterErrors,

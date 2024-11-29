@@ -9,12 +9,25 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './own.css'
 const Cards = () => {
   // Initialize tooltips after component mounts
+  // useEffect(() => {
+  //   const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  //   const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  //     return new window.bootstrap.Tooltip(tooltipTriggerEl);
+  //   });
+  // }, []);
+
   useEffect(() => {
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new window.bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }, []);
+    if (window.bootstrap && window.bootstrap.Tooltip) {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach((tooltipTriggerEl) => {
+            new window.bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    } else {
+        console.error("Bootstrap Tooltip is not defined.");
+    }
+}, []);
+
+
 
   
 

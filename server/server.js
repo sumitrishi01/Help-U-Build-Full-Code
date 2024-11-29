@@ -1,5 +1,7 @@
 const express = require('express')
 const app = express()
+const { createServer } = require('http')
+const { Server } = require("socket.io");
 require('dotenv').config()
 const PORT = process.env.PORT || 9123;
 const cors = require('cors')
@@ -9,6 +11,8 @@ const axios = require('axios')
 
 const { rateLimit } = require('express-rate-limit');
 const router = require('./routes/routes');
+const { singleUploadImage } = require('./middlewares/Multer');
+const Chat = require('./models/Chat.model');
 // Middlewares
 ConnectDB()
 
@@ -29,7 +33,6 @@ const limiter = rateLimit({
 
 })
 
-
 app.set(express.static('public'))
 app.use('/public', express.static('public'))
 
@@ -37,6 +40,65 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+
+const server = createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        // allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true,
+    },
+})
+
+app.locals.socketIo = io ;
+
+io.on('connection', (socket) => {
+    console.log('A new client connected:', socket.id);
+
+    socket.on('join_room', ({ userId, astrologerId }) => {
+        const room = `${userId}_${astrologerId}`;
+        socket.join(room); // Join a room
+        console.log(`${socket.id} joined room: ${room}`);
+    });
+
+    // Handle messages
+    socket.on('message', async ({ room, message }) => {
+        console.log(`Message to ${room}:`, message);
+    
+        // Save message to database
+        await Chat.findOneAndUpdate(
+            { room },
+            { $push: { messages: { senderId: socket.id, text: message } } },
+            { upsert: true, new: true }
+        );
+    
+        // Broadcast the message to the room except the sender
+        socket.to(room).emit('return_message', { text: message, senderId: socket.id });
+    });
+
+    socket.on('file_upload', async ({ room, fileData }) => {
+        console.log(`File received in ${room}:`, fileData);
+    
+        // Save file to database
+        await Chat.findOneAndUpdate(
+            { room },
+            { $push: { messages: { senderId: socket.id, file: fileData } } },
+            { upsert: true, new: true }
+        );
+    
+        // Broadcast the file to the room except the sender
+        socket.to(room).emit('return_message', { text: 'Attachment received', file: fileData, senderId: socket.id });
+    });
+
+    socket.on('disconnect', () => {
+        console.log('A client disconnected:', socket.id);
+    });
+});
+
+
+
+
 
 app.use(limiter)
 app.post('/Fetch-Current-Location', async (req, res) => {
@@ -63,12 +125,12 @@ app.post('/Fetch-Current-Location', async (req, res) => {
         const addressResponse = await axios.get(
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.GOOGLE_MAP_KEY}`
         );
-        
+
         // Check if any results are returned
         if (addressResponse.data.results.length > 0) {
             const addressComponents = addressResponse.data.results[0].address_components;
             // console.log(addressComponents)
-   
+
             let city = null;
             let area = null;
             let postalCode = null;
@@ -77,11 +139,11 @@ app.post('/Fetch-Current-Location', async (req, res) => {
             // Extract necessary address components
             addressComponents.forEach(component => {
                 if (component.types.includes('locality')) {
-                    city = component.long_name; 
+                    city = component.long_name;
                 } else if (component.types.includes('sublocality_level_1')) {
-                    area = component.long_name; 
+                    area = component.long_name;
                 } else if (component.types.includes('postal_code')) {
-                    postalCode = component.long_name; 
+                    postalCode = component.long_name;
                 } else if (component.types.includes('administrative_area_level_3')) {
                     district = component.long_name; // Get district
                 }
@@ -131,6 +193,10 @@ app.get('/', (req, res) => {
     res.send('Welcome To Help U Build')
 })
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT}`)
+// })
+
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })

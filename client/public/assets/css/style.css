@@ -2717,7 +2717,7 @@ li.as_info_box p {
 /* Login popup Start */
 .modal.show {
   opacity: 1;
-  background-color: rgb(3 29 46 / 87%);
+  background-color: rgb(0 0 0 / 18%);;
 }
 .modal .modal-dialog {
   margin: 0 auto;
@@ -2729,12 +2729,12 @@ li.as_info_box p {
   height: 100vh;
 }
 .modal-content {
-  background-color: var(--dark-color2);
+  background-color: #fff;
   width: 100%;
 }
 .modal-header {
   padding: 15px 25px;
-  border-color: rgb(255 255 255 / 10%);
+  border-color: rgba(0, 0, 0, 0.143);
 }
 
 .modal-header h4 {
@@ -3461,6 +3461,9 @@ form.d_block {
   .as_banner_slider .slick-arrow.slick-prev {
     left: -60px;
   }
+  .as_menu > ul > li {
+    margin: 0 16px;
+}
 }
 @media (max-width: 1450px) {
   .as_error_detail_box .as_circle {
@@ -4228,7 +4231,7 @@ form.d_block {
   padding: 27% 4% 27% 4%;
 }
 .as_padderBottom50 {
-    padding-bottom: 25px;
+  padding-bottom: 25px;
 }
 .why-sub-para{
   width:100%;
@@ -4237,4 +4240,3 @@ form.d_block {
   height: auto;
 }
 }
-

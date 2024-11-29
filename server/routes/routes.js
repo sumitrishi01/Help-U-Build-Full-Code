@@ -1,9 +1,16 @@
 const express = require('express');
 const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
-const { CreateProvider, GetMyProfile, addPortfolio } = require('../controllers/provider.controller');
-const { UploadViaFieldName, handleMulterErrors } = require('../middlewares/Multer');
+const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider } = require('../controllers/provider.controller');
 const multer = require('multer');
+const { getAllChat } = require('../controllers/ChatController');
+const { createReview, getAllReview } = require('../controllers/review.Controller');
+const { createBanner, getAllBanner, deleteBanner } = require('../controllers/banner.Controller');
+const { createDescribeWork, getAllDescribeWork, deleteDescribeWork } = require('../controllers/describeWork.controller');
+const { createplanJourneyImage, getAllJourneyImage, deleteJourneyImage } = require('../controllers/planJourneyImage.controller');
+const { createAboutImage, getAllAboutImage, deleteAboutImage } = require('../controllers/aboutImage.controller');
+const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial } = require('../controllers/testimonial.controller');
+const { createBlog, getAllBlog } = require('../controllers/blog.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
@@ -41,13 +48,14 @@ router.post(
     },
     CreateProvider
 );
-
-router.get('/GetMyProfile',protect,GetMyProfile)
-router.post('/addPortfolio',protect, (req, res, next) => {
+router.put('/update-provider-profile/:_id',updateProvider)
+router.get('/GetMyProfile', protect, GetMyProfile)
+router.get('/get-single-provider/:_id', getSingleProvider)
+router.post('/addPortfolio', protect, (req, res, next) => {
     upload.fields([
         { name: 'PortfolioLink', maxCount: 1 },
         { name: 'GalleryImages', maxCount: 10 },
-  
+
 
     ])(req, res, (err) => {
         if (err) {
@@ -59,8 +67,8 @@ router.post('/addPortfolio',protect, (req, res, next) => {
         }
         next();
     });
-},addPortfolio)
-
+}, addPortfolio)
+router.get('/get-all-provider',getAllProvider)
 
 
 
@@ -72,5 +80,53 @@ router.get('/users', protect, getAllUsers);
 router.get('/user/:id', protect, getSingleUserById);
 router.delete('/user/:userId', protect, deleteAccount);
 router.put('/user/:userId/ban', protect, banUserToggle);
+
+router.get('/get-all-chat',getAllChat)
+
+// provider rating router here 
+
+router.post('/create-rating',createReview)
+router.get('/get-all-review',getAllReview)
+router.get('/get-review-by-providerId/:_id',getAllReview)
+
+// banner router here 
+
+router.post('/create-banner',upload.single('bannerImage'),createBanner)
+router.get('/get-all-banner',getAllBanner)
+router.delete('/delete-banner/:id',deleteBanner)
+
+// describe work router here 
+
+router.post('/create-describe-work-image',upload.single('image'),createDescribeWork)
+router.get('/get-all-describe-work-image',getAllDescribeWork)
+router.delete('/delete-describe-work-image/:id',deleteDescribeWork)
+
+// plan journey router here 
+
+router.post('/create-plan-journey-image',upload.single('image'),createplanJourneyImage)
+router.get('/get-all-plan-journey-image',getAllJourneyImage)
+router.delete('/delete-plan-journey-image/:id',deleteJourneyImage)
+
+// about image router here
+router.post('/create-about-image',upload.single('image'),createAboutImage)
+router.get('/get-all-about-image',getAllAboutImage)
+router.delete('/delete-about-image/:id',deleteAboutImage)
+
+// testimonial router here 
+
+router.post('/create-testimonial',upload.single('image'),createTestimonial)
+router.get('/get-all-testimonial',getAllTestimonial)
+router.get('/get-single-testimonial/:id',getsingleTestimonial)
+router.delete('/delete-testimonial/:id',deleteTestimonial)
+router.put('/update-testimonial/:id',upload.single('image'),updateTestimonial)
+
+// blog router here 
+
+router.post('/create-blog',upload.fields([
+    {name: 'image', maxCount: 1},
+    {name: 'largeImage', maxCount: 1},
+]),createBlog)
+
+router.get('/get-all-blog',getAllBlog)
 
 module.exports = router;
