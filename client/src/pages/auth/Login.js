@@ -3,6 +3,7 @@ import loginimage from './login-img.webp'
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { setData } from '../../utils/sessionStoreage';
+import { Link } from 'react-router-dom';
 
 
 function Login() {
@@ -26,7 +27,7 @@ function Login() {
         console.log("first")
         e.preventDefault()
         try {
-            const { data } = await axios.post('https://api.helpubuild.co.in/api/v1/login', logindata);
+            const { data } = await axios.post('http://localhost:5000/api/v1/login', logindata);
             console.log(data)
             const { token, user, message } = data
             setData('token', token)
@@ -113,7 +114,8 @@ function Login() {
                                                         onClick={handleloginSubmit}
                                                         data-mdb-button-init=""
                                                         data-mdb-ripple-init=""
-                                                        className="btn as_btn btn-lg btn-block"
+                                                        className="btn text-white"
+                                                        style={{backgroundColor:'#F0AF36'}}
                                                         type="button"
                                                     >
                                                         Login Now
@@ -121,12 +123,13 @@ function Login() {
                                                 </div>
                                                 <a className="small text-white" href="#!">Forgot password?
                                                 </a>
-                                                <p className="mb-5 mt-3 pb-lg-2 text-white">
+                                                <p className=" mt-3 pb-lg-2 text-white">
                                                     Don't have an account? {""}
                                                     <a href="/user-register" className="text-warning">
                                                         Register here
                                                     </a>
                                                 </p>
+                                                <Link to={'/member-registration'} style={{backgroundColor:'#F0AF36'}} className='btn text-white'>Become a Partner</Link>
                                             </form>
                                         </div>
                                     </div>

@@ -1,17 +1,17 @@
 const mongoose = require('mongoose')
 
-const ChatAndPaymentSchema = new mongoose({
+const ChatAndPaymentSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     providerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Provider'
+        ref: 'Provider',
+        required: true
     },
-    roomId: {
-        type: String
-    },
+    room: { type: String, required: true, index: true },
     amount: {
         type: Number
     },
@@ -30,7 +30,19 @@ const ChatAndPaymentSchema = new mongoose({
     PaymentStatus: {
         type: String,
         default: 'pending'
-    }
+    },
+    messages: [
+        {
+            sender: { type: String, required: true },
+            text: { type: String },
+            file: {
+                name: { type: String },
+                type: { type: String },
+                content: { type: String },
+            },
+            timestamp: { type: Date, default: Date.now },
+        },
+    ],
 })
 
 const ChatAndPayment = mongoose.model('ChatAndPayment', ChatAndPaymentSchema)

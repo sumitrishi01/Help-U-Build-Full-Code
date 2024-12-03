@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { HiBadgeCheck } from "react-icons/hi";
 import { useParams } from 'react-router-dom';
 import StarRating from '../../components/StarRating/StarRating';
+import { GetData } from '../../utils/sessionStoreage';
 // import { GetData } from '../../utils/sessionStoreage'
 
 function ArchitectProfile() {
@@ -13,6 +14,8 @@ function ArchitectProfile() {
     const [error, setError] = useState("");
     const [reviews, setReviews] = useState([]);
     const [isActiveTime, setIsActiveTime] = useState(false)
+    const Data = GetData('user')
+    const UserData = JSON.parse(Data)
     const [ratingCounts, setRatingCounts] = useState({
         1: 0,
         2: 0,
@@ -31,8 +34,6 @@ function ArchitectProfile() {
     const [formData, setFormData] = useState({
         userId: '',
         providerId: id,
-        amount: '',
-        time: '',
     })
 
     const handleSubmit = async (e) => {
@@ -45,16 +46,40 @@ function ArchitectProfile() {
         }
     }
 
-    const handleActiveTime = (Chat) => {
-        // setFormData(())
-        console.log("object", Chat)
-        setIsActiveTime(!isActiveTime)
+    // const handleActiveTime = (Chat) => {
+    //     // setFormData(())
+    //     // console.log("object", Chat)
+    //     // setIsActiveTime(!isActiveTime)
+    //     if(Chat === 'Chat'){
+
+    //     }
+    // }
+
+    const handleActiveTime = async (Chat) => {
+        if (!UserData) {
+            return toast.error('Login first')
+        } else if (UserData.role === 'provider') {
+            return toast.error("Access Denied: Providers are not authorized to access this feature.");
+        } else if (Chat === 'Chat') {
+
+            const newForm = {
+                ...formData,
+                userId: UserData._id,
+            }
+            try {
+                const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm)
+                window.location.href = '/chat'
+            } catch (error) {
+                console.log("Internal server error", error)
+                toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
+            }
+        }
     }
 
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
+                const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
                 setProfile(data.data);
                 setLoading(false);
             } catch (error) {
@@ -74,7 +99,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
+                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);
@@ -97,11 +122,11 @@ function ArchitectProfile() {
             setRatingPercentages(percentages);
         } catch (error) {
             console.log("Internal server error in fetching reviews", error);
-            toast.error(
-                error?.response?.data?.error?.[0] ||
-                error?.response?.data?.message ||
-                "Please try again later"
-            );
+            // toast.error(
+            //     error?.response?.data?.error?.[0] ||
+            //     error?.response?.data?.message ||
+            //     "Please try again later"
+            // );
         }
     };
 
@@ -174,11 +199,11 @@ function ArchitectProfile() {
                                 <div className='connect-area'>
                                     <button className="btn profile-call-btn"><i class="fa-solid fa-phone-volume"></i> Call</button>
                                     <button onClick={() => handleActiveTime("Chat")} className="btn profile-chat-btn mt-3"><i class="fa-regular fa-comments"></i> Chat</button>
-                                    <div className={`video-time-box ${isActiveTime ? 'video-time-box-show' : ''}`}>
+                                    {/* <div className={`video-time-box ${isActiveTime ? 'video-time-box-show' : ''}`}>
                                         <p className="text-muted mb-0 mt-1 video-time">10 mins</p>
                                         <p className="text-muted mb-0 mt-1 video-time">15 mins</p>
                                         <p className="text-muted mb-0 mt-1 video-time">20 mins</p>
-                                    </div>
+                                    </div> */}
                                     <button className="btn profile-video-btn mt-3"><i class="fa-solid fa-video"></i> Video</button>
                                 </div>
                             </div>
@@ -347,6 +372,7 @@ function ArchitectProfile() {
                                                     />
                                                     <div>
                                                         <h6 className="mb-1">{item?.userId?.name}</h6>
+                                                        {/* {console.log(item)} */}
                                                         <div className="review-stars"><StarRating rating={item.averageRating} /></div>
                                                         <p className="mt-2 mb-0">{item.review}</p>
                                                     </div>

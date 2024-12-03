@@ -6,7 +6,7 @@ import Portfolio from './Portfolio';
 import UploadGallery from './UploadGallery';
 import { toast } from 'react-hot-toast';
 import Settings from './Settings.js';
-import './userdashboard.css';
+import './userdashboard.css';  
 
 const UserDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -31,10 +31,10 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
+      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log(data)
+      // console.log(data)
       setMyProfile(data.provider);
       setLoading(false);
     } catch (error) {
@@ -70,7 +70,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -406,8 +406,6 @@ const UserDashboard = () => {
               )}
 
               <div className=' col-md-12'>
-
-
                 {
                   reUploadTrue && (
                     <>
@@ -415,7 +413,6 @@ const UserDashboard = () => {
                         <button
                           onClick={() => setReUploadTrue(false)}
                           className="btn mb-3 btn-outline-info me-3 btn-lg view-portfolio-btn"
-
                         >
                           <i className="fas fa-eye me-2"></i>
 

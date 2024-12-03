@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-
 const ChatSchema = new mongoose.Schema({
-    room: { type: String, required: true }, // Format: userId_astrologerId
+    room: { type: String, required: true, index: true }, // Format: userId_astrologerId
     messages: [
         {
             senderId: { type: String, required: true },
@@ -15,5 +14,4 @@ const ChatSchema = new mongoose.Schema({
         },
     ],
 });
-
 module.exports = mongoose.model('Chat', ChatSchema);

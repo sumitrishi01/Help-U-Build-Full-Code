@@ -1,255 +1,157 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import image from './interior-design-hero.webp';
-import './interior.css'
-import callsuport from './call-support.png';
-import chatesuport from './chat-support.png';
-import videosuport from './video-call-suport.png';
-import chat from '../../components/plane-our-jurney.webp'
-import aboutinterior from './about-enterior.webp';
-import mobilehero from './mobile-enterior-hero.webp'
-import howwework from './our-work-process.webp'
-
+import React, { useEffect, useState } from 'react'
+import StarRating from '../../components/StarRating/StarRating'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 const TalkToInterior = () => {
+    const [allProvider, setAllProvider] = useState([])
+    const handleFetchProvider = async () => {
+        try {
+            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+            // console.log(data.data)
+            // console.log("alldata",data.data)
+            const allData = data.data
+            const filterData = allData.filter((item) => item.type === 'Interior')
+            setAllProvider(filterData)
+        } catch (error) {
+            console.log("Internal server error in fetching providers")
+            toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+        }
+    }
+    useEffect(() => {
+        handleFetchProvider()
+    }, [])
     return (
         <>
-            <div className="container-fluid new_banner text-center">
-                <div className="col-md-12 d-none d-sm-block">
-                    <img className="img-fluid" style={{ width: "90%", border: "0px solid #fff", borderRadius: "5px" }} src={image} alt="Banner" />
-                </div>
-                <div className="col-md-12 mobile-view">
-        <img className="img-fluid" style={{ width: "90%", border: "0px solid #fff", borderRadius: "5px" }} src={mobilehero} alt="Mobile Banner" />
-      </div>
-                <div style={{ width: "90%" }} className="mx-auto my-4">
-                    <div className="row">
+            <div className='main-bg'>
+                <div className='section architecture-section-one'>
+                    <div className='container-fluid architecture-section-p'>
+                        <div className='row'>
+                            <div className='col-lg-12'>
+                                <div className='top-filter-area'>
+                                    <form>
+                                        <div className='top-bar'>
+                                            <div className='architectur-bar'>
+                                                <h3 className='architecture-heading'>Talk To Interior Designer</h3>
+                                            </div>
+                                            <div className='architectur-bar'>
+                                                <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ 0 </main></div>
+                                            </div>
+                                            <div className='architectur-bar'>
+                                                <div className='recharge-btn'>
+                                                    <a className="medium-device-recharge">Recharge</a>
+                                                    <button className="filter_short-btn"><i class="fa fa-filter"></i> Filter </button>
+                                                    <button type="button" class="btn filter-short-by" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i className="fa fa-sort-amount-desc"></i> Sort by</button>
+                                                    {/* filter-short-by modal popup */}
+                                                    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                                                        <div className="modal-dialog">
+                                                            <div className="modal-content">
+                                                                <div className="modal-header">
+                                                                    <h5 className="modal-title" id="staticBackdropLabel">Sort by</h5>
+                                                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div className="modal-body">
+                                                                    <div class="short_by_object">
+                                                                        <input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_0" value="" />
+                                                                        <label class="lable_radio selected popularty-lable" for="short_0"> Popularity </label>
+                                                                    </div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_2" value="sortByExperience_0" /><label class="lable_radio" for="short_2"> Experience  : Low to High </label></div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_3" value="sortByOrder_1" /><label class="lable_radio" for="short_3"> Total orders : High to Low </label></div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_4" value="sortByOrder_0" /><label class="lable_radio" for="short_4"> Total orders : Low to High </label></div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_5" value="sortByPrice_1" /><label class="lable_radio" for="short_5"> Price : High to Low </label></div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_6" value="sortByPrice_0" /><label class="lable_radio" for="short_6"> Price : Low to High </label></div>
+                                                                    <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_7" value="sortByRating_1" /><label class="lable_radio" for="short_7"> Rating : High to Low </label></div>
+                                                                </div>
 
-                        <div className="col-md-4 col-6 px-2 mb-3">
-                            <Link to="#" className="text-decoration-none">
-                                <div className="card bg-light border-light hover-effect">
-                                    <div className="card-body forHeight text-center">
-                                        <img src={callsuport} className="img-fluid icon_chat mb-2" alt="Chat Icon" />
-                                        <h5 className="card-title fs-6 text-dark" style={{ fontWeight: '600' }}>Call with Architect</h5>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-                        <div className="col-md-4 col-6 px-2 mb-3">
-                            <Link to="#" className="text-decoration-none">
-                                <div className="card bg-light border-light hover-effect w-100">
-                                    <div className="card-body forHeight text-center">
-                                        <img src={chatesuport} className="img-fluid icon_chat mb-2" alt="Chat Icon" />
-                                        <h5 className="card-title fs-6 text-dark" style={{ fontWeight: '600' }}>Chat with Architect</h5>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
-                        <div className="col-md-4 col-sm-12 px-2 mb-3">
-                            <Link to="#" className="text-decoration-none">
-                                <div className="card bg-light border-light hover-effect">
-                                    <div className="card-body forHeight text-center">
-                                        <img src={videosuport} className="img-fluid icon_chat mb-2" alt="Chat Icon" />
-                                        <h5 className="card-title fs-6 text-dark" style={{ fontWeight: '600' }}>Video Call with Architect</h5>
-                                    </div>
-                                </div>
-                            </Link>
-                        </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {/* enf of filter sort by*/}
+                                                    <div className="form-search classsearhMbile">
+                                                        <input name="searchText" type="search" autocomplete="off" id="searchAstroQuery" class="form-control customform-control postion_Rel ng-pristine ng-valid ng-touched" placeholder="Search..." /><i class="fa fa-search"></i></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
 
-                    </div>
-                </div>
-            </div>
-
-            {/* plan your juouirney */}
-
-            <div className='' style={{ width: "90%", margin: "0 auto" }}>
-                <div className=" service-35 wrap-service35-box">
-                    <div className="row no-gutters">
-                        <div className="col-lg-6 col-md-12 align-self-center">
-                            {/* <span className="badge badge-success rounded-pill px-3 py-1 font-weight-light">Expert Services</span> */}
-                            <h3 className="my-2 main-heading">Plan Your Journey Step by Step</h3>
-                            <p className="fw-bold text-dark">Follow these steps to achieve your goals with ease and confidence:</p>
-
-                            <div class="row">
-                                <div className='col-lg-6 col-md-6'>
-                                    <div className='info-box bg-white px-4 py-4 my-3'>
-                                        <div className='info-title'><h4 className=' sub-heading'>Chat with an Expert</h4></div>
-                                        <p class="para">Get personalized advice from experienced professionals to kick-start your project with clarity.</p>
-                                    </div>
-                                </div>
-                                <div className='col-lg-6 col-md-6'>
-                                    <div className='info-box bg-white px-4 py-4 my-3'>
-                                        <div className='info-title'><h4 className=' sub-heading'>Plan Your Idea</h4></div>
-                                        <p class="para"> We help you brainstorm and refine your concept to make it actionable and impactful.</p>
-                                    </div>
-                                </div>
-                                <div className='col-lg-6 col-md-6'>
-                                    <div className='info-box bg-white px-4 py-4 my-3'>
-                                        <div className='info-title'><h4 className=' sub-heading'>Set Your Budget</h4></div>
-                                        <p class="para">Allocate your resources effectively with a well-structured budget to maximize your outcomes.</p>
-                                    </div>
-                                </div>
-                                <div className='col-lg-6 col-md-6'>
-                                    <div className='info-box bg-white px-4 py-4 my-3'>
-                                        <div className='info-title'><h4 className=' sub-heading'>Execute</h4></div>
-                                        <p class="para">Turn your plan into reality with a step-by-step execution process guided by our expert support.</p>
-                                    </div>
                                 </div>
                             </div>
-
-
-                        </div>
-                        <div className="col-lg-6 col-md-12">
-                            <div class="mt-5">
-                                <a href="#">
-                                    <img src={chat} alt="Chat with Expert" className='object-cover rounded' />
-
-                                </a>
-                            </div>
-
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* About interior designer */}
-
-            <div className='' style={{ width: "90%", margin: "0 auto" }}>
-                <div className=" service-35 wrap-service35-box">
-                    <div className="row no-gutters">
-                        <div className="col-lg-6 col-md-12">
-                            <div class="mt-5 text-center">
-                                <a href="#">
-                                    <img src={aboutinterior} alt="Chat with Expert" className='object-cover rounded' />
-
-                                </a>
-                            </div>
-
-                        </div>
-                        <div className="col-lg-6 col-md-12 align-self-center">
-                            <h3 className="my-2 main-heading">Interior Designers</h3>
-                            <p className="fw-bold text-dark">Elevating Spaces with Premier Interior Design Solutions</p>
-
-                            <p className="para1">Help U Build offers expert interior design services tailored to transform spaces into beautifully functional environments. Our team of skilled interior designers combines creativity with practical expertise to create designs that reflect your personal style and meet your functional needs. Whether you’re renovating a single room or planning a complete home or office overhaul, we prioritize your vision and seamlessly bring it to life.</p>
-                            <p className="para1">From concept development to material selection, color palettes, and furniture arrangement, our designers handle every detail with precision and flair. We work with high-quality materials and trusted suppliers to ensure durability and aesthetic appeal, all within your budget. At Help U Build, we believe in collaboration and transparency, providing design solutions that not only elevate your space but also add value to it. Trust us to make your dream interior a reality, creating spaces that inspire comfort, productivity, and joy.</p>
-
-                            <a class="as_btn mt-4 fw-bold" href="">Consult with Expert</a>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            {/* why choose us */}
-
-            <div>
-                <section class="as_whychoose_wrapper">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-12 col-md-12 text-center">
-                                <h1 class="as_heading">Why Choose <span className='about_color'>Help U Build</span></h1>
-                                <p class="as_font14 as_padderBottom50 mx-auto why-sub-para">Choose Help U Build for expert architecture, interior design, and Vastu solutions, blending modern innovation with traditional wisdom.</p>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="row mx-auto">
-                                    <div class="col-lg-3 text-center col-md-3 col-sm-12 mb-4">
-                                        <div class="as_whychoose_box d-flex flex-column align-content-center jus  text-center">
-                                            <span class="as_number">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828652.png" alt="" />
-                                            </span>
-                                            <h4 className=''>Verified Professionals</h4>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-12 mb-4">
-                                        <div class="as_whychoose_box text-center">
-                                            <span class="as_number">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/9023/9023721.png" alt="" />
-                                            </span>
-                                            <h4 className=''>Transparent Pricing</h4>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-12 mb-4">
-                                        <div class="as_whychoose_box text-center">
-                                            <span class="as_number">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/18188/18188344.png" alt="" />
-                                            </span>
-                                            <h4 className=''>Expertise and Experience</h4>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-3 col-sm-12 mb-4">
-                                        <div class="as_whychoose_box text-center">
-                                            <span class="as_number">
-                                                <img src="https://cdn-icons-png.flaticon.com/512/1076/1076119.png" alt="" />
-                                            </span>
-                                            <h4 className=''>Customized Solutions</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            {/* how we work section */}
-
-            <div className="mx-5 extra-mobile mb-5">
-                <div className='my-4'>
-                    <div className='row mb-5'>
-                        <div className='col-lg-7 col-md-12 col-sm-12'>
-                            <h2 className='fs-2 main-heading text-capitalize fw-bolder mt-lg-5 mt-sm-1'>How We Work Smoothly for Your Experience and Problems</h2>
-                            {/* <h2 className='fs-1 fw-bolder'></h2> */}
-                            <p>When it comes to designing interiors that perfectly fit your vision and lifestyle, our approach is meticulously crafted to ensure a seamless experience. Here’s how we achieve smoothness in every phase:</p>
-
-                            <div className='row pt-3 ml-0'>
-                                {[
-                                    {
-                                        step: 1,
-                                        text: "Our journey begins by sitting down with you to understand your needs, taste, and lifestyle. We delve into your vision to tailor the design experience, ensuring we capture your unique style while addressing any existing problems in your space."
-                                    },
-                                    {
-                                        step: 2,
-                                        text: "We assess the space thoroughly, noting dimensions, layout challenges, and structural details that are vital to crafting a functional and aesthetically pleasing environment. Our goal is to ensure no detail is overlooked, making future stages more efficient."
-                                    },
-                                    {
-                                        step: 3,
-                                        text: "A smooth experience includes financial transparency. After understanding your needs, we provide a comprehensive budget estimate. We work within your financial comfort while maximizing value and delivering exceptional quality."
-                                    },
-                                    {
-                                        step: 4,
-                                        text: "We create initial design concepts, including mood boards, color schemes, and layout plans. This stage gives you a preview of the possibilities, allowing you to share feedback early in the process to align the project with your expectations."
-
-                                    }
-                                ].map((item, index) => (
-                                    <div className="col-lg-6 mt-4" key={index}>
-                                        <div className="position-relative step-bg">
-                                            <div className="position-absolute top-0 start-0 w-100 bg-light-dark bg-opacity-50"></div>
-                                            <div className="pe-3 d-inline-flex align-items-center justify-content-start">
-                                                <div className="d-inline-flex px-3 bg-white rounded-pill">
-                                                    <div className="d-flex align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ width: "54px", height: "54px", background: '#0E294C' }}>
-                                                        <span className='text-white'>{item.step}</span> {/* Dynamic step number */}
+                <div className='section architecture-section-2 mb-5'>
+                    <div className="container-fluid architecture-section-p">
+                        <div className='row'>
+                            {allProvider && allProvider.map((item, index) => (
+                                <div className='col-12 col-md-6 col-lg-6 col-xl-4' key={index}>
+                                    <div className="card-custom align-items-center justify-content-between my-2">
+                                        <div className="card-detail align-items-center">
+                                            <div style={{ display: 'flex' }}>
+                                                <Link to={`/architect-profile/${item._id}`} className='profile-image text-center'>
+                                                    <img
+                                                        src={item?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'User')}&background=random`}
+                                                        onError={(e) => e.target.src = 'https://via.placeholder.com/60'}
+                                                        alt="Profile"
+                                                        className="profile-img me-4"
+                                                    />
+                                                    <StarRating rating={item.averageRating || 0} />
+                                                    {/* <p className="text-small text-muted mb-1 me-4">{item.Orders}</p> */}
+                                                </Link>
+                                                <div className='profile-content'>
+                                                    <h5 className="mb-1"><Link to={`/architect-profile/${item._id}`}>{item.name}</Link></h5>
+                                                    <p className="text-small text-muted mb-1">{item.type}</p>
+                                                    <p className="text-small text-muted mb-1"> {item.language && item.language.map((lang, index) => {
+                                                        return (
+                                                            <span key={index} className="archi-language-tag">
+                                                                {lang}{index < item.language.length - 1 ? ', ' : ''}
+                                                            </span>
+                                                        );
+                                                    }) || ''}</p>
+                                                    <p className="text-small text-muted mb-1">
+                                                        {item.expertiseSpecialization && item.expertiseSpecialization.map((lang, index) => {
+                                                            return (
+                                                                <span key={index} className="archi-language-tag">
+                                                                    {lang}{index < item.expertiseSpecialization.length - 1 ? ', ' : ''}
+                                                                </span>
+                                                            );
+                                                        }) || ''}
+                                                    </p>
+                                                    <p className="text-small text-muted mb-1">
+                                                        <span className='archi-language-tag'>{`₹ ${item.pricePerMin}/min`}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-end contact-btn">
+                                                <div className='col-xl-12 col-lg-12 col-md-12 col-12'>
+                                                    <div className='connect-area'>
+                                                        <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
+                                                        <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
+                                                        <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                                                     </div>
                                                 </div>
-                                                <p className=" ms-3" style={{ fontSize: '16px' }}>
-                                                    {item.text}
-                                                </p>
+                                                {/* <div class="dropdown connect-btn">
+                          <a class="btn dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Connect
+                          </a>
+                          <ul class="dropdown-menu connect-dropdown">
+                            <li><a class="dropdown-item" href="#">Call</a></li>
+                            <li><a class="dropdown-item" href="#">Chat</a></li>
+                            <li><a class="dropdown-item" href="#">Video</a></li>
+                          </ul>
+                        </div> */}
                                             </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-
-                        </div>
-                        <div className='col-lg-5 col-md-12 col-sm-12 p-5'>
-                            <img className='img-fluid object-cover howwework-imge' src={howwework} alt="" />
+                                </div>
+                            ))}
                         </div>
                     </div>
+
                 </div>
             </div>
-
         </>
-    );
-};
+    )
+}
 
 export default TalkToInterior;

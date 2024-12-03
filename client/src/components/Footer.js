@@ -59,9 +59,9 @@ const Footer = () => {
                         <li>
                           <Link to="/blog"> Blog</Link>
                         </li>
-                        <li>
+                        {/* <li>
                           <Link to="/"> Astrologers</Link>
-                        </li>
+                        </li> */}
                         {/* <li><a to="appointment.html"> Appointment</Link></li> */}
                         <li>
                           <Link to="Contact"> Contact Us</Link>
@@ -75,10 +75,10 @@ const Footer = () => {
 
                       <ul>
                         <li>
-                          <a href="/Architecture">Talk to Architecture</a>
+                          <a href="/talk-to-architect">Talk to Architect</a>
                         </li>
                         <li>
-                          <a href="/Interior">Talk to Interior designers</a>
+                          <a href="/talk-to-interior">Talk to Interior Designer</a>
                         </li>
                         <li>
                           <a

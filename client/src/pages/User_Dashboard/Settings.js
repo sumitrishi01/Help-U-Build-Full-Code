@@ -10,7 +10,7 @@ const Settings = () => {
   // Define tabs as an array of objects
   const tabs = [
     { id: 1, title: 'Profile', content: 'Tab 1 content' },
-    { id: 2, title: 'Documnets', content: 'Tab 2 content' },
+    { id: 2, title: 'Documents', content: 'Tab 2 content' },
     { id: 3, title: 'Change Password', content: 'Tab 3 content' },
     { id: 4, title: 'Share Profile', content: 'Share your profile with others' },
     { id: 5, title: 'Enquiry', content: 'Tab 3 content' }

@@ -150,12 +150,17 @@ exports.updateBlog = async (req, res) => {
         if(req.files){
             const { image, largeImage } = req.files;
             if(image){
-                await deleteImageFromCloudinary(blogs?.image?.public_id)
+                if(blogs?.image?.public_id){
+                    await deleteImageFromCloudinary(blogs.image.public_id)
+                }
                 const {imageUrl,public_id} = await uploadToCloudinary(image[0].buffer)
                 blogs.image = {public_id, url:imageUrl}
             }
             if(largeImage){
-                await deleteImageFromCloudinary(blogs?.largeImage?.public_id)
+                if(blogs?.largeImage?.public_id){
+                    await deleteImageFromCloudinary(blogs.largeImage.public_id)
+                }
+                // await deleteImageFromCloudinary(blogs?.largeImage?.public_id)
                 const {imageUrl,public_id} = await uploadToCloudinary(largeImage[0].buffer)
                 blogs.largeImage = {public_id, url:imageUrl}
             }

@@ -251,7 +251,7 @@ exports.updateProfile = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { any, password } = req.body;
-        console.log(req.body)
+        // console.log(req.body)
         if (!any || !password) {
             return res.status(400).json({ success: false, message: "Please provide both your email/phone number and password." });
         }

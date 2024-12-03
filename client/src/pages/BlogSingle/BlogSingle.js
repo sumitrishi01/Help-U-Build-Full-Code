@@ -12,11 +12,11 @@ const BlogSingle = () => {
   const Data = GetData('user')
   const UserData = JSON.parse(Data)
   const [data, setData] = useState([])
-  const userId = UserData._id;
+  // const userId = UserData._id;
   const [formData, setFormData] = useState({
     blogId: id,
     comment: "",
-    userId: userId
+    userId: ""
   })
 
   const handleChange = (e) => {
@@ -26,7 +26,7 @@ const BlogSingle = () => {
 
   const fetchBlogData = async () => {
     try {
-      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-blog/${id}`)
+      const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-blog/${id}`)
       setData(data.data)
     } catch (error) {
       console.log("Internal server error in fetching blog data");
@@ -40,13 +40,16 @@ const BlogSingle = () => {
 
   const handleComment = async (e) => {
     e.preventDefault();
+    if(!UserData){
+      return toast.error('Please login to comment')
+    }
     const newFormData ={
       ...formData,
-      userId: userId,
+      userId: UserData?._id,
       blogId: id
     }
     try {
-      const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-blog-comment', newFormData)
+      const res = await axios.post('http://localhost:5000/api/v1/create-blog-comment', newFormData)
       toast.success("Comment added successfully");
       setFormData({
         comment: ""
@@ -98,24 +101,6 @@ const BlogSingle = () => {
 
 
 
-
-                  {/* <div class="as_bloquote text-center">
-                    <p>
-                      The impact of interior design on quality of life cannot be
-                      overstated. The right design choices can significantly
-                      affect mood, comfort, and overall well-being. For example,
-                      proper lighting can influence sleep patterns and
-                      productivity, while the use of calming colors and textures
-                      can create a serene environment that reduces stress.
-                      Interior design also plays a crucial role in creating
-                      spaces that cater to the needs of all family members,
-                      including those with disabilities or special needs,
-                      ensuring that the home is accessible and accommodating.
-                    </p>
-                    <h3 class="as_margin0 as_padderTop10">
-                      David Lee <span>- Businessman</span>
-                    </h3>
-                  </div> */}
                 </div>
 
                 <div class="as_comment_form p-5">

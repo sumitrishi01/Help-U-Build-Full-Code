@@ -1,229 +1,158 @@
-import { useLocation, useParams } from "react-router-dom";
-import BreadCrumbs from "../../components/BreadCrumbs";
-import { useEffect, useState } from "react";
-import { CiChat2 } from "react-icons/ci";
-import { BiPhoneCall } from "react-icons/bi";
-import { GiTalk } from "react-icons/gi";
+import React, { useEffect, useState } from 'react'
+import StarRating from '../../components/StarRating/StarRating'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
+
 const Vastu = () => {
-  const [show, setShow] = useState(false);
-  const location = useLocation();
+
+  const [allProvider, setAllProvider] = useState([])
+  const handleFetchProvider = async () => {
+    try {
+      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+      // console.log(data.data)
+      const allData = data.data;
+      const filterData = allData.filter(item => item.type === 'Vastu')
+      // console.log("alldata",data.data)
+      setAllProvider(filterData)
+    } catch (error) {
+      console.log("Internal server error in fetching providers")
+      toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+    }
+  }
   useEffect(() => {
-    if (location.pathname === "/Vastu") {
-      setShow(true);
-    }
-  }, [location]);
-  const demoCards = [
-    {
-      id: 1,
-      name: 'Name1',
-      title: 'logical vastu',
-      language: ['Hindi', 'English'],
-      experience: '',
-      Price: " 20/min ",
-      Location: '',
-    },
-    {
-      id: 2,
-      name: 'Name2',
-      title: 'logical vastu',
-      language: ['Hindi', 'English'],
-      experience: '',
-      Price: " 20/min ",
-      Location: '',
-    }
-  ]
+    handleFetchProvider()
+  }, [])
   return (
-    <div>
-      {show ? <BreadCrumbs path={"Vastu"} title={"Vastu"} /> : null}
+    <>
+      <div className='main-bg'>
+        <div className='section architecture-section-one'>
+          <div className='container-fluid architecture-section-p'>
+            <div className='row'>
+              <div className='col-lg-12'>
+                <div className='top-filter-area'>
+                  <form>
+                    <div className='top-bar'>
+                      <div className='architectur-bar'>
+                        <h3 className='architecture-heading'>Talk To Vastu Experts</h3>
+                      </div>
+                      <div className='architectur-bar'>
+                        <div className="available-balance medium-device-balance"> Available balance: <main className="balance-avail"> ₹ 0 </main></div>
+                      </div>
+                      <div className='architectur-bar'>
+                        <div className='recharge-btn'>
+                          <a className="medium-device-recharge">Recharge</a>
+                          <button className="filter_short-btn"><i className="fa fa-filter"></i> Filter </button>
+                          <button type="button" className="btn filter-short-by" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i className="fa fa-sort-amount-desc"></i> Sort by</button>
+                          {/* filter-short-by modal popup */}
+                          <div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                            <div className="modal-dialog">
+                              <div className="modal-content">
+                                <div className="modal-header">
+                                  <h5 className="modal-title" id="staticBackdropLabel">Sort by</h5>
+                                  <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div className="modal-body">
+                                  <div className="short_by_object">
+                                    <input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_0" value="" />
+                                    <label className="lable_radio selected popularty-lable" for="short_0"> Popularity </label>
+                                  </div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_2" value="sortByExperience_0" /><label className="lable_radio" for="short_2"> Experience  : Low to High </label></div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_3" value="sortByOrder_1" /><label className="lable_radio" for="short_3"> Total orders : High to Low </label></div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_4" value="sortByOrder_0" /><label className="lable_radio" for="short_4"> Total orders : Low to High </label></div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_5" value="sortByPrice_1" /><label className="lable_radio" for="short_5"> Price : High to Low </label></div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_6" value="sortByPrice_0" /><label className="lable_radio" for="short_6"> Price : Low to High </label></div>
+                                  <div className="short_by_object"><input type="radio" name="shorting" autocomplete="off" className="form-check-input" id="short_7" value="sortByRating_1" /><label className="lable_radio" for="short_7"> Rating : High to Low </label></div>
+                                </div>
 
-      <section
-        style={{ paddingTop: "0" }}
-        class="as_blog_wrapper mt-0 as_padderBottom90 as_padderTop80"
-      >
-
-        <div className="container btn-consult">
-
-          <a href={'/profile-details?page=Vastu'} className="buttons as_btn">Consult An Vastu Expert <GiTalk className="ml-2" />  </a>
-
-        </div>
-        <div class="container-fluid custom-container">
-          <div class="row">
-            <div class="col-md-10 mx-auto">
-              <div class="as_blog_box">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div class="as_blog_img">
-                      <a href="#!">
-                        <img
-                          src="https://textilevaluechain.in/wp-content/uploads/2023/09/Vastu-Tips-For-Home-vastu-shastra.jpg"
-                          alt=""
-                          class="img-responsive img-fix2 "
-                        />
-                      </a>
+                              </div>
+                            </div>
+                          </div>
+                          {/* enf of filter sort by*/}
+                          <div className="form-search classsearhMbile">
+                            <input name="searchText" type="search" autocomplete="off" id="searchAstroQuery" className="form-control customform-control postion_Rel ng-pristine ng-valid ng-touched" placeholder="Search..." /><i className="fa fa-search"></i></div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div class="as_blog_img">
-                      <a href="#!">
-                        <img
-                          src="https://res.cloudinary.com/jerrick/image/upload/v1686043401/647efb09217661001d5db42b.jpg"
-                          alt=""
-                          class="img-responsive img-fix2 "
-                        />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-                <div class="as_blog_detail">
-                  <ul>
-                    <li>
-                      <a href="javascript:;">
-                        <img src="assets/images/svg/user2.svg" alt="" />
-                        By - Admin
-                      </a>
-                    </li>
+                  </form>
 
-                  </ul>
-                  <h4 className=" fs-2 fw-bold as_subheading">
-                    Harnessing Harmony: The Benefits of Vastu Science Consultation
-                  </h4>
-                  <p class="as_font14 as_margin0 as_padderBottom10">
-                    In an age where the quest for balance and well-being is more pronounced than ever, Vastu Science offers a compelling approach to creating harmonious living and working spaces. Rooted in ancient Indian architectural principles, Vastu Shastra is a holistic science that integrates spatial design with the energies of nature to promote prosperity, health, and peace. Engaging in a Vastu Science consultation can profoundly impact how you experience your environment. Here’s a look at the key benefits of seeking professional Vastu guidance:                  </p>
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>1. Achieving Balance and Harmony</strong>
-                  </p>
-                  <p class="mt-0">
-                    Vastu Science emphasizes the balance of the five elements—earth, water, fire, air, and space—within a space. A Vastu consultant assesses these elements to ensure they are in harmony, which can lead to a more balanced and serene environment. This alignment is believed to reduce stress and enhance the overall well-being of occupants. By addressing imbalances, Vastu consultation helps create spaces that foster peace and positivity.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>2. Enhancing Positive Energy Flow</strong>
-                  </p>
-                  <p class="mt-0">
-                    One of the core principles of Vastu Science is the flow of positive energy (or "prana") within a space. Consultants evaluate the layout, orientation, and design elements to optimize energy flow. This can lead to a more uplifting and invigorating environment. Improved energy flow is thought to enhance productivity, creativity, and emotional health, making it particularly beneficial for both residential and commercial spaces.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>3. Promoting Health and Well-Being</strong>
-                  </p>
-                  <p class="mt-0">
-                    The Vastu Science approach to design is intricately linked to physical and mental health. By ensuring that the spatial arrangement supports the natural flow of energy, Vastu principles aim to create environments that contribute to better health. Proper placement of rooms, entrances, and elements can lead to improved sleep, reduced stress, and overall well-being. This is especially valuable in spaces where health and wellness are a priority, such as homes and healthcare facilities.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>4. Supporting Prosperity and Success</strong>
-                  </p>
-                  <p class="mt-0">
-                    Vastu Science is often associated with attracting prosperity and success. Consultants analyze various aspects of a space, such as its orientation and layout, to align with Vastu principles that are believed to attract financial abundance and professional success. For businesses, this can translate into increased opportunities, better client relationships, and enhanced performance.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>5. Improving Relationships and Harmony</strong>
-                  </p>
-                  <p class="mt-0">
-                    The principles of Vastu Science extend to interpersonal relationships as well. By creating environments that support harmonious energy flow, Vastu consultants can help improve the dynamics between occupants. This can lead to better communication, reduced conflicts, and a more supportive and nurturing atmosphere in both family and professional settings.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>6. Enhancing Productivity and Focus</strong>
-                  </p>
-                  <p class="mt-0">
-                    In workspaces, Vastu Science aims to enhance productivity and focus by optimizing the arrangement of furniture and work areas. Proper alignment and placement are believed to contribute to greater concentration, creativity, and efficiency. This can be particularly beneficial for businesses, offices, and study areas where high performance is essential.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>7. Guiding Design Choices</strong>
-                  </p>
-                  <p class="mt-0">
-                    Navigating design decisions can be overwhelming with the myriad of options available. Vastu consultants provide guidance on selecting materials, colors, and layouts that align with Vastu principles. This expert advice ensures that design choices not only enhance the aesthetic appeal but also support the overall harmony and functionality of the space.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>8. Addressing Specific Concerns</strong>
-                  </p>
-                  <p class="mt-0">
-                    Every space has unique challenges and concerns. Vastu consultants offer tailored solutions to address specific issues such as lack of natural light, poor ventilation, or negative energy zones. By identifying and resolving these concerns, Vastu Science helps create a more comfortable and functional environment.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>9. Creating a Sustainable and Eco-Friendly Environment</strong>
-                  </p>
-                  <p class="mt-0">
-                    Modern Vastu practices often emphasize sustainability and environmental consciousness. Consultants can guide the incorporation of eco-friendly materials and practices that align with Vastu principles. This not only supports harmony with nature but also contributes to a more sustainable and responsible approach to design.
-                  </p>
-
-                  <p className="mt-2 as_padderBottom5">
-                    <strong>10. Ensuring Long-Term Benefits</strong>
-                  </p>
-                  <p class="mt-0">
-                    Implementing Vastu principles can lead to long-term benefits for both the occupants and the space itself. The holistic approach to design helps create environments that remain balanced and harmonious over time. By investing in Vastu consultation, you ensure that your space continues to support your well-being and aspirations for years to come.
-                  </p>
-
-
-
-                </div>
-             
-                <div class="as_comment_form p-5">
-                  <div class="as_padderBottom40">
-                    <h1 class="as_heading">Leave a Reply</h1>
-                  </div>
-
-                  <div class="row">
-                    <form>
-                      <div class="col-lg-6 col-md-6">
-                        <div class="form-group">
-                          <input
-                            type="text"
-                            name=""
-                            class="form-control"
-                            id=""
-                            placeholder="Name"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-6">
-                        <div class="form-group">
-                          <input
-                            type="text"
-                            name=""
-                            class="form-control"
-                            id=""
-                            placeholder="Email"
-                          />
-                        </div>
-                      </div>
-                      <div class="col-lg-12 col-md-12">
-                        <div class="form-group">
-                          <textarea
-                            name=""
-                            id=""
-                            class="form-control"
-                            placeholder="Your Message"
-                          ></textarea>
-                        </div>
-                      </div>
-                      <div class="col-lg-12 col-md-12 as_padderTop10">
-                        <a href="javascript:;" class="as_btn">
-                          send
-                        </a>
-                      </div>
-                    </form>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-      </section>
-
-      <div className="container mt-4">
-        <div className="row">
+        <div className='section architecture-section-2 mb-5'>
+          <div className="container-fluid architecture-section-p">
+            <div className='row'>
+              {allProvider && allProvider.map((item, index) => (
+                <div className='col-12 col-md-6 col-lg-6 col-xl-4' key={index}>
+                  <div className="card-custom align-items-center justify-content-between my-2">
+                    <div className="card-detail align-items-center">
+                      <div style={{ display: 'flex' }}>
+                        <Link to={`/architect-profile/${item._id}`} className='profile-image text-center'>
+                          <img
+                            src={item?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'User')}&background=random`}
+                            onError={(e) => e.target.src = 'https://via.placeholder.com/60'}
+                            alt="Profile"
+                            className="profile-img me-4"
+                          />
+                          <StarRating rating={item.averageRating || 0} />
+                          {/* <p className="text-small text-muted mb-1 me-4">{item.Orders}</p> */}
+                        </Link>
+                        <div className='profile-content'>
+                          <h5 className="mb-1"><Link to={`/architect-profile/${item._id}`}>{item.name}</Link></h5>
+                          <p className="text-small text-muted mb-1">{item.type}</p>
+                          <p className="text-small text-muted mb-1"> {item.language && item.language.map((lang, index) => {
+                            return (
+                              <span key={index} className="archi-language-tag">
+                                {lang}{index < item.language.length - 1 ? ', ' : ''}
+                              </span>
+                            );
+                          }) || ''}</p>
+                          <p className="text-small text-muted mb-1">
+                            {item.expertiseSpecialization && item.expertiseSpecialization.map((lang, index) => {
+                              return (
+                                <span key={index} className="archi-language-tag">
+                                  {lang}{index < item.expertiseSpecialization.length - 1 ? ', ' : ''}
+                                </span>
+                              );
+                            }) || ''}
+                          </p>
+                          <p className="text-small text-muted mb-1">
+                            <span className='archi-language-tag'>{`₹ ${item.pricePerMin}/min`}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-end contact-btn">
+                        <div className='col-xl-12 col-lg-12 col-md-12 col-12'>
+                          <div className='connect-area'>
+                          <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i className="fa-solid fa-phone-volume"></i> Call</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i className="fa-regular fa-comments"></i> Chat</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i className="fa-solid fa-video"></i> Video</button>
+                          </div>
+                        </div>
+                        {/* <div className="dropdown connect-btn">
+                          <a className="btn dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Connect
+                          </a>
+                          <ul className="dropdown-menu connect-dropdown">
+                            <li><a className="dropdown-item" href="#">Call</a></li>
+                            <li><a className="dropdown-item" href="#">Chat</a></li>
+                            <li><a className="dropdown-item" href="#">Video</a></li>
+                          </ul>
+                        </div> */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
         </div>
       </div>
-    </div>
-  );
-};
+    </>
+  )
+}
 
 export default Vastu;

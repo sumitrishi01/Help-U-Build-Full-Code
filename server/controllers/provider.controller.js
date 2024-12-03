@@ -1,6 +1,6 @@
 const PortfolioModel = require("../models/Portfolio.model");
 const providersModel = require("../models/providers.model");
-const { UploaViaFeildNameImages } = require("../utils/Cloudnary");
+const { UploaViaFeildNameImages, deleteImageFromCloudinary } = require("../utils/Cloudnary");
 const sendEmail = require("../utils/SendEmail");
 const sendToken = require("../utils/SendToken");
 const bcrypt = require('bcrypt');
@@ -126,8 +126,6 @@ exports.GetMyProfile = async (req, res) => {
         });
     }
 };
-
-
 
 exports.addPortfolio = async (req, res) => {
     try {
@@ -295,6 +293,7 @@ exports.getSingleProvider = async (req, res) => {
 }
 
 exports.updateProvider = async (req, res) => {
+    // console.log("i am hit")
     try {
         const providerId = req.params._id;
         const {
@@ -307,7 +306,8 @@ exports.updateProvider = async (req, res) => {
             location,
             pricePerMin,
             bio,
-            expertiseSpecialization
+            expertiseSpecialization,
+            yearOfExperience
         } = req.body;
 
         const provider = await providersModel.findById(providerId);
@@ -322,13 +322,21 @@ exports.updateProvider = async (req, res) => {
         if (name) provider.name = name;
         if (email) provider.email = email;
         if (DOB) provider.DOB = DOB;
-        if (language) provider.language = language.split(', ');
+        if (language) provider.language =
+            typeof language === 'string'
+                ? language.split(', ')
+                : language;
         if (mobileNumber) provider.mobileNumber = mobileNumber;
         if (coaNumber) provider.coaNumber = coaNumber;
         if (location) provider.location = location;
         if (pricePerMin) provider.pricePerMin = pricePerMin;
         if (bio) provider.bio = bio;
-        if (expertiseSpecialization) provider.expertiseSpecialization = expertiseSpecialization.split(', ');
+        if (expertiseSpecialization) {
+            provider.expertiseSpecialization =
+                typeof expertiseSpecialization === 'string'
+                    ? expertiseSpecialization.split(', ')
+                    : expertiseSpecialization;
+        }
 
         // Calculate age if DOB is updated
         if (DOB) {
@@ -337,10 +345,11 @@ exports.updateProvider = async (req, res) => {
             let age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
             if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--; // Adjust age if birthday hasn't occurred yet this year
+                age--;
             }
             provider.age = age;
         }
+        if (yearOfExperience) provider.yearOfExperience = yearOfExperience
 
         await provider.save();
 
@@ -359,7 +368,146 @@ exports.updateProvider = async (req, res) => {
     }
 };
 
-// Utility function to upload an image to Cloudinary
+exports.updateDocuments = async (req, res) => {
+    try {
+        const providerId = req.params.providerId;
+        const existingData = await providersModel.findById(providerId)
+        if (!existingData) {
+            return res.status(404).json({
+                success: false,
+                message: "Provider not found",
+                error: "Provider not found"
+            });
+        }
+        if (!req.files) {
+            return res.status(400).json({
+                success: false,
+                message: 'No file uploaded.',
+                error: 'No file uploaded.'
+            })
+        }
+        if (req.files) {
+            const { adhaarCard, panCard, qualificationProof, photo } = req.files;
+            if (adhaarCard) {
+                if (existingData?.adhaarCard?.public_id) {
+                    await deleteImageFromCloudinary(existingData.adhaarCard.public_id)
+                }
+                const adhaarCardUrl = await uploadToCloudinary(adhaarCard[0].buffer);
+                const { imageUrl, public_id } = adhaarCardUrl
+                existingData.adhaarCard = { public_id, imageUrl: imageUrl }
+            }
+
+            if (panCard) {
+                if (existingData?.panCard?.public_id) {
+                    await deleteImageFromCloudinary(existingData.panCard.public_id)
+                }
+                const panCardUrl = await uploadToCloudinary(panCard[0].buffer);
+                const { imageUrl, public_id } = panCardUrl
+                existingData.panCard = { public_id, imageUrl: imageUrl }
+            }
+
+            if (qualificationProof) {
+                if (existingData?.qualificationProof?.public_id) {
+                    await deleteImageFromCloudinary(existingData.qualificationProof.public_id)
+                }
+                const qualificationProofUrl = await uploadToCloudinary(qualificationProof[0].buffer);
+                const { imageUrl, public_id } = qualificationProofUrl
+                existingData.qualificationProof = { public_id, imageUrl: imageUrl }
+            }
+
+            if (photo) {
+                if (existingData?.photo?.public_id) {
+                    await deleteImageFromCloudinary(existingData.photo.public_id)
+                }
+                const photoUrl = await uploadToCloudinary(photo[0].buffer);
+                const { imageUrl, public_id } = photoUrl
+                existingData.photo = { public_id, imageUrl: imageUrl }
+            }
+        }
+        await existingData.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully.',
+            data: existingData
+        })
+    } catch (error) {
+        console.log("Internal server error in updating documents", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error in updating documents',
+            error: error.message
+        });
+    }
+}
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const { providerId } = req.params;
+        const { password, newPassword } = req.body;
+        // const excitedData = await providerId.({ providerId });
+        const existingData = await providersModel.findById(providerId);
+        if (!existingData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider not found',
+                error: 'Provider not found'
+            });
+        }
+        const isMatch = await existingData.comparePassword(password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "The password you entered is incorrect. Please Enter Correct Password." });
+        }
+        existingData.password = newPassword;
+        await existingData.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Password updated successfully.',
+            data: existingData
+        })
+
+    } catch (error) {
+        console.log("Internal server error in updating password", error)
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error in updating password',
+            error: error.message
+        })
+    }
+}
+
+exports.updateAvailable = async (req, res) => {
+    try {
+        // console.log("i am hit")
+        const { providerId } = req.params;
+        const { chatStatus, callStatus, meetStatus } = req.body;
+        const existingData = await providersModel.findById(providerId);
+        if (!existingData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider not found',
+                error: 'Provider not found'
+            })
+        }
+        if (chatStatus) existingData.chatStatus = chatStatus;
+        if (callStatus) existingData.callStatus = callStatus;
+        if (meetStatus) existingData.meetStatus = meetStatus;
+
+        await existingData.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Provider status updated successfully.',
+            data: existingData
+        })
+    } catch (error) {
+        console.log("Internal server error in updating", error)
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        })
+    }
+}
+
 const uploadToCloudinary = (fileBuffer) => {
     return new Promise((resolve, reject) => {
         const stream = Cloudinary.uploader.upload_stream(

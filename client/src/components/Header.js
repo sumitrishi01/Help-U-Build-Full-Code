@@ -71,14 +71,14 @@ const Header = () => {
       <section className={`as_header_wrapper ${scrollValue > 200 ? "fixed-header" : ""}`}>
         <div className="container-fluid">
           <div className="row py-2">
-            <div className="col-lg-4 col-md-4 col-sm-4 col-xs-6 forlogoresponsive">
+            <div className="col-lg-3 col-md-3 col-sm-3 col-xs-6 forlogoresponsive">
               <div className="as_logo d-none d-md-block">
                 <Link onClick={handleLinkClick} to={"/"}>
                   <img src={logo} className="img-responsive ws sm-screen-logo" alt="" />
                 </Link>
               </div>
             </div>
-            <div className="col-lg-8 col-md-8 col-sm-8 col-xs-6">
+            <div className="col-lg-9 col-md-9 col-sm-9 col-xs-6">
               <div className="as_right_info">
                 <div className={`as_menu_wrapper ${isOpen ? "menu_open" : ""}`}>
                   <div className="showsmall">
@@ -102,7 +102,7 @@ const Header = () => {
                         </Link>
                       </li>
                       <li>
-                        <Link onClick={handleLinkClick} to="/talk-to-architect" className={active === "/Architecture" ? "active" : ""}>
+                        <Link onClick={handleLinkClick} to="/talk-to-architect" className={active === "/talk-to-architect" ? "active" : ""}>
                           Talk to Architect
                         </Link>
                       </li>
@@ -113,7 +113,7 @@ const Header = () => {
                       </li>
                       <li>
                         <Link onClick={handleLinkClick} to="/Vastu" className={active === "/Vastu" ? "active" : ""}>
-                          Talk to Vastu
+                          Talk to Vastu Experts
                         </Link>
                       </li>
                       <li>

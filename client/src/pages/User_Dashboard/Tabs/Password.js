@@ -1,9 +1,117 @@
-import React from 'react'
+import React, { useState } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { GetData } from '../../../utils/sessionStoreage';
 
 const Password = () => {
-  return (
-    <div>Password</div>
-  )
-}
+  const Data = GetData('user');
+  const UserData = JSON.parse(Data);
+  const UserId = UserData?._id;
 
-export default Password
+  const [passwordData, setPasswordData] = useState({
+    password: '',
+    newPassword: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.put(
+        `http://localhost:5000/api/v1/update-provider-password/${UserId}`,
+        passwordData
+      );
+      toast.success(res.data.message || 'Password updated successfully!');
+      setPasswordData({ password: '', newPassword: '' }); // Reset form
+    } catch (error) {
+      console.error('Error updating password:', error);
+      toast.error(
+        error?.response?.data?.errors?.[0] ||
+        error?.response?.data?.message ||
+        'Failed to update password. Please try again later.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="my-4">
+      <div className="card p-4">
+        <h3 className="text-center mb-4">Update Password</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="row mb-3">
+            <div className="col">
+              <label htmlFor="password" className="form-label">
+                Current Password
+              </label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="form-control"
+                value={passwordData.password}
+                onChange={handleChange}
+                placeholder="Enter your current password"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="row mb-3">
+            <div className="col">
+              <label htmlFor="newPassword" className="form-label">
+                New Password
+              </label>
+              <input
+                type="password"
+                id="newPassword"
+                name="newPassword"
+                className="form-control"
+                value={passwordData.newPassword}
+                onChange={handleChange}
+                placeholder="Enter your new password"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Updating...
+                </>
+              ) : (
+                'Update Password'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Password;

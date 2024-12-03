@@ -3,13 +3,13 @@ import howwework from './how-we-work.webp';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import Slider from "react-slick";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa"; 
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 
 const Extra = () => {
     const [image, setImage] = useState([])
     const fetchWorkImage = async () => {
         try {
-            const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-describe-work-image')
+            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-describe-work-image')
             const allData = data.data;
             const filterData = allData.filter((item) => item.active === true)
             setImage(filterData)
@@ -33,13 +33,13 @@ const Extra = () => {
                 backgroundColor: "#0E294C",
                 borderRadius: "50%",
                 padding: "10px",
-                display:'none'
+                display: 'none'
             }}
         >
             <FaArrowLeft style={{ color: "white", fontSize: "20px" }} />
         </div>
     );
-    
+
     const NextArrow = ({ onClick }) => (
         <div
             className="custom-next-arrow"
@@ -62,14 +62,16 @@ const Extra = () => {
     );
 
     const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    prevArrow: <PrevArrow />,
-    nextArrow: <NextArrow />,
-};
+        dots: true,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        prevArrow: <PrevArrow />,
+        nextArrow: <NextArrow />,
+        autoplay: true,
+        autoplaySpeed: 8000,
+    };
 
     useEffect(() => {
         fetchWorkImage();
@@ -88,11 +90,11 @@ const Extra = () => {
                                 {[
                                     {
                                         step: 1,
-                                        text: "First, choose the category you'd like to chat about, such as Architecture, Interior Design, or Vastu. Select the one that suits your needs."
+                                        text: "First, choose the category you'd like to chat about, such as Architect, Interior Designer, or Vastu experts. Select the one that suits your needs."
                                     },
                                     {
                                         step: 2,
-                                        text: "Next, select a profile of architects, interior designers, or Vastu experts that matches your requirements and suits your needs."
+                                        text: "Next, select a profile of Architect, Interior Designer, or Vastu experts that matches your requirements and suits your needs."
                                     },
                                     {
                                         step: 3,
@@ -100,7 +102,7 @@ const Extra = () => {
                                     },
                                     {
                                         step: 4,
-                                        text: "Once you've finished chatting, you can ask more questions or discuss further. We're here to support anytime, every step by step."
+                                        text: "Once you've finished chatting, you can ask more questions or discuss further. We're here to support you anytime."
                                     }
                                 ].map((item, index) => (
                                     <div className="col-lg-6 mt-4" key={index}>
@@ -108,11 +110,11 @@ const Extra = () => {
                                             <div className="position-absolute top-0 start-0 w-100 bg-light-dark bg-opacity-50"></div>
                                             <div className="pe-3 d-inline-flex align-items-center fordisplaydirection justify-content-start">
                                                 <div className="d-inline-flex bg-white rounded-pill">
-                                                    <div className="d-flex align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ background: '#0E294C', padding:'10px 30px' }}>
+                                                    <div className="d-flex align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ background: '#0E294C', padding: '10px 30px' }}>
                                                         <span className='text-white'>Step-{item.step}</span> {/* Dynamic step number */}
                                                     </div>
                                                 </div>
-                                                <p className=" ms-3" style={{ fontSize: '23px', textAlign:'center' }}>
+                                                <p className=" ms-3" style={{ fontSize: '23px', textAlign: 'center' }}>
                                                     {item.text}
                                                 </p>
                                             </div>

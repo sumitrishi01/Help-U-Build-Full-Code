@@ -20,12 +20,10 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* border: 1px solid rgb(187, 187, 187); */
 }
 
 .chat-window{
-    /* border: 1px solid rgb(204, 204, 204); */
-    height: 100%;
+    height: 400px;
 }
 
 .chat-head{
@@ -48,4 +46,40 @@
 .self-message{
     background-color: #CDC4F9;
     color: white;
+}
+
+.empty-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+}
+
+.empty-box .message-text{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.forMessageStyling{
+    display: flex;
+    justify-content: space-between;
+}
+
+.forTimeRelated{
+    position: relative;
+    width: 70px;
+}
+
+.forTimeRelated .messageTimeAbsolute{
+    position: absolute;
+    right: -6%;
+    bottom: -33%;
+
+    font-size: 11px;
 }

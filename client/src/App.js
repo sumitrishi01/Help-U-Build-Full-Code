@@ -79,8 +79,9 @@ function App() {
         <Route path="/profile-page/:id" element={<MemberProfile />} />
 
 
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/chat-demo" element={<ChatDemo />} />
+        {/* <Route path="/chat" element={<Chat />} /> */}
+        <Route path="/chat" element={<ChatDemo />} />
+        {/* <Route path="/" /> */}
 
         {/* <Route path="/demo-register" element={<StepWizard />} /> */}
       </Routes>

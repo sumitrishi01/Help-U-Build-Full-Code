@@ -2,14 +2,16 @@ import React, { useEffect, useState } from 'react'
 import StarRating from '../../components/StarRating/StarRating'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 
 function TalkToArchitect() {
   const [allProvider, setAllProvider] = useState([])
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
-      console.log(data.data)
-      setAllProvider(data.data)
+      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+      const allData = data.data;
+      const filterData = allData.filter((item) => item.type === 'Architect')
+      setAllProvider(filterData)
     } catch (error) {
       console.log("Internal server error in fetching providers")
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
@@ -84,7 +86,7 @@ function TalkToArchitect() {
                   <div className="card-custom align-items-center justify-content-between my-2">
                     <div className="card-detail align-items-center">
                       <div style={{ display: 'flex' }}>
-                        <div className='profile-image text-center'>
+                        <Link to={`/architect-profile/${item._id}`} className='profile-image text-center'>
                           <img
                             src={item?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'User')}&background=random`}
                             onError={(e) => e.target.src = 'https://via.placeholder.com/60'}
@@ -93,9 +95,9 @@ function TalkToArchitect() {
                           />
                           <StarRating rating={item.averageRating || 0} />
                           {/* <p className="text-small text-muted mb-1 me-4">{item.Orders}</p> */}
-                        </div>
+                        </Link>
                         <div className='profile-content'>
-                          <h5 className="mb-1"><a href={`/architect-profile/${item._id}`}>{item.name}</a></h5>
+                          <h5 className="mb-1"><Link to={`/architect-profile/${item._id}`}>{item.name}</Link></h5>
                           <p className="text-small text-muted mb-1">{item.type}</p>
                           <p className="text-small text-muted mb-1"> {item.language && item.language.map((lang, index) => {
                             return (
@@ -121,9 +123,12 @@ function TalkToArchitect() {
                       <div className="text-end contact-btn">
                         <div className='col-xl-12 col-lg-12 col-md-12 col-12'>
                           <div className='connect-area'>
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-call-btn"><i class="fa-solid fa-phone-volume"></i> Call</button>
+                            {/* <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-call-btn"><i class="fa-solid fa-phone-volume"></i> Call</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-chat-btn mt-2"><i class="fa-regular fa-comments"></i> Chat</button>
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-video-btn mt-2"><i class="fa-solid fa-video"></i> Video</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-video-btn mt-2"><i class="fa-solid fa-video"></i> Video</button> */}
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                           </div>
                         </div>
                         {/* <div class="dropdown connect-btn">

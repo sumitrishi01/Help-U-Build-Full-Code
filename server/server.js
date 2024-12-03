@@ -12,7 +12,7 @@ const axios = require('axios')
 const { rateLimit } = require('express-rate-limit');
 const router = require('./routes/routes');
 const { singleUploadImage } = require('./middlewares/Multer');
-const Chat = require('./models/Chat.model');
+const Chat = require('./models/chatAndPayment.Model');
 // Middlewares
 ConnectDB()
 
@@ -51,51 +51,71 @@ const io = new Server(server, {
     },
 })
 
-app.locals.socketIo = io ;
+app.locals.socketIo = io;
 
 io.on('connection', (socket) => {
     console.log('A new client connected:', socket.id);
 
+    const roomMembers = {};
+
+    // Join a specific room
     socket.on('join_room', ({ userId, astrologerId }) => {
         const room = `${userId}_${astrologerId}`;
-        socket.join(room); // Join a room
+        socket.join(room);
+        roomMembers[socket.id] = room;
         console.log(`${socket.id} joined room: ${room}`);
+        console.log(`Current members in ${room}:`, [...socket.adapter.rooms.get(room)]);
     });
 
-    // Handle messages
-    socket.on('message', async ({ room, message }) => {
-        console.log(`Message to ${room}:`, message);
-    
-        // Save message to database
-        await Chat.findOneAndUpdate(
-            { room },
-            { $push: { messages: { senderId: socket.id, text: message } } },
-            { upsert: true, new: true }
-        );
-    
-        // Broadcast the message to the room except the sender
-        socket.to(room).emit('return_message', { text: message, senderId: socket.id });
+    // Handle incoming messages
+    socket.on('message', async ({ room, message, senderId,timestamp }) => {
+        console.log(`Message from ${senderId} to ${room}:`, message);
+
+        try {
+            // Save message to the database
+            console.log("room id for update",room)
+            await Chat.findOneAndUpdate(
+                { room },
+                { $push: { messages: { sender:senderId, text: message,timestamp: timestamp || new Date().toISOString() } } },
+                { upsert: true, new: true }
+            );
+
+            // Send message to all participants in the room except the sender
+            socket.to(room).emit('return_message', { text: message, sender: senderId, timestamp });
+        } catch (error) {
+            console.error('Error saving message to database:', error);
+        }
     });
 
-    socket.on('file_upload', async ({ room, fileData }) => {
+    // Handle file uploads
+    socket.on('file_upload', async ({ room, fileData, senderId,timestamp }) => {
         console.log(`File received in ${room}:`, fileData);
-    
-        // Save file to database
-        await Chat.findOneAndUpdate(
-            { room },
-            { $push: { messages: { senderId: socket.id, file: fileData } } },
-            { upsert: true, new: true }
-        );
-    
-        // Broadcast the file to the room except the sender
-        socket.to(room).emit('return_message', { text: 'Attachment received', file: fileData, senderId: socket.id });
+
+        try {
+            // Save file to the database
+            await Chat.findOneAndUpdate(
+                { room },
+                { $push: { messages: { senderId, file: fileData,timestamp: timestamp || new Date().toISOString() } } },
+                { upsert: true, new: true }
+            );
+
+            // Emit the file to all participants in the room except the sender
+            socket.to(room).emit('return_message', { text: 'Attachment received', file: fileData, sender: senderId });
+        } catch (error) {
+            console.error('Error saving file to database:', error);
+        }
     });
 
+    // Handle client disconnect
     socket.on('disconnect', () => {
         console.log('A client disconnected:', socket.id);
+        const room = roomMembers[socket.id];
+        if (room) {
+            console.log(`${socket.id} left room: ${room}`);
+            delete roomMembers[socket.id];
+        }
     });
 });
-
 
 
 

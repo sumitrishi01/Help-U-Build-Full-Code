@@ -90,7 +90,7 @@ exports.getReviewByProviderId = async (req, res) => {
 
         // Fetch reviews and populate provider details
         const reviews = await Review.find({ providerId: providerId })
-            .populate('providerId'); // Proper populate usage
+            .populate('providerId').populate('userId'); // Proper populate usage
 
         // Check if no reviews exist
         if (!reviews || reviews.length === 0) {

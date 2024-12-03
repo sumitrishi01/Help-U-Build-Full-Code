@@ -16,6 +16,9 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    newPassword: {
+        type: String
+    },
     photo: {
         imageUrl: {
             type: String
@@ -114,7 +117,22 @@ const ProviderProfileSchema = new mongoose.Schema({
     },
     bio: {
         type: String
-    }
+    },
+    yearOfExperience: {
+        type: Number
+    },
+    chatStatus: {
+        type: Boolean,
+        default: true
+    },
+    callStatus: {
+        type: Boolean,
+        default: true
+    },
+    meetStatus: {
+        type: Boolean,
+        default: true
+    },
 });
 
 // Password hashing
