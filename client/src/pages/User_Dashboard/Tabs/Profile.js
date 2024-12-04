@@ -89,13 +89,11 @@ const Profile = () => {
         }
       );
 
-      console.log('Update Response:', response.data);
+      // console.log('Update Response:', response.data);
       toast.success('Profile updated successfully!');
     } catch (error) {
       console.log('Error updating profile:', error.response?.data || error.message);
-      toast.error(
-        error?.response?.data?.message || 'Failed to update profile. Please try again.'
-      );
+      toast.error(error?.response?.data?.message || 'Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }

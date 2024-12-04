@@ -30,6 +30,7 @@ import TalkToArchitect from "./pages/Services/TalkToArchitecture";
 import ArchitectProfile from "./pages/Services/ArchitectProfile";
 import StepWizard from "./components/StepWizard";
 import Blog_Page from "./pages/Blog_Page/Blog_Page";
+import Dashboard from "./pages/Dashboard/Dashboard";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -81,7 +82,7 @@ function App() {
 
         {/* <Route path="/chat" element={<Chat />} /> */}
         <Route path="/chat" element={<ChatDemo />} />
-        {/* <Route path="/" /> */}
+        <Route path="/user-profile" element={<Dashboard />} />
 
         {/* <Route path="/demo-register" element={<StepWizard />} /> */}
       </Routes>

@@ -127,7 +127,7 @@ const Header = () => {
 
                           <Link onClick={handleLinkClick}
                             className={`as_btn ${active === "/Profile" ? "active" : ""}`}
-                            to={`${sessionData.role === 'provider' ? `/profile?role=${sessionData.role}` : 'profile?role=user'
+                            to={`${sessionData.role === 'provider' ? `/profile?role=${sessionData.role}` : `/user-profile`
                               }`}
                           >
                             Profile

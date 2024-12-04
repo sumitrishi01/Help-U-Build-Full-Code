@@ -20,7 +20,7 @@ const ChatDemo = () => {
     const UserData = JSON.parse(Data)
     const [astroId, setAstroId] = useState('')
     const [IsChatBoxActive, setIsChatBoxActive] = useState(false)
- 
+
     // console.log("message",UserData._id)
     const id = UserData?._id || ''
 
@@ -154,10 +154,10 @@ const ChatDemo = () => {
     useEffect(() => {
         fetchChatProverId();
     }, [])
-    if(!UserData){
+    if (!UserData) {
         // return window.location.href = '/login'
         return <AccessDenied />
-      }
+    }
     return (
         <section style={{ backgroundColor: '#CDC4F9' }}>
             <div className="container py-5">
@@ -169,6 +169,9 @@ const ChatDemo = () => {
                                     {/* Sidebar with Chat List */}
                                     <div className="col-md-4 mb-4">
                                         <div className="p-3">
+                                            {UserData?.role === 'provider' ?
+                                                <div className='heading-chat-list w-100 mb-2'><h3 className=' p-1 m-0'>Customer</h3></div> :
+                                                <div className='heading-chat-list w-100 mb-2'><h3 className=' p-1 m-0'>Provider</h3></div>}
                                             <div className="input-group rounded mb-3">
                                                 <input
                                                     type="search"
@@ -180,45 +183,43 @@ const ChatDemo = () => {
                                                     <i className="fas fa-search"></i>
                                                 </span>
                                             </div>
-                                            <ul className="list-unstyled mb-0" style={{ height: '400px', overflowY: 'auto' }}>
+                                            <ul className="list-unstyled connection-list mb-0">
+
+                                                {/* <li className="p-2 border-bottom"></li> */}
                                                 {
                                                     allProviderChat && allProviderChat.map((chat, index) => (
                                                         <li onClick={() => handleChatStart(chat._id)} key={index} className="p-2 border-bottom">
                                                             <div className="d-flex flex-row">
                                                                 {UserData?.role === 'provider' ? (
-                                                                    <>
-                                                                        <div>
+                                                                    <div className="d-flex flex-row cursor-ppointer w-100 justify-content-between">
+                                                                        <div className='profile_img_box'>
                                                                             <img
                                                                                 src={chat?.userId?.ProfileImage?.url || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat?.userId?.name || 'User')}&background=random`}
                                                                                 alt={chat?.userId?.name}
-                                                                                className="d-flex align-self-center me-3"
-                                                                                width="60"
-                                                                                style={{ borderRadius: '50%', objectFit: 'cover' }}
+                                                                                className="d-flex align-self-center"
                                                                             />
-                                                                            <span className="badge bg-success badge-dot"></span>
+                                                                            {/* <span className="badge bg-success badge-dot"></span> */}
                                                                         </div>
-                                                                        <div className="pt-1">
+                                                                        <div className="pt-1 chat_list">
                                                                             <p className="fw-bold mb-0">{chat?.userId?.name}</p>
                                                                             {/* <p className="small text-muted">Hello, Are you there?</p> */}
                                                                         </div>
-                                                                    </>
+                                                                    </div>
                                                                 ) : (
-                                                                    <>
-                                                                        <div>
+                                                                    <div className="d-flex flex-row cursor-ppointer w-100 justify-content-between">
+                                                                        <div className='profile_img_box'>
                                                                             <img
                                                                                 src={chat?.providerId?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat?.providerId?.name || 'User')}&background=random`}
                                                                                 alt={chat?.providerId?.name}
-                                                                                className="d-flex align-self-center me-3"
-                                                                                width="60"
-                                                                                style={{ borderRadius: '50%' }}
+                                                                                className="d-flex align-self-center"
                                                                             />
-                                                                            <span className="badge bg-success badge-dot"></span>
+                                                                            {/* <span className="badge bg-success badge-dot"></span> */}
                                                                         </div>
-                                                                        <div className="pt-1">
+                                                                        <div className="pt-1 chat_list">
                                                                             <p className="fw-bold mb-0">{chat?.providerId?.name}</p>
                                                                             {/* <p className="small text-muted">Hello, Are you there?</p> */}
                                                                         </div>
-                                                                    </>
+                                                                    </div>
                                                                 )}
 
                                                             </div>
@@ -236,7 +237,7 @@ const ChatDemo = () => {
                                                 <div className="chat-head">
                                                     <h2>Chats...</h2>
                                                 </div>
-                                                <ScrollToBottom className="chat-window">
+                                                <ScrollToBottom initialScrollBehavior='smooth' className="chat-window">
 
                                                     {messages.map((msg, idx) => (
                                                         <div

@@ -1,5 +1,5 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
 const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable } = require('../controllers/provider.controller');
 const multer = require('multer');
@@ -26,6 +26,7 @@ router.post('/logout', protect, logout);
 router.post('/verify/:type', verifyEmail);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
+router.get('/get-user-by-id/:id', getUserById);
 
 //providers registration related routes
 router.post(

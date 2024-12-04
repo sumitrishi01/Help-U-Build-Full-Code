@@ -466,3 +466,30 @@ exports.banUserToggle = async (req, res) => {
         res.status(500).json({ success: false, message: "An error occurred while toggling ban status" });
     }
 };
+
+
+exports.getUserById = async (req,res) => {
+    try {
+        const {id} = req.params;
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found",
+                error: "User not found",
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "User found",
+            data: user
+        });
+    } catch (error) {
+        console.log("Internal server error in getting user by id",error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}

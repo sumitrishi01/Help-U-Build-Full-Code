@@ -6,7 +6,7 @@ import Portfolio from './Portfolio';
 import UploadGallery from './UploadGallery';
 import { toast } from 'react-hot-toast';
 import Settings from './Settings.js';
-import './userdashboard.css';  
+import './userdashboard.css';
 
 const UserDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -123,8 +123,10 @@ const UserDashboard = () => {
                       src={myProfile?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(myProfile.name || 'User')}&background=random`}
                       alt="avatar"
                       className="img-fluid d-flex object-cover rounded-circle me-3"
-                      width={95}
-                      height={95}
+                      style={{
+                        width:'80px',
+                        height:'80px',
+                      }}
                     />
 
                   </a>
@@ -142,7 +144,7 @@ const UserDashboard = () => {
                       </span>
                     );
                   }) || ''}</span>
-                    <span className="mx-2">|</span>
+                  <span className="mx-2">|</span>
                   <span>{myProfile.expertiseSpecialization && myProfile.expertiseSpecialization.map((lang, index) => {
                     return (
                       <span key={index} className="archi-language-tag">
@@ -153,20 +155,20 @@ const UserDashboard = () => {
                 </p>
                 <hr className="my-4" />
                 <div className="featured-list d-flex justify-content-start align-items-center">
-                  <p onClick={() => setActiveTab('settings')} style={{fontWeight:'700'}} className="mb-0 text-uppercase">
+                  <p onClick={() => setActiveTab('settings')} style={{ fontWeight: '700' }} className="mb-0 text-uppercase">
                     <i className="fas fa-cog me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'settings' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       settings
                     </span>
                   </p>
-                  <p onClick={() => setActiveTab('Portfolio')} style={{fontWeight:'700'}} className="mb-0 cursor-pointer text-uppercase">
+                  <p onClick={() => setActiveTab('Portfolio')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-link ms-4 me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Portfolio' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Portfolio
                     </span>
                   </p>
 
-                  <p onClick={() => setActiveTab('Gallery')} style={{fontWeight:'700'}} className="mb-0 cursor-pointer text-uppercase">
+                  <p onClick={() => setActiveTab('Gallery')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-ellipsis-h ms-4 me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Gallery' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Gallery

@@ -46,7 +46,6 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
-        // allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
     },
 })
@@ -68,15 +67,15 @@ io.on('connection', (socket) => {
     });
 
     // Handle incoming messages
-    socket.on('message', async ({ room, message, senderId,timestamp }) => {
+    socket.on('message', async ({ room, message, senderId, timestamp }) => {
         console.log(`Message from ${senderId} to ${room}:`, message);
 
         try {
             // Save message to the database
-            console.log("room id for update",room)
+            console.log("room id for update", room)
             await Chat.findOneAndUpdate(
                 { room },
-                { $push: { messages: { sender:senderId, text: message,timestamp: timestamp || new Date().toISOString() } } },
+                { $push: { messages: { sender: senderId, text: message, timestamp: timestamp || new Date().toISOString() } } },
                 { upsert: true, new: true }
             );
 
@@ -88,14 +87,14 @@ io.on('connection', (socket) => {
     });
 
     // Handle file uploads
-    socket.on('file_upload', async ({ room, fileData, senderId,timestamp }) => {
+    socket.on('file_upload', async ({ room, fileData, senderId, timestamp }) => {
         console.log(`File received in ${room}:`, fileData);
 
         try {
             // Save file to the database
             await Chat.findOneAndUpdate(
                 { room },
-                { $push: { messages: { senderId, file: fileData,timestamp: timestamp || new Date().toISOString() } } },
+                { $push: { messages: { senderId, file: fileData, timestamp: timestamp || new Date().toISOString() } } },
                 { upsert: true, new: true }
             );
 
@@ -116,9 +115,6 @@ io.on('connection', (socket) => {
         }
     });
 });
-
-
-
 
 app.use(limiter)
 app.post('/Fetch-Current-Location', async (req, res) => {
