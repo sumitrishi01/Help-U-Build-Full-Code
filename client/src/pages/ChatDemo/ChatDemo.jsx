@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import AccessDenied from '../../components/AccessDenied/AccessDenied';
 // import Login from '../auth/Login'
 
-const ENDPOINT = 'http://localhost:5000/';
+const ENDPOINT = 'https://api.helpubuild.co.in/';
 
 const ChatDemo = () => {
     const [message, setMessage] = useState('');
@@ -27,32 +27,32 @@ const ChatDemo = () => {
     const socket = useMemo(() => io(ENDPOINT, { autoConnect: false }), []);
 
     const handleChatStart = async (chatId) => {
-        console.log("chatId", chatId)
+        console.log("chatId", chatId);
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-id/${chatId}`);
-            setIsChatBoxActive(true)
-            setMessage([])
+            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-id/${chatId}`);
+            setIsChatBoxActive(true);
+            setMessage([]);
             const allData = data.data;
             const userId = allData?.userId?._id;
             const providerId = allData?.providerId?._id;
-            // console.log("inner",allData.messages)
-            const allMessageData = allData.messages
-            setMessages(allMessageData)
-
+            const allMessageData = allData.messages;
+            setMessages(allMessageData);
+    
             if (UserData?.role === 'provider') {
-                setAstroId(userId)
+                setAstroId(userId);
             } else {
-                setAstroId(providerId)
+                setAstroId(providerId);
             }
-
+    
             // Join the room
             const room = `${userId}_${providerId}`;
-            socket.emit('join_room', { userId, astrologerId: providerId });
+            socket.emit('join_room', { userId, astrologerId: providerId, role: UserData.role });
             console.log(`Joined room: ${room}`);
         } catch (error) {
             console.error('Error joining room:', error);
         }
     };
+    
 
     useEffect(() => {
         socket.connect();
@@ -128,7 +128,7 @@ const ChatDemo = () => {
         } else if (UserData?.role === 'provider') {
             const providerId = UserData._id;
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-providerId/${providerId}`)
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-providerId/${providerId}`)
                 const allData = data.data
                 // const allMessage = allData;
                 // setMessages(allMessage)
@@ -141,7 +141,7 @@ const ChatDemo = () => {
         } else {
             const userId = UserData._id;
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-userId/${userId}`)
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-userId/${userId}`)
                 const allData = data.data
                 const filterReverse = allData.reverse();
                 setProviderChat(filterReverse)
@@ -191,12 +191,13 @@ const ChatDemo = () => {
                                                         <li onClick={() => handleChatStart(chat._id)} key={index} className="p-2 border-bottom">
                                                             <div className="d-flex flex-row">
                                                                 {UserData?.role === 'provider' ? (
-                                                                    <div className="d-flex flex-row cursor-ppointer w-100 justify-content-between">
+                                                                    <div style={{display:'flex'}} className=" flex-row cursor-ppointer w-100 justify-content-between">
                                                                         <div className='profile_img_box'>
                                                                             <img
                                                                                 src={chat?.userId?.ProfileImage?.url || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat?.userId?.name || 'User')}&background=random`}
                                                                                 alt={chat?.userId?.name}
-                                                                                className="d-flex align-self-center"
+                                                                                style={{display:'flex'}}
+                                                                                className="align-self-center"
                                                                             />
                                                                             {/* <span className="badge bg-success badge-dot"></span> */}
                                                                         </div>
@@ -206,12 +207,13 @@ const ChatDemo = () => {
                                                                         </div>
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="d-flex flex-row cursor-ppointer w-100 justify-content-between">
+                                                                    <div style={{display:'flex'}} className="flex-row cursor-ppointer w-100 justify-content-between">
                                                                         <div className='profile_img_box'>
                                                                             <img
                                                                                 src={chat?.providerId?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(chat?.providerId?.name || 'User')}&background=random`}
                                                                                 alt={chat?.providerId?.name}
-                                                                                className="d-flex align-self-center"
+                                                                                className="align-self-center"
+                                                                                style={{display:'flex'}}
                                                                             />
                                                                             {/* <span className="badge bg-success badge-dot"></span> */}
                                                                         </div>

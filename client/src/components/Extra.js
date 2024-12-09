@@ -9,7 +9,7 @@ const Extra = () => {
     const [image, setImage] = useState([])
     const fetchWorkImage = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-describe-work-image')
+            const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-describe-work-image')
             const allData = data.data;
             const filterData = allData.filter((item) => item.active === true)
             setImage(filterData)
@@ -25,15 +25,19 @@ const Extra = () => {
             onClick={onClick}
             style={{
                 position: "absolute",
-                left: "-50px",
+                left: "0px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                zIndex: 1000,
+                zIndex: 9,
                 cursor: "pointer",
                 backgroundColor: "#0E294C",
                 borderRadius: "50%",
-                padding: "10px",
-                display: 'none'
+                // padding: "10px",
+                width:'40px',
+                height:'40px',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center'
             }}
         >
             <FaArrowLeft style={{ color: "white", fontSize: "20px" }} />
@@ -46,15 +50,19 @@ const Extra = () => {
             onClick={onClick}
             style={{
                 position: "absolute",
-                right: "-50px",
+                right: "0px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                zIndex: 1000,
+                // zIndex: 1000,
                 cursor: "pointer",
                 backgroundColor: "#0E294C",
                 borderRadius: "50%",
-                padding: "10px",
-                display: 'none'
+                // padding: "10px",
+                width:'40px',
+                height:'40px',
+                display:'flex',
+                alignItems:'center',
+                justifyContent:'center'
             }}
         >
             <FaArrowRight style={{ color: "white", fontSize: "20px" }} />
@@ -90,15 +98,15 @@ const Extra = () => {
                                 {[
                                     {
                                         step: 1,
-                                        text: "First, choose the category you'd like to chat about, such as Architect, Interior Designer, or Vastu experts. Select the one that suits your needs."
+                                        text: "First, choose the category you'd like to chat about, such as Architect, Interior Designer, or Vastu expert."
                                     },
                                     {
                                         step: 2,
-                                        text: "Next, select a profile of Architect, Interior Designer, or Vastu experts that matches your requirements and suits your needs."
+                                        text: "Next, select a profile of Architect, Interior Designer, or Vastu expert that matches your requirements and suits your needs."
                                     },
                                     {
                                         step: 3,
-                                        text: "Feel free to start a chat and ask any questions you have. Our experts are here to help you with your doubts and provide the guidance you need!"
+                                        text: "Feel free to start a chat and ask any questions you have. Our experts are here to help you with your doubts and provide the guidance you need."
                                     },
                                     {
                                         step: 4,

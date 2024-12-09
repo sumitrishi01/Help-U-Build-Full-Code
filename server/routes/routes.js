@@ -1,15 +1,15 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
 const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable } = require('../controllers/provider.controller');
 const multer = require('multer');
 const { getAllChat } = require('../controllers/ChatController');
 const { createReview, getAllReview, getReviewByProviderId } = require('../controllers/review.Controller');
-const { createBanner, getAllBanner, deleteBanner } = require('../controllers/banner.Controller');
-const { createDescribeWork, getAllDescribeWork, deleteDescribeWork } = require('../controllers/describeWork.controller');
-const { createplanJourneyImage, getAllJourneyImage, deleteJourneyImage } = require('../controllers/planJourneyImage.controller');
-const { createAboutImage, getAllAboutImage, deleteAboutImage } = require('../controllers/aboutImage.controller');
-const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial } = require('../controllers/testimonial.controller');
+const { createBanner, getAllBanner, deleteBanner, updateBannerActiveStatus } = require('../controllers/banner.Controller');
+const { createDescribeWork, getAllDescribeWork, deleteDescribeWork, updateWorkActiveStatus } = require('../controllers/describeWork.controller');
+const { createplanJourneyImage, getAllJourneyImage, deleteJourneyImage, updatePlanActiveStatus } = require('../controllers/planJourneyImage.controller');
+const { createAboutImage, getAllAboutImage, deleteAboutImage, updateAboutActiveStatus } = require('../controllers/aboutImage.controller');
+const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial, updateTestimonialActiveStatus } = require('../controllers/testimonial.controller');
 const { createBlog, getAllBlog, getSingleBlog, updateBlog, deleteBlog } = require('../controllers/blog.controller');
 const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogComment } = require('../controllers/blogCommont.controller');
 const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById } = require('../controllers/chatAndPayment.Controller');
@@ -104,23 +104,27 @@ router.get('/get-review-by-providerId/:_id', getReviewByProviderId)
 router.post('/create-banner', upload.single('bannerImage'), createBanner)
 router.get('/get-all-banner', getAllBanner)
 router.delete('/delete-banner/:id', deleteBanner)
+router.put('/update-banner-status/:id', updateBannerActiveStatus)
 
 // describe work router here 
 
 router.post('/create-describe-work-image', upload.single('image'), createDescribeWork)
 router.get('/get-all-describe-work-image', getAllDescribeWork)
 router.delete('/delete-describe-work-image/:id', deleteDescribeWork)
+router.put('/update-work-banner-status/:id', updateWorkActiveStatus)
 
 // plan journey router here 
 
 router.post('/create-plan-journey-image', upload.single('image'), createplanJourneyImage)
 router.get('/get-all-plan-journey-image', getAllJourneyImage)
 router.delete('/delete-plan-journey-image/:id', deleteJourneyImage)
+router.put('/update-plan-banner-status/:id', updatePlanActiveStatus)
 
 // about image router here
 router.post('/create-about-image', upload.single('image'), createAboutImage)
 router.get('/get-all-about-image', getAllAboutImage)
 router.delete('/delete-about-image/:id', deleteAboutImage)
+router.put('/update-about-banner-status/:id', updateAboutActiveStatus)
 
 // testimonial router here 
 
@@ -129,6 +133,7 @@ router.get('/get-all-testimonial', getAllTestimonial)
 router.get('/get-single-testimonial/:id', getsingleTestimonial)
 router.delete('/delete-testimonial/:id', deleteTestimonial)
 router.put('/update-testimonial/:id', upload.single('image'), updateTestimonial)
+router.put('/update-testimonial-status/:id', updateTestimonialActiveStatus)
 
 // blog router here 
 
@@ -160,5 +165,9 @@ router.get('/get-chat-by-providerId/:providerId', getChatByProviderid)
 router.get('/get-chat-by-userId/:userId', getChatByUserid)
 router.get('/get-chat-by-id/:id', getChatById)
 router.put('/update-available-status/:providerId', updateAvailable)
+
+// recharge route here 
+router.post('/create-payment/:userId', createPayment);
+router.post('/verify-payment', PaymentVerify);
 
 module.exports = router;

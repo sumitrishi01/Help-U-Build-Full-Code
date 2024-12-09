@@ -104,6 +104,14 @@ exports.createChatWithNew = async (req, res) => {
             })
         }
         const room = `${userId}_${providerId}`
+        const check = await ChatAndPayment.findOne({room:room})
+        if(check){
+            return res.status(400).json({
+                success: false,
+                message: 'Chat is already started. Check Your chat room.',
+                error: 'Chat is already started. Check Your chat room.'
+            })
+        }
         const newChat = new ChatAndPayment({
             userId,
             providerId,

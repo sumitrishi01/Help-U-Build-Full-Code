@@ -20,7 +20,7 @@ const Slider = () => {
   const [mobileBanner,setMobileBanner] = useState([])
   const handleFetchBanner = async () => {
     try {
-      const {data} = await axios.get('http://localhost:5000/api/v1/get-all-banner')
+      const {data} = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-banner')
       const allBanner = data.data
       const filterData = allBanner.filter(item => item.active === true)
       const desktopBanner = filterData.filter(item => item.view === 'Desktop')
@@ -53,7 +53,7 @@ const Slider = () => {
         <div className="row">
           {/* Navigation Cards */}
           <div className="col-md-3 col-6 px-2 mb-3">
-            <Link to="/about" className="text-decoration-none">
+            <Link to="/talk-to-architect" className="text-decoration-none">
               <div className="card bg-light border-light hover-effect">
                 <div className="card-body forHeight text-center">
                   <img src={engineer} className="img-fluid icon_chat mb-2" alt="Chat Icon" />
@@ -64,7 +64,7 @@ const Slider = () => {
             </Link>
           </div>
           <div className="col-md-3 col-6 px-2 mb-3">
-            <Link to="/services" className="text-decoration-none">
+            <Link to="/talk-to-interior" className="text-decoration-none">
               <div className="card bg-light border-light hover-effect w-100">
                 <div className="card-body forHeight text-center">
                   <img src={interior} className="img-fluid icon_chat mb-2" alt="Chat Icon" />
@@ -75,7 +75,7 @@ const Slider = () => {
             </Link>
           </div>
           <div className="col-md-3 col-6 px-2 mb-3">
-            <Link to="/contact" className="text-decoration-none">
+            <Link to="/Vastu" className="text-decoration-none">
               <div className="card bg-light border-light hover-effect">
                 <div className="card-body forHeight text-center">
                   <img src={vastu} className="img-fluid icon_chat mb-2" alt="Chat Icon" />

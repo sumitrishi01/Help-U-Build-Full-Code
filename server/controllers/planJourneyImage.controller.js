@@ -84,3 +84,31 @@ exports.deleteJourneyImage = async (req, res) => {
         })
     }
 }
+
+exports.updatePlanActiveStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { active } = req.body;
+
+        const updatedBanner = await PlanJourneyImage.findByIdAndUpdate(
+            id,
+            { active },
+            { new: true }
+        );
+
+        if(!updatedBanner){
+            return res.status(404).json({
+                success: false,
+                message: 'Describe work not found',
+                error: 'Describe work not found',
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            data: updatedBanner,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update banner status' });
+    }
+}

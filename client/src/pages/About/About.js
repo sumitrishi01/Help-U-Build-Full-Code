@@ -17,7 +17,7 @@ const About = () => {
     const [aboutImage,setAboutImage] = useState([])
     const fetchAboutImage = async () => {
         try {
-            const {data} = await axios.get('http://localhost:5000/api/v1/get-all-about-image')
+            const {data} = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-about-image')
             const allData = data.data;
             const filterData = allData.filter(item => item.active === true)
             setAboutImage(filterData)
@@ -60,7 +60,7 @@ const About = () => {
                                         HUB is an AI-based integrated online marketplace providing a one-stop solution for the construction sector.
                                     </p>
                                     <p class="as_font14">
-                                        We connect consumer with professional Architect, Interior Designer, and Vastu Experts for personalized construction-related services and consultations. Additionally, we facilitate connections between B2B and B2C retailers and distributors in the construction materials sector, including raw materials, hardware, and electrical components.
+                                        We connect consumers with professional Architects, Interior Designers, and Vastu Experts for personalized construction-related services and consultations. Additionally, we facilitate connections between B2B and B2C retailers and distributors in the construction materials sector, including raw materials, hardware, and electrical components.
                                     </p>
                                 </div>
 

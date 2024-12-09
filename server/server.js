@@ -13,6 +13,7 @@ const { rateLimit } = require('express-rate-limit');
 const router = require('./routes/routes');
 const { singleUploadImage } = require('./middlewares/Multer');
 const Chat = require('./models/chatAndPayment.Model');
+const { chatStart, chatEnd } = require('./controllers/user.Controller');
 // Middlewares
 ConnectDB()
 
@@ -58,12 +59,33 @@ io.on('connection', (socket) => {
     const roomMembers = {};
 
     // Join a specific room
-    socket.on('join_room', ({ userId, astrologerId }) => {
-        const room = `${userId}_${astrologerId}`;
-        socket.join(room);
-        roomMembers[socket.id] = room;
-        console.log(`${socket.id} joined room: ${room}`);
-        console.log(`Current members in ${room}:`, [...socket.adapter.rooms.get(room)]);
+    socket.on('join_room', async ({ userId, astrologerId, role }) => {
+        try {
+            const room = `${userId}_${astrologerId}`;
+
+            if (role === 'user') {
+                const result = await chatStart(userId, astrologerId);
+
+                if (!result.success) {
+                    socket.emit('error_message', { message: result.message });
+                    return; // Stop further execution if room creation fails
+                }
+
+            }
+
+            // Join the room and store the role information
+            socket.join(room);
+            roomMembers[socket.id] = { userId, astrologerId, role, room };  // Store role here
+
+            console.log(`${socket.id} joined room: ${room}`);
+            console.log(`Current members in ${room}:`, [...socket.adapter.rooms.get(room)]);
+
+            // Notify the client about successful room joining
+            socket.emit('room_joined', { message: 'Successfully joined the room', room });
+        } catch (error) {
+            console.error('Error in join_room event:', error);
+            socket.emit('error_message', { message: 'An error occurred while joining the room' });
+        }
     });
 
     // Handle incoming messages
@@ -106,14 +128,49 @@ io.on('connection', (socket) => {
     });
 
     // Handle client disconnect
-    socket.on('disconnect', () => {
+    // socket.on('disconnect', () => {
+    //     console.log('A client disconnected:', socket.id);
+    //     const room = roomMembers[socket.id];
+    //     if (room) {
+    //         console.log(`${socket.id} left room: ${room}`);
+    //         delete roomMembers[socket.id];
+    //     }
+    // });
+
+    socket.on('disconnect', async () => {
         console.log('A client disconnected:', socket.id);
-        const room = roomMembers[socket.id];
-        if (room) {
+
+        const roomData = roomMembers[socket.id];
+        if (roomData) {
+            const { userId, astrologerId, room, role } = roomData;
             console.log(`${socket.id} left room: ${room}`);
-            delete roomMembers[socket.id];
+            delete roomMembers[socket.id];  // Remove the user from the room members list
+
+            // Check who disconnected based on the role
+            if (role === 'user') {
+                console.log("User disconnected. Running wallet deduction logic...");
+
+                // Run wallet deduction logic only if the user disconnects
+                try {
+                    const response = await chatEnd(userId, astrologerId);  // Assuming chatEnd takes userId and astrologerId
+                    if (response.success) {
+                        console.log('Chat ended successfully:', response.message);
+                    } else {
+                        console.error('Chat end error:', response.message);
+                    }
+                } catch (error) {
+                    console.error('Error calling chatEnd:', error);
+                }
+            } else if (role === 'provider') {
+                console.log("Astrologer (provider) disconnected. No wallet deduction logic.");
+            } else {
+                console.log("Unknown role for disconnector.");
+            }
+        } else {
+            console.log("Room data not found for socket:", socket.id);
         }
     });
+
 });
 
 app.use(limiter)

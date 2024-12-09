@@ -2,10 +2,22 @@ const User = require("../models/user.Model");
 const sendEmail = require("../utils/SendEmail");
 const sendToken = require("../utils/SendToken");
 const generateOtp = require("../utils/GenreateOtp")
-const Provider = require ("../models/providers.model")
+const Provider = require("../models/providers.model");
+const { uploadToCloudinary } = require("../utils/Cloudnary");
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
+const axios = require('axios')
+require('dotenv').config()
+const { validatePaymentVerification, validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils');
+const { default: mongoose } = require("mongoose");
+const razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
 exports.registeruser = async (req, res) => {
     try {
-        const { Gender, name, email, PhoneNumber, Password, cPassword } = req.body;
+        const { name, email, PhoneNumber, Password, cPassword } = req.body;
         const errors = [];
 
         if (!name) errors.push("Please enter a name");
@@ -46,14 +58,13 @@ exports.registeruser = async (req, res) => {
         }
 
         const { otp, expiresAt } = generateOtp(6, 120000)
-        const image = `https://ui-avatars.com/api/?background=random&name=${name}`
+        // const image = `https://ui-avatars.com/api/?background=random&name=${name}`
         const newUser = new User({
-            Gender,
+            // Gender,
             name,
             email,
             otp,
             expiresAt,
-            ProfileImage: image,
             PhoneNumber,
             Password,
             cPassword,
@@ -72,14 +83,14 @@ exports.registeruser = async (req, res) => {
         await sendEmail(emailContent);
         await newUser.save();
 
-        res.status(201).json({ success: true,data:newUser.expiresAt, message: "User registered successfully! Please check your email for verification." });
+        res.status(201).json({ success: true, data: newUser.expiresAt, message: "User registered successfully! Please check your email for verification." });
     } catch (error) {
         console.error("Registration error:", error);
         res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-exports.verifyEmail  = async (req, res) => {
+exports.verifyEmail = async (req, res) => {
     try {
         const { type } = req.params;
         const { email, otp, password } = req.body;
@@ -112,7 +123,7 @@ exports.verifyEmail  = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid verification type or unauthorized email verification for providers." });
         }
 
-    
+
         if (accountOtp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP." });
         }
@@ -133,7 +144,8 @@ exports.verifyEmail  = async (req, res) => {
 
         await account.save();
 
-        return res.status(200).json({ success: true, message: verificationMessage });
+        // return res.status(200).json({ success: true, message: verificationMessage });
+        await sendToken(account, res, 200, verificationMessage)
     } catch (error) {
         console.error("Error during verification:", error);
         return res.status(500).json({ success: false, message: "An error occurred during verification." });
@@ -219,17 +231,31 @@ exports.updateProfile = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
-        const { name, email, PhoneNumber, Gender } = req.body;
+        const { name, email, PhoneNumber } = req.body;
+        const { ProfileImage } = req.file;
+        if (!ProfileImage) {
+            return res.status(400).json({
+                success: false,
+                message: "Please upload a profile image",
+                error: "Profile image is required"
+            })
+        }
 
         const updateFields = {};
 
+        if (req.file) {
+            const { imageUrl, public_id } = await uploadToCloudinary(req.file.buffer)
+            updateFields.ProfileImage = {
+                url: imageUrl,
+                public_id: public_id
+            }
+        }
+
         if (name) {
             updateFields.name = name;
-            updateFields.ProfileImage = `https://ui-avatars.com/api/?background=random&name=${name}`;
         }
         if (email) updateFields.email = email;
         if (PhoneNumber) updateFields.PhoneNumber = PhoneNumber;
-        if (Gender) updateFields.Gender = Gender;
 
         const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
             new: true,
@@ -349,11 +375,11 @@ exports.forgotPassword = async (req, res) => {
         let isProvider = false;
 
         if (!user) {
-            user = await Provider.findOne(email );
+            user = await Provider.findOne(email);
             isProvider = true;
         }
 
-      
+
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -468,9 +494,9 @@ exports.banUserToggle = async (req, res) => {
 };
 
 
-exports.getUserById = async (req,res) => {
+exports.getUserById = async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const user = await User.findById(id);
         if (!user) {
             return res.status(400).json({
@@ -485,7 +511,7 @@ exports.getUserById = async (req,res) => {
             data: user
         });
     } catch (error) {
-        console.log("Internal server error in getting user by id",error)
+        console.log("Internal server error in getting user by id", error)
         res.status(500).json({
             success: false,
             message: "Internal server error",
@@ -493,3 +519,341 @@ exports.getUserById = async (req,res) => {
         })
     }
 }
+
+exports.createPayment = async (req, res) => {
+    try {
+        // console.log("i create payment start")
+        const { userId } = req.params;
+        const { price } = req.body;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "User not found",
+                error: "User not found",
+            })
+        }
+        if (!price) {
+            return res.status(400).json({
+                success: false,
+                message: "Price is required",
+                error: "Price is required"
+            })
+        }
+        if (price === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Price cannot be zero",
+                error: "Price cannot be zero"
+            })
+        }
+
+        const razorpayOptions = {
+            amount: price * 100 || 5000000,
+            currency: 'INR',
+            payment_capture: 1,
+        };
+
+        const razorpayOrder = await razorpayInstance.orders.create(razorpayOptions);
+
+        if (!razorpayOrder) {
+            return res.status(500).json({
+                success: false,
+                message: 'Error in creating Razorpay order',
+            });
+        }
+        // console.log("create payment end")
+        user.razorpayOrderId = razorpayOrder.id
+
+        await user.save()
+
+        return res.status(200).json({
+            success: true,
+            message: 'Razorpay order created successfully',
+            data: {
+                user,
+                razorpayOrder,
+            }
+        });
+
+
+    } catch (error) {
+        console.log("Internal server error in doing payment", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
+exports.PaymentVerify = async (req, res) => {
+    try {
+        // console.log("payment verify start")
+        const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+
+        // Validate request body
+        if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid request',
+            });
+        }
+
+        // Generate signature for verification
+        const genreaterSignature = validatePaymentVerification({ "order_id": razorpay_order_id, "payment_id": razorpay_payment_id }, razorpay_signature, process.env.RAZORPAY_KEY_SECRET);
+
+        // console.log("aIM7S3NfvUHlM84tcZRQpNht",process.env.RAZORPAY_KEY_SECRET)
+
+        // console.log("genreaterSignature",genreaterSignature)
+
+        if (!genreaterSignature) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid signature',
+            });
+        }
+
+        // Fetch payment details from Razorpay
+        const paymentDetails = await axios.get(`https://api.razorpay.com/v1/payments/${razorpay_payment_id}`, {
+            auth: {
+                username: process.env.RAZORPAY_KEY_ID,
+                password: process.env.RAZORPAY_KEY_SECRET,
+            },
+        });
+
+        const { method, status, amount } = paymentDetails.data;
+        const currentTime = new Date().toISOString(); // Get current timestamp
+
+        // console.log("id",razorpay_order_id)
+        // Find the order in the database
+        const findOrder = await User.findOne({ razorpayOrderId: razorpay_order_id });
+        if (!findOrder) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order not found.',
+            });
+        }
+
+        // If payment is not successful, handle failure
+        if (status !== 'captured') {
+            const failedAmount = amount / 100; // Convert amount from paise to INR
+
+            // Log failed payment with timestamp
+            findOrder.rechargeHistory = findOrder.rechargeHistory || []; // Initialize if undefined
+            findOrder.rechargeHistory.push({ amount: failedAmount, time: currentTime, transactionId: razorpay_payment_id, PaymentStatus: 'failed', paymentMethod: method });
+
+            // Save updated order
+            await findOrder.save();
+
+            // return res.redirect(
+            //     `http://localhost:5174/vendors/payment-failure?error=Payment failed via ${method || 'unknown method'}`
+            // );
+        }
+
+        // Update payment details for successful payment
+        // findOrder.transactionId = razorpay_payment_id;
+        // findOrder.PaymentStatus = 'paid';
+        // findOrder.paymentMethod = method;
+
+        const previousWalletAmount = findOrder.walletAmount || 0; // Default to 0 if undefined
+        const price = amount / 100; // Convert amount from paise to INR
+        findOrder.walletAmount = previousWalletAmount + price;
+
+        // Log successful payment with timestamp
+        findOrder.rechargeHistory = findOrder.rechargeHistory || []; // Initialize if undefined
+        findOrder.rechargeHistory.push({ amount: price, time: currentTime, transactionId: razorpay_payment_id, PaymentStatus: 'paid', paymentMethod: method });
+
+        // Save updated order
+        await findOrder.save();
+        // console.log("payment verify end")
+
+        return res.status(200).json({
+            success: true,
+            message: 'Payment verified and wallet updated successfully',
+            data: {
+                transactionId: razorpay_payment_id,
+                walletAmount: findOrder.walletAmount,
+                rechargeHistory: findOrder.rechargeHistory,
+            },
+        });
+    } catch (error) {
+        console.log('Internal server error', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+};
+
+exports.chatStart = async (userId, astrologerId) => {
+    try {
+        // console.log("userId", userId)
+        // console.log("astrologerId", astrologerId)
+        const user = await User.findById(userId)
+        const provider = await Provider.findById(astrologerId)
+        if (!user) {
+            return {
+                success: false,
+                message: 'User is not found',
+                error: 'User is not found'
+            }
+        }
+        if (!provider) {
+            return {
+                success: false,
+                message: 'Provider is not found',
+                error: 'Provider is not found'
+            }
+        }
+
+        if (user?.role !== 'user') {
+            return {
+                success: true,
+                message: 'Chat started',
+                error: 'Chat started',
+            };
+        }
+
+        const walletAmount = user?.walletAmount;
+        const providerPricePerMin = provider?.pricePerMin;
+        if (walletAmount < providerPricePerMin) {
+            return {
+                success: false,
+                message: 'Your wallet amount is too low. Please recharge your wallet.',
+                error: 'Your wallet amount is too low. Please recharge your wallet.'
+            }
+        }
+        // Generate a unique ObjectId for the new chat transition
+        const newChatTransitionId = new mongoose.Types.ObjectId();
+
+        const chatTimingRemaining = Math.floor(walletAmount / providerPricePerMin);
+        const currentTime = new Date().toISOString();
+        user.chatTransition = user.chatTransition || []; // Initialize if undefined
+        const newChatTransition = {
+            _id: newChatTransitionId,
+            startChatTime: currentTime,
+            startingChatAmount: walletAmount,
+            providerPricePerMin: providerPricePerMin,
+            chatTimingRemaining: chatTimingRemaining,
+            provider: provider._id,
+        };
+        user.chatTransition.push(newChatTransition);
+
+        user.lastChatTransitionId = newChatTransitionId;
+
+        // console.log("newChatTransition", newChatTransition)
+
+        await user.save();
+
+        return {
+            success: true,
+            message: 'Chat Stated Successfully',
+            data: {
+                chatTimingRemaining: chatTimingRemaining,
+                chatTransition: newChatTransition,
+                lastChatTransitionId: user.lastChatTransitionId,
+            }
+        }
+
+    } catch (error) {
+        console.error('Error in createChatRoom:', error);
+        return {
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        };
+    }
+}
+
+exports.chatEnd = async (userId, astrologerId) => {
+    try {
+        // First, find the user by userId
+        const findUser = await User.findById(userId);
+        if (!findUser) {
+            return {
+                success: false,
+                message: 'User not found',
+                error: 'User not found',
+            };
+        }
+
+        // Check if the user is a provider, in which case we should find the provider
+        let user;
+        if (findUser.role === 'provider') {
+            const findProvider = await Provider.findById(astrologerId);
+            if (!findProvider) {
+                return {
+                    success: false,
+                    message: 'Provider not found',
+                    error: 'Provider not found',
+                };
+            }
+            user = findProvider;  // Set user to the provider object
+        } else {
+            user = findUser;  // Set user to the regular user object
+        }
+
+        // Ensure the user has an active chat to end (check lastChatTransitionId)
+        if (!user.lastChatTransitionId) {
+            return {
+                success: false,
+                message: 'No active chat transition ID found',
+                error: 'No active chat transition ID found',
+            };
+        }
+
+        // Find the last chat transition
+        const lastTransition = user.chatTransition.find(
+            (transition) => transition._id.toString() === user.lastChatTransitionId.toString()
+        );
+
+        if (!lastTransition) {
+            return {
+                success: false,
+                message: 'No active chat found to end',
+                error: 'No active chat found to end',
+            };
+        }
+
+        // Calculate the chat end details
+        const endTime = new Date();
+        const durationSeconds = Math.ceil((endTime - new Date(lastTransition.startChatTime)) / 1000); // Duration in seconds
+
+        // Convert the provider price from per minute to per second (in paise)
+        const pricePerSecondInPaise = lastTransition.providerPricePerMin * 100 / 60;
+
+        // Calculate the wallet deduction based on duration in seconds
+        const walletUsedInPaise = Math.min(durationSeconds * pricePerSecondInPaise, user.walletAmount * 100); // user.walletAmount is in rupees, so multiply by 100 to convert to paise
+
+        // Set the chat ending details
+        lastTransition.endingChatTime = endTime.toISOString();
+        lastTransition.endingChatAmount = (user.walletAmount * 100 - walletUsedInPaise) / 100; // Deducted amount in rupees
+        user.walletAmount -= walletUsedInPaise / 100;  // Deduct wallet amount for chat duration (converted back to rupees)
+        user.lastChatTransitionId = null;
+
+        // Save the updated user data
+        await user.save();
+
+        return {
+            success: true,
+            message: 'Chat ended successfully',
+            data: {
+                duration: durationSeconds,
+                walletUsedInPaise, // Wallet used in paise
+                remainingWallet: user.walletAmount, // Remaining wallet in rupees
+            },
+        };
+    } catch (error) {
+        console.error('Error in chatEnd:', error);
+        return {
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        };
+    }
+};
+
+
+

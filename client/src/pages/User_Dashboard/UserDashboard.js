@@ -31,7 +31,7 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       // console.log(data)
@@ -70,7 +70,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -124,8 +124,8 @@ const UserDashboard = () => {
                       alt="avatar"
                       className="img-fluid d-flex object-cover rounded-circle me-3"
                       style={{
-                        width:'80px',
-                        height:'80px',
+                        width: '80px',
+                        height: '80px',
                       }}
                     />
 

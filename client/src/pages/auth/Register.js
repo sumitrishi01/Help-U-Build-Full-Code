@@ -3,7 +3,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 function Register() {
     const [formData, setFormData] = useState({
-        Gender: '',
+        // Gender: '',
         name: '',
         email: '',
         PhoneNumber: '',
@@ -34,9 +34,10 @@ function Register() {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/api/v1/register', formData)
+            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register', formData)
             console.log(res.data)
             toast.success(res.data.message)
+
             window.location.href = `/otp-verification/user?email=${formData.email}&expires=${res.data?.data}`
             setloading(false)
         } catch (error) {
@@ -125,7 +126,7 @@ function Register() {
                                                         </div>
 
                                                     </div>
-                                                    <div className='col-lg-6'>
+                                                    {/* <div className='col-lg-6'>
                                                         <div className="d-flex flex-row mb-4">
                                                             <i className="fas fa-user fa-lg me-3 fa-fw lable-icon" />
                                                             <div
@@ -146,7 +147,7 @@ function Register() {
                                                             </div>
                                                         </div>
 
-                                                    </div>
+                                                    </div> */}
 
                                                     <div className='col-lg-6'>
                                                         <div className="d-flex flex-row mb-4">
@@ -161,7 +162,7 @@ function Register() {
                                                                 <input
                                                                     onChange={handleChange}
                                                                     name='Password'
-                                                                     value={formData.Password}
+                                                                    value={formData.Password}
                                                                     type={isPasswordShow ? 'text' : 'password'}
                                                                     id="form3Example4c"
                                                                     className="form-control input-shape px-5"
@@ -184,8 +185,8 @@ function Register() {
                                                                     onChange={handleChange}
                                                                     id="form3Example4cd"
                                                                     name='cPassword'
-                                                                     value={formData.cPassword}
-                                                                     type={isPasswordShow ? 'text' : 'password'}
+                                                                    value={formData.cPassword}
+                                                                    type={isPasswordShow ? 'text' : 'password'}
                                                                     className="form-control input-shape px-5"
                                                                 />
                                                             </div>

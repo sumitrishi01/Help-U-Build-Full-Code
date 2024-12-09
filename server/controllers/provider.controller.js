@@ -477,36 +477,42 @@ exports.updatePassword = async (req, res) => {
 
 exports.updateAvailable = async (req, res) => {
     try {
-        // console.log("i am hit")
         const { providerId } = req.params;
         const { chatStatus, callStatus, meetStatus } = req.body;
+
+        console.log("body", req.body);
+
         const existingData = await providersModel.findById(providerId);
         if (!existingData) {
             return res.status(404).json({
                 success: false,
                 message: 'Provider not found',
-                error: 'Provider not found'
-            })
+                error: 'Provider not found',
+            });
         }
-        if (chatStatus) existingData.chatStatus = chatStatus;
-        if (callStatus) existingData.callStatus = callStatus;
-        if (meetStatus) existingData.meetStatus = meetStatus;
+
+        // Update statuses only if they are explicitly defined in the request body
+        if (typeof chatStatus !== 'undefined') existingData.chatStatus = chatStatus;
+        if (typeof callStatus !== 'undefined') existingData.callStatus = callStatus;
+        if (typeof meetStatus !== 'undefined') existingData.meetStatus = meetStatus;
 
         await existingData.save();
+
         return res.status(200).json({
             success: true,
             message: 'Provider status updated successfully.',
-            data: existingData
-        })
+            data: existingData,
+        });
     } catch (error) {
-        console.log("Internal server error in updating", error)
+        console.log('Internal server error in updating', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error',
-            error: error.message
-        })
+            error: error.message,
+        });
     }
-}
+};
+
 
 const uploadToCloudinary = (fileBuffer) => {
     return new Promise((resolve, reject) => {

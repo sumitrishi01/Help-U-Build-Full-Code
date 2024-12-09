@@ -70,7 +70,7 @@ exports.deleteDescribeWork = async (req, res) => {
                 success: false
             })
         }
-        if(describeWork?.image?.public_id){
+        if (describeWork?.image?.public_id) {
             deleteImageFromCloudinary(describeWork.image.public_id)
         }
         res.status(200).json({
@@ -85,5 +85,33 @@ exports.deleteDescribeWork = async (req, res) => {
             message: ' Internal server error in deleting describe work',
             error: error.message
         })
+    }
+}
+
+exports.updateWorkActiveStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { active } = req.body;
+
+        const updatedBanner = await DescribeWork.findByIdAndUpdate(
+            id,
+            { active },
+            { new: true }
+        );
+
+        if(!updatedBanner){
+            return res.status(404).json({
+                success: false,
+                message: 'Describe work not found',
+                error: 'Describe work not found',
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            data: updatedBanner,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update banner status' });
     }
 }

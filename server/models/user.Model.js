@@ -2,11 +2,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    Gender: {
-        type: String,
-        enum: ['Mr', 'Mrs'],
-        default: 'Mr',
-    },
     name: {
         type: String,
         required: true,
@@ -29,18 +24,20 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    
+
     ProfileImage: {
-        type: String,
-        default: 'https://ui-avatars.com/api/?background=random&name=user'
+        imageUrl: {
+            type: String
+        },
+        public_id: String
     },
     HowManyHit: {
         type: String,
     },
-    otp:{
+    otp: {
         type: String,
     },
-    expiresAt:{
+    expiresAt: {
         type: Date,
     },
     isVerified: {
@@ -51,10 +48,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "user"
     },
-    resetPasswordOtp:{
+    resetPasswordOtp: {
         type: String,
     },
-    resetPasswordExpiresAt:{
+    resetPasswordExpiresAt: {
         type: Date,
     },
     isBanned: {
@@ -66,7 +63,47 @@ const userSchema = new mongoose.Schema({
     },
     roomId: {
         type: String
-    }
+    },
+    walletAmount: {
+        type: Number,
+        default: 0
+    },
+    rechargeHistory: [
+        {
+            amount: { type: Number },
+            time: { type: String },
+
+            transactionId: {
+                type: String
+            },
+            PaymentStatus: {
+                type: String,
+                default: 'pending'
+            },
+            paymentMethod: {
+                type: String
+            },
+        },
+    ],
+    razorpayOrderId: {
+        type: String
+    },
+    chatTransition: [{
+        startChatTime: { type: String },
+        endingChatTime: { type: String },
+        startingChatAmount: { type: Number },
+        endingChatAmount: { type: Number },
+        providerPricePerMin: { type: Number },
+        chatTimingRemaining: {type:Number},
+        provider: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Provider'
+        }
+    },],
+    lastChatTransitionId: {
+        type: String
+    },
+
 }, { timestamps: true });
 
 
@@ -81,7 +118,7 @@ userSchema.pre('save', async function (next) {
     }
 });
 
-userSchema.methods.comparePassword = async function (candidatePassword) {   
+userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.Password);
 }
 

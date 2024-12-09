@@ -1,0 +1,29 @@
+.spin-style{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-parent{
+    display: flex;
+    gap: 8px;
+}
+
+.action-parent i{
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.action-parent .delete{
+    color: rgb(184, 0, 0);
+}
+
+.table-text{
+    font-weight: 600;
+}
+
+.form_label{
+    font-weight: 700;
+}

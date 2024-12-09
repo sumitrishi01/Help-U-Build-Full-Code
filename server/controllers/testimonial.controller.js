@@ -158,3 +158,32 @@ exports.updateTestimonial = async (req, res) => {
         })
     }
 }
+
+exports.updateTestimonialActiveStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { active } = req.body;
+
+        const updatedBanner = await Testimonial.findByIdAndUpdate(
+            id,
+            { active },
+            { new: true }
+        );
+
+        if(!updatedBanner){
+            return res.status(404).json({
+                success: false,
+                message: 'Testimonial not found',
+                error: 'Testimonial not found',
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Testimonial active status updated successfully",
+            data: updatedBanner,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update Testimonial status' });
+    }
+}

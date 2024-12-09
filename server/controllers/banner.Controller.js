@@ -3,9 +3,9 @@ const { uploadToCloudinary, deleteImageFromCloudinary } = require('../utils/Clou
 
 exports.createBanner = async (req, res) => {
     try {
-        const {view} = req.body;
-        if(!view){
-            return res.status(400).json({message: "Please provide a view."});
+        const { view } = req.body;
+        if (!view) {
+            return res.status(400).json({ message: "Please provide a view." });
         }
         if (!req.file) {
             return res.status(400).json({
@@ -40,7 +40,6 @@ exports.createBanner = async (req, res) => {
         });
     }
 };
-
 
 exports.getAllBanner = async (req, res) => {
     try {
@@ -92,5 +91,33 @@ exports.deleteBanner = async (req, res) => {
             message: 'Internal server error',
             error: error.message
         })
+    }
+}
+
+exports.updateBannerActiveStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { active } = req.body;
+
+        const updatedBanner = await Banner.findByIdAndUpdate(
+            id,
+            { active },
+            { new: true }
+        );
+
+        if (!updatedBanner){
+            return res.status(400).json({
+                success: false,
+                message: 'Banner not found',
+                error: 'Banner not found',
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            data: updatedBanner,
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Failed to update banner status' });
     }
 }

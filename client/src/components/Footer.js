@@ -24,8 +24,7 @@ const Footer = () => {
                         <li>
                           <img src="assets/images/svg/map.svg" alt="" />
                           <p style={{ color: "white" }}>
-                            368, Harbala ki Dhani, Village Sikohpur, Sector 78,
-                            Gurugram-122004
+                            E-520A, 3rd Floor, Sector 7, Dwarka, New Delhi- 110075
                           </p>
                         </li>
                         <li>

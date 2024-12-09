@@ -67,7 +67,7 @@ function ArchitectProfile() {
                 userId: UserData._id,
             }
             try {
-                const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm)
+                const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm)
                 window.location.href = '/chat'
             } catch (error) {
                 console.log("Internal server error", error)
@@ -79,7 +79,7 @@ function ArchitectProfile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
                 setProfile(data.data);
                 setLoading(false);
             } catch (error) {
@@ -99,7 +99,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
+                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);
@@ -197,14 +197,14 @@ function ArchitectProfile() {
                             </div>
                             <div className='col-xl-4 col-lg-4 col-md-6 col-12'>
                                 <div className='connect-area'>
-                                    <button className="btn profile-call-btn"><i class="fa-solid fa-phone-volume"></i> Call</button>
-                                    <button onClick={() => handleActiveTime("Chat")} className="btn profile-chat-btn mt-3"><i class="fa-regular fa-comments"></i> Chat</button>
+                                    <button className={`btn ${profile.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.callStatus} ><i class="fa-solid fa-phone-volume"></i> Call</button>
+                                    <button onClick={() => handleActiveTime("Chat")} disabled={!profile.chatStatus} className={`btn mt-2 ${profile.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
                                     {/* <div className={`video-time-box ${isActiveTime ? 'video-time-box-show' : ''}`}>
                                         <p className="text-muted mb-0 mt-1 video-time">10 mins</p>
                                         <p className="text-muted mb-0 mt-1 video-time">15 mins</p>
                                         <p className="text-muted mb-0 mt-1 video-time">20 mins</p>
                                     </div> */}
-                                    <button className="btn profile-video-btn mt-3"><i class="fa-solid fa-video"></i> Video</button>
+                                    <button className={`btn mt-2 ${profile.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.meetStatus}><i class="fa-solid fa-video"></i> Video</button>
                                 </div>
                             </div>
                             <div className='col-xl-12'>

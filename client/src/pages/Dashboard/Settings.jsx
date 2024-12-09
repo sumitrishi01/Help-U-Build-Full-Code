@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './Settings.css'; // Import custom CSS for styling
 import ProfileUpdate from './ProfileUpdate';
+import RechargeHistory from './RechargeHistory';
+import ChatDeductionHistory from './ChatDeductionHistory';
 // import Profile from './Tabs/Profile';
 // import { Documnets } from './Tabs/Documnets';
 // import Password from './Tabs/Password';
@@ -10,8 +12,8 @@ import ProfileUpdate from './ProfileUpdate';
 function Settings({ myProfile }) {
     const tabs = [
         { id: 1, title: 'Profile', content: 'Tab 1 content' },
-        // { id: 2, title: 'Documents', content: 'Tab 2 content' },
-        // { id: 3, title: 'Change Password', content: 'Tab 3 content' },
+        { id: 2, title: 'Recharge History', content: 'Tab 2 content' },
+        { id: 3, title: 'Chat Deductions History', content: 'Tab 3 content' },
         // { id: 4, title: 'Share Profile', content: 'Share your profile with others' },
         // { id: 5, title: 'Enquiry', content: 'Tab 3 content' }
     ];
@@ -44,9 +46,9 @@ function Settings({ myProfile }) {
             {/* Tab Content */}
             <div className="tab-content">
                 {activeTab === 1 && <ProfileUpdate />}
-                {/* {activeTab === 2 && <></>}
-                {activeTab === 3 && <></>}
-                {activeTab === 4 && <></>}
+                {activeTab === 2 && <RechargeHistory/>}
+                {activeTab === 3 && <ChatDeductionHistory />}
+                {/* {activeTab === 4 && <></>}
                 {activeTab === 5 && <></>} */}
             </div>
         </>

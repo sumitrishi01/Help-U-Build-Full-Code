@@ -18,18 +18,18 @@ const Cards = () => {
 
   useEffect(() => {
     if (window.bootstrap && window.bootstrap.Tooltip) {
-        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.forEach((tooltipTriggerEl) => {
-            new window.bootstrap.Tooltip(tooltipTriggerEl);
-        });
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      tooltipTriggerList.forEach((tooltipTriggerEl) => {
+        new window.bootstrap.Tooltip(tooltipTriggerEl);
+      });
     } else {
-        console.error("Bootstrap Tooltip is not defined.");
+      console.error("Bootstrap Tooltip is not defined.");
     }
-}, []);
+  }, []);
 
 
 
-  
+
 
   const data = [
     {
@@ -37,15 +37,15 @@ const Cards = () => {
       Btntitle: "Consult With Architect",
       image: <Arch />,
       borderColor: "border border-warning",
-      href: "Architecture",
-      description: "Bring your dream spaces to life with expert architects guiding every step."
+      href: "talk-to-architect",
+      description: "Bring your dream spaces to life with expert architects guiding you at ever step.",
     },
     {
       id: 2,
       Btntitle: "Consult with Interior Designer",
       image: <Int />,
       borderColor: "border border-warning",
-      href: "Interior",
+      href: "talk-to-interior",
       description: "Transform your home into a haven of beauty and comfort with personalized design."
     },
     {
@@ -68,8 +68,8 @@ const Cards = () => {
                 <div className="row text-left">
                   {data.map((post) => (
                     <div key={post.id} data-aos="flip-left"
-                    data-aos-easing="ease-out-cubic"
-                    data-aos-duration="2000" className="col-lg-4 col-md-4 col-sm-12 col-12 mb-4">
+                      data-aos-easing="ease-out-cubic"
+                      data-aos-duration="2000" className="col-lg-4 col-md-4 col-sm-12 col-12 mb-4">
                       <div className={`Own-card_card ${post.borderColor} h-100`}>
                         <div className="Own-card_card-body text-center">
                           <div className="Own-card_image-wrapper mb-3">
@@ -126,7 +126,7 @@ const Cards = () => {
                               </li>
                             </ul>
                           </div>
-                          
+
 
                         </div>
                       </div>

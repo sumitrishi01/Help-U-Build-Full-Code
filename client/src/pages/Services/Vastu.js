@@ -9,7 +9,7 @@ const Vastu = () => {
   const [allProvider, setAllProvider] = useState([])
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
       // console.log(data.data)
       const allData = data.data;
       const filterData = allData.filter(item => item.type === 'Vastu')
@@ -34,7 +34,7 @@ const Vastu = () => {
                   <form>
                     <div className='top-bar'>
                       <div className='architectur-bar'>
-                        <h3 className='architecture-heading'>Talk To Vastu Experts</h3>
+                        <h3 className='architecture-heading'>Talk To Vastu Expert</h3>
                       </div>
                       <div className='architectur-bar'>
                         <div className="available-balance medium-device-balance"> Available balance: <main className="balance-avail"> ₹ 0 </main></div>

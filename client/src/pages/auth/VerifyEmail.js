@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
+import toast from 'react-hot-toast'
+import { setData } from '../../utils/sessionStoreage';
 
 const VerifyEmail = () => {
     const [query] = useSearchParams();
@@ -21,7 +24,7 @@ const VerifyEmail = () => {
         setTimer(initialTimer);
 
         if (initialTimer <= 0) {
-            setCanResend(true);  // Enable "Resend OTP" if expired
+            setCanResend(true); // Enable "Resend OTP" if expired
             return;
         }
 
@@ -49,35 +52,73 @@ const VerifyEmail = () => {
         setOtp(newOtp);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        // console.log("otp",otp)
 
         // const otpString = otp.join('');
-        // console.log(otpString);
         // if (otpString.length !== 6 || otpString.includes('')) {
-        //     alert('Please enter all 6 digits of the OTP');
+        //     toast.error('Please enter all 6 digits of the OTP');
         //     return;
         // }
 
+        const isValidOtp = otp.every((digit) => digit !== '' && !isNaN(digit));
+        if (!isValidOtp) {
+            toast.error('Please enter all 6 digits of the OTP');
+            return;
+        }
+
+        const otpString = otp.join('');
+        // console.log("otp string:", otpString);
+
         setLoading(true);
 
-        setTimeout(() => {
+        try {
+            // console.log("otpString".otpString)
+            // console.log("otpString",otpString)
+            const response = await axios.post(`https://api.helpubuild.co.in/api/v1/verify/email`, {
+                email,
+                otp: otpString,
+            });
+            toast.success(response.data.message);
+            const { token, user } = response.data
+            setData('token', token)
+            setData('islogin', token ? true : false)
+            setData('user',user)
+            window.location.href = '/'
+        } catch (error) {
+            toast.error(
+                error?.response?.data?.message ||
+                'Failed to verify OTP. Please try again.'
+            );
+        } finally {
             setLoading(false);
-            alert('OTP verified successfully!');
-        }, 2000);
+        }
     };
 
-    const handleResend = () => {
+    const handleResend = async () => {
         if (canResend) {
             setLoading(true);
             setOtp(Array(6).fill(''));
             setTimer(0); // Reset timer on resend
 
-            setTimeout(() => {
-                setLoading(false);
+            try {
+                const response = await axios.post(`https://api.helpubuild.co.in/api/v1/resend-otp/email`, {
+                    email,
+                });
+                // alert(response.data.message);
+                toast.success(response.data.message);
                 setCanResend(false); // Disable the button after resending
-                alert('A new OTP has been sent to your email');
-            }, 2000);
+                setTimer(180); // Reset the timer for 3 minutes
+            } catch (error) {
+                console.log("Internal server error", error)
+                toast.error(
+                    error?.response?.data?.message ||
+                    'Failed to resend OTP. Please try again later.'
+                );
+            } finally {
+                setLoading(false);
+            }
         }
     };
 

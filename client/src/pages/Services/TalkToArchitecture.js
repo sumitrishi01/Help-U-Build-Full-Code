@@ -3,12 +3,45 @@ import StarRating from '../../components/StarRating/StarRating'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
+import { GetData } from '../../utils/sessionStoreage'
+import { Modal, Button, Form } from 'react-bootstrap';
 
 function TalkToArchitect() {
   const [allProvider, setAllProvider] = useState([])
+  const [showModal, setShowModal] = useState(false);
+  const [amount, setAmount] = useState('');
+  const Data = GetData('user')
+  const token = GetData('token')
+  const UserData = JSON.parse(Data)
+  const [walletAmount, setWalletAmount] = useState(0);
+  const [formData, setFormData] = useState({
+    userId: '',
+    providerId: "",
+})
+
+  const handleFetchUser = async () => {
+    try {
+      const UserId = UserData?._id;
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/user/${UserId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      )
+
+      const formattedAmount = data.data.walletAmount.toFixed(2);
+
+      setWalletAmount(formattedAmount);
+    } catch (error) {
+      console.log("Internal server error in fetching User")
+      toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+    }
+  }
+
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
       const allData = data.data;
       const filterData = allData.filter((item) => item.type === 'Architect')
       setAllProvider(filterData)
@@ -18,8 +51,121 @@ function TalkToArchitect() {
     }
   }
   useEffect(() => {
-    handleFetchProvider()
+    if (UserData.role === 'user') {
+      handleFetchUser();
+    }
+    handleFetchProvider();
   }, [])
+
+  const handleOpenModel = async () => {
+    if (!token) {
+      return toast.error('Login First!');
+    } else if (UserData?.role === 'provider') {
+      return toast.error(`You are a provider. You don't have access.`);
+    }
+    setShowModal(true);
+  };
+
+  // Dynamically load the Razorpay script
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleCloseModel = () => {
+    setShowModal(false);
+    setAmount(''); // Reset the amount when closing the modal
+  };
+
+  const handlePresetAmount = (preset) => {
+    setAmount(preset);
+  };
+
+  const handleActiveTime = async (Chat, providerId) => {
+    if (!UserData) {
+      return toast.error('Login first');
+    } else if (UserData.role === 'provider') {
+      return toast.error("Access Denied: Providers are not authorized to access this feature.");
+    } else if (Chat === 'Chat') {
+      const newForm = {
+        ...formData,
+        userId: UserData._id,
+        providerId: providerId, // Include providerId
+      };
+      try {
+        const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm);
+        window.location.href = '/chat';
+      } catch (error) {
+        console.log("Internal server error", error);
+        toast.error(
+          error?.response?.data?.errors?.[0] ||
+          error?.response?.data?.message ||
+          "Please try again later"
+        );
+      }
+    }
+  };
+  
+
+  const handleMakePayment = async () => {
+    if (!amount || amount <= 0) {
+      return toast.error('Please enter a valid amount');
+    }
+    // toast.success(`Proceeding with payment of ₹${amount}`);
+    // handleCloseModel();
+
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert('Failed to load Razorpay SDK. Please check your connection.');
+        return;
+      }
+
+      const UserId = UserData?._id;
+
+      const res = await axios.post(`https://api.helpubuild.co.in/api/v1/create-payment/${UserId}`, {
+        price: amount
+      })
+      console.log("Order", res.data.data)
+      const order = res.data.data.razorpayOrder;
+
+      if (order) {
+
+        const options = {
+          key: 'rzp_test_cz0vBQnDwFMthJ',
+          amount: amount * 100,
+          currency: 'INR',
+          name: 'Help U Build',
+          description: 'Doing Recharge',
+          order_id: order?.id || '',
+          callback_url: "https://api.helpubuild.co.in/api/v1/verify-payment",
+          prefill: {
+            name: UserData?.name,
+            email: UserData?.email,
+            contact: UserData?.PhoneNumber
+          },
+          theme: {
+            color: '#F37254'
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+
+        rzp.open();
+      }
+
+
+    } catch (error) {
+      console.log("Internal server error", error)
+      toast.error(error?.response?.data?.message || 'Failed to Reacharge. Please try again.');
+    }
+  };
+
   return (
     <>
       <div className='main-bg'>
@@ -34,11 +180,11 @@ function TalkToArchitect() {
                         <h3 className='architecture-heading'>Talk To Architect</h3>
                       </div>
                       <div className='architectur-bar'>
-                        <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ 0 </main></div>
+                        <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ {walletAmount} </main></div>
                       </div>
                       <div className='architectur-bar'>
                         <div className='recharge-btn'>
-                          <a className="medium-device-recharge">Recharge</a>
+                          <a onClick={handleOpenModel} className="medium-device-recharge">Recharge</a>
                           <button className="filter_short-btn"><i class="fa fa-filter"></i> Filter </button>
                           <button type="button" class="btn filter-short-by" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i className="fa fa-sort-amount-desc"></i> Sort by</button>
                           {/* filter-short-by modal popup */}
@@ -127,7 +273,7 @@ function TalkToArchitect() {
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-chat-btn mt-2"><i class="fa-regular fa-comments"></i> Chat</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-video-btn mt-2"><i class="fa-solid fa-video"></i> Video</button> */}
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
+                            <button onClick={() => handleActiveTime("Chat", item._id)}  style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                           </div>
                         </div>
@@ -151,6 +297,46 @@ function TalkToArchitect() {
 
         </div>
       </div>
+
+
+      <Modal show={showModal} onHide={handleCloseModel} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Recharge Wallet</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Enter Recharge Amount</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="Enter amount"
+                value={amount}
+                style={{ border: '1px solid #CFD4DA' }}
+                onChange={(e) => setAmount(e.target.value)}
+              />
+            </Form.Group>
+            <div className="d-flex justify-content-around my-3">
+              {[100, 300, 500].map((preset) => (
+                <Button
+                  key={preset}
+                  variant="outline-primary"
+                  onClick={() => handlePresetAmount(preset)}
+                >
+                  ₹{preset}
+                </Button>
+              ))}
+            </div>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModel}>
+            Close
+          </Button>
+          <Button style={{ backgroundColor: '#E9BB37', border: '1px solid #E9BB37' }} variant="primary" onClick={handleMakePayment}>
+            Confirm Recharge
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   )
 }

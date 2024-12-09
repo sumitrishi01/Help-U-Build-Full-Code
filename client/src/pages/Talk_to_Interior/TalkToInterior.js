@@ -8,7 +8,7 @@ const TalkToInterior = () => {
     const [allProvider, setAllProvider] = useState([])
     const handleFetchProvider = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
+            const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
             // console.log(data.data)
             // console.log("alldata",data.data)
             const allData = data.data

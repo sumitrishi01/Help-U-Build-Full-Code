@@ -11,6 +11,7 @@
     -moz-transform: translateY(-3px);
     -ms-transform: translateY(-3px);
     -o-transform: translateY(-3px);
+    z-index: 99;
 }
   
   .fixed-header.show {

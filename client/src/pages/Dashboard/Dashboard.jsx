@@ -13,12 +13,13 @@ function Dashboard() {
   const UserData = JSON.parse(Data)
   const userId = UserData._id
   const token = GetData('token');
+  // console.log(token)
 
   const GetMyProfile = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/v1/user/${userId}`, {
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       // console.log("data: ", data.data)

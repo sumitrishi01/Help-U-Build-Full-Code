@@ -22,7 +22,7 @@ const Contact = () => {
                                         <span class="as_icon">
                                             <img src="assets/images/svg/pin.svg" alt="" />
                                         </span>
-                                        <p>368, Harbala ki Dhani, Village Sikohpur, Sector 78, Gurugram-122004</p>
+                                        <p> E-520A, 3rd Floor, Sector 7, Dwarka, New Delhi- 110075</p>
                                     </li>
                                     <li class="as_info_box">
                                         <span class="as_icon">
@@ -38,7 +38,7 @@ const Contact = () => {
                                     </li>
                                 </ul>
                                 <div class="as_map">
-                                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3510.36179487597!2d76.96618347527914!3d28.37813852580473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d3d06f3106879%3A0x8ab0d9d5ee82d8e7!2sHarbala%20Dhani%20Shikohpur%2C%20Sector%2078%2C%20Gurugram%2C%20Haryana%20122004!5e0!3m2!1sen!2sin!4v1724315351033!5m2!1sen!2sin" width="100%" height="318" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.492516315673!2d77.06982277522413!3d28.584997986238168!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d1b8edcfcd7f9%3A0x74a42210a33d0b1d!2sPandit%20Buildwell%20%7C%20Best%20Architects%20and%20Interior%20Designer%20in%20Delhi!5e0!3m2!1sen!2sin!4v1733481938019!5m2!1sen!2sin" width="100%" height="318" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                                 </div>
                             </div>
                         </div>
