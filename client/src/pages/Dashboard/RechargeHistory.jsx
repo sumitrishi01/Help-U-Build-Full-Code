@@ -14,13 +14,7 @@ function RechargeHistory() {
     const handleFetchUser = async () => {
         try {
             const UserId = UserData?._id;
-            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/user/${UserId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-user/${UserId}`);
             const history = data.data?.rechargeHistory;
             setRechargeHistory(history.reverse() || []);
         } catch (error) {
@@ -42,6 +36,19 @@ function RechargeHistory() {
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
     const totalPages = Math.ceil(rechargeHistory.length / itemsPerPage);
+
+    // Navigate to previous or next page
+    const handlePreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
 
     return (
         <div className="my-5">
@@ -85,6 +92,14 @@ function RechargeHistory() {
                 {totalPages > 1 && (
                     <nav className="d-flex justify-content-center">
                         <ul className="pagination">
+                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={handlePreviousPage}
+                                >
+                                    Previous
+                                </button>
+                            </li>
                             {Array.from({ length: totalPages }, (_, index) => (
                                 <li
                                     key={index}
@@ -98,6 +113,14 @@ function RechargeHistory() {
                                     </button>
                                 </li>
                             ))}
+                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                <button
+                                    className="page-link"
+                                    onClick={handleNextPage}
+                                >
+                                    Next
+                                </button>
+                            </li>
                         </ul>
                     </nav>
                 )}

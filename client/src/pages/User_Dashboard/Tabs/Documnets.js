@@ -22,7 +22,7 @@ export const Documnets = () => {
     const fetchProvider = async () => {
       try {
         const { data } = await axios.get(
-          `https://api.helpubuild.co.in/api/v1/get-single-provider/${UserId}`
+          `http://localhost:5000/api/v1/get-single-provider/${UserId}`
         );
         const providerData = data.data;
         setUploadedImages({
@@ -66,7 +66,7 @@ export const Documnets = () => {
     setLoading(true);
     try {
       const res = await axios.put(
-        `https://api.helpubuild.co.in/api/v1/update-provider-documents/${UserId}`,
+        `http://localhost:5000/api/v1/update-provider-documents/${UserId}`,
         formData,
         {
           headers: {

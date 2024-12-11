@@ -133,6 +133,91 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    walletAmount: {
+        type: Number,
+        default : 0
+    },
+    lastChatTransitionId: {
+        type: String
+    },
+    chatTransition: [{
+        startChatTime: { type: String },
+        endingChatTime: { type: String },
+        startingChatAmount: { type: Number },
+        providerPricePerMin: { type: Number },
+        chatTimingRemaining: { type: Number },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        deductionAmount: { type: Number },
+        Date: { type: Date, default: Date.now },
+    },],
+    bankDetail: {
+        accountHolderName: {
+            type: String,
+            required: true,
+        },
+        bankName: {
+            type: String,
+            required: true,
+        },
+        accountNumber: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function (v) {
+                    return /^\d{9,18}$/.test(v); // Ensures the account number is numeric and 9–18 digits long
+                },
+                message: props => `${props.value} is not a valid account number!`,
+            },
+        },
+        ifscCode: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function (v) {
+                    return /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v); // Standard IFSC code format
+                },
+                message: props => `${props.value} is not a valid IFSC code!`,
+            },
+        },
+        branchName: {
+            type: String,
+            required: true,
+        },
+        // mobileNumber: {
+        //     type: String,
+        //     required: true,
+        //     validate: {
+        //         validator: function (v) {
+        //             return /^[6-9]\d{9}$/.test(v); // Validates Indian mobile numbers
+        //         },
+        //         message: props => `${props.value} is not a valid mobile number!`,
+        //     },
+        // },
+        // email: {
+        //     type: String,
+        //     required: true,
+        //     validate: {
+        //         validator: function (v) {
+        //             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); // Standard email format
+        //         },
+        //         message: props => `${props.value} is not a valid email address!`,
+        //     },
+        // },
+        panCardNumber: {
+            type: String,
+            required: true,
+            validate: {
+                validator: function (v) {
+                    return /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(v); // Standard PAN card format
+                },
+                message: props => `${props.value} is not a valid PAN card number!`,
+            },
+        },
+    },
+    
 });
 
 // Password hashing

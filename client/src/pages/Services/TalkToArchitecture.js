@@ -22,13 +22,7 @@ function TalkToArchitect() {
   const handleFetchUser = async () => {
     try {
       const UserId = UserData?._id;
-      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/user/${UserId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        }
-      )
+      const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-user/${UserId}`);
 
       const formattedAmount = data.data.walletAmount.toFixed(2);
 
@@ -41,7 +35,7 @@ function TalkToArchitect() {
 
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
+      const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider')
       const allData = data.data;
       const filterData = allData.filter((item) => item.type === 'Architect')
       setAllProvider(filterData)
@@ -51,7 +45,7 @@ function TalkToArchitect() {
     }
   }
   useEffect(() => {
-    if (UserData.role === 'user') {
+    if (UserData?.role === 'user') {
       handleFetchUser();
     }
     handleFetchProvider();
@@ -98,7 +92,7 @@ function TalkToArchitect() {
         providerId: providerId, // Include providerId
       };
       try {
-        const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm);
+        const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm);
         window.location.href = '/chat';
       } catch (error) {
         console.log("Internal server error", error);
@@ -128,7 +122,7 @@ function TalkToArchitect() {
 
       const UserId = UserData?._id;
 
-      const res = await axios.post(`https://api.helpubuild.co.in/api/v1/create-payment/${UserId}`, {
+      const res = await axios.post(`http://localhost:5000/api/v1/create-payment/${UserId}`, {
         price: amount
       })
       console.log("Order", res.data.data)
@@ -143,7 +137,7 @@ function TalkToArchitect() {
           name: 'Help U Build',
           description: 'Doing Recharge',
           order_id: order?.id || '',
-          callback_url: "https://api.helpubuild.co.in/api/v1/verify-payment",
+          callback_url: "http://localhost:5000/api/v1/verify-payment",
           prefill: {
             name: UserData?.name,
             email: UserData?.email,

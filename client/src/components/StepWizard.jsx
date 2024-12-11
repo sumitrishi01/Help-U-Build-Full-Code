@@ -75,7 +75,7 @@ const StepWizard = () => {
     const fetchCurrentLocation = async () => {
         if (!coords) return;
         try {
-            const res = await axios.post('https://api.helpubuild.co.in/Fetch-Current-Location', {
+            const res = await axios.post('http://localhost:5000/Fetch-Current-Location', {
                 lat: coords.latitude,
                 lng: coords.longitude
             });
@@ -143,13 +143,13 @@ const StepWizard = () => {
         if (!validatePhone() || !validateAge()) return;
         setLoading(true);
         try {
-            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register-provider', makeFormData());
+            const res = await axios.post('http://localhost:5000/api/v1/register-provider', makeFormData());
             toast.success(res.data.message);
             const { token, user } = res.data;
             localStorage.clear();
             setData('token', token);
             setData('islogin', token ? true : false)
-            setData('user', JSON.stringify(user))
+            setData('user', user)
             window.location.href = "/"
         } catch (error) {
             console.error('Error during registration:', error);
@@ -268,7 +268,7 @@ const StepWizard = () => {
                                                         <option>Select Your Type</option>
                                                         <option value="Architect">Architect</option>
                                                         <option value="Interior">Interior Designer</option>
-                                                        <option value="Vastu">Vastu Experts</option>
+                                                        <option value="Vastu">Vastu Expert</option>
                                                     </select>
                                                 </div>
                                             </div>

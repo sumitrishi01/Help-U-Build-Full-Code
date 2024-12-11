@@ -93,7 +93,9 @@ exports.registeruser = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
     try {
         const { type } = req.params;
+        // console.log("body",req.body)
         const { email, otp, password } = req.body;
+        // console.log("otp",otp)
 
         // Check if the account is a user
         let account = await User.findOne({ email });
@@ -117,12 +119,12 @@ exports.verifyEmail = async (req, res) => {
             verificationMessage = "Email verified successfully.";
         } else if (type === 'password') {
             accountOtp = account.resetPasswordOtp;
+            console.log("account", account)
             otpExpiresAt = account.resetPasswordExpiresAt;
             verificationMessage = "OTP verified for password reset.";
         } else {
             return res.status(400).json({ success: false, message: "Invalid verification type or unauthorized email verification for providers." });
         }
-
 
         if (accountOtp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP." });
@@ -224,29 +226,23 @@ exports.resendOtp = async (req, res) => {
 
 
 exports.updateProfile = async (req, res) => {
+    // console.log("object")
     try {
-        const userId = req.user.id;
+        const userId = req.params.id;
 
         if (!userId) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
         const { name, email, PhoneNumber } = req.body;
-        const { ProfileImage } = req.file;
-        if (!ProfileImage) {
-            return res.status(400).json({
-                success: false,
-                message: "Please upload a profile image",
-                error: "Profile image is required"
-            })
-        }
+        // const { ProfileImage } = req.file;
 
         const updateFields = {};
 
         if (req.file) {
             const { imageUrl, public_id } = await uploadToCloudinary(req.file.buffer)
             updateFields.ProfileImage = {
-                url: imageUrl,
+                imageUrl: imageUrl,
                 public_id: public_id
             }
         }
@@ -269,7 +265,11 @@ exports.updateProfile = async (req, res) => {
         return res.status(200).json({ success: true, message: "Profile updated successfully", user: updatedUser });
     } catch (error) {
         console.error("Error updating profile:", error);
-        return res.status(500).json({ success: false, message: "An error occurred while updating the profile" });
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+            error: error.message
+        });
     }
 };
 
@@ -366,7 +366,7 @@ exports.logout = (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email, newPassword } = req.body;
-
+        // console.log("body",req.body)
         if (!email) {
             return res.status(400).json({ success: false, message: "Please provide your email address." });
         }
@@ -375,7 +375,9 @@ exports.forgotPassword = async (req, res) => {
         let isProvider = false;
 
         if (!user) {
-            user = await Provider.findOne(email);
+            // console.log("i am in provider")
+            user = await Provider.findOne({ email });
+            // console.log("i am in provider",user)
             isProvider = true;
         }
 
@@ -397,10 +399,7 @@ exports.forgotPassword = async (req, res) => {
             message: `Hello,\n\n` +
                 `We received a request to reset the password for your ${isProvider ? "provider" : "user"} account. Please use the OTP below to proceed with your password reset:\n\n` +
                 `OTP: ${otp}\n` +
-                `This OTP is valid for 2 minutes (expires at: ${new Date(expiresAt).toISOString()}).\n\n` +
-                `To complete the reset, please visit the following link:\n` +
-                `${process.env.FRONTEND_URL}/reset-password/${user._id}?token=${otp}&email=${email}&password=${newPassword}\n\n` +
-                `If you did not request this, please ignore this email, and your password will remain unchanged.\n`,
+                `This OTP is valid for 2 minutes (expires at: ${new Date(expiresAt).toISOString()}).\n\n`,
         };
 
         await sendEmail(emailContent);
@@ -443,8 +442,9 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getSingleUserById = async (req, res) => {
     try {
+        console.log(id)
         const userId = req.params.id;
-        const user = await User.findById(userId).select('-Password');;
+        const user = await User.findById(userId).select('-Password');
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
@@ -456,6 +456,22 @@ exports.getSingleUserById = async (req, res) => {
         res.status(500).json({ success: false, message: "An error occurred while retrieving the user." });
     }
 };
+
+exports.getSingleUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id).select('-Password');
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        res.status(200).json({ success: true, data: user });
+    } catch (error) {
+        console.error("Error fetching user by ID:", error);
+        res.status(500).json({ success: false, message: "An error occurred while retrieving the user." });
+    }
+}
 
 exports.deleteAccount = async (req, res) => {
     try {
@@ -717,6 +733,7 @@ exports.chatStart = async (userId, astrologerId) => {
         }
 
         const walletAmount = user?.walletAmount;
+        const providerWalletAmount = provider?.walletAmount;
         const providerPricePerMin = provider?.pricePerMin;
         if (walletAmount < providerPricePerMin) {
             return {
@@ -731,6 +748,7 @@ exports.chatStart = async (userId, astrologerId) => {
         const chatTimingRemaining = Math.floor(walletAmount / providerPricePerMin);
         const currentTime = new Date().toISOString();
         user.chatTransition = user.chatTransition || []; // Initialize if undefined
+        provider.chatTransition = provider.chatTransition || []; // Initialize if undefined
         const newChatTransition = {
             _id: newChatTransitionId,
             startChatTime: currentTime,
@@ -739,13 +757,24 @@ exports.chatStart = async (userId, astrologerId) => {
             chatTimingRemaining: chatTimingRemaining,
             provider: provider._id,
         };
+        const newChatTransitionProvider = {
+            _id: newChatTransitionId,
+            startChatTime: currentTime,
+            startingChatAmount: providerWalletAmount,
+            providerPricePerMin: providerPricePerMin,
+            chatTimingRemaining: chatTimingRemaining,
+            user: user._id,
+        };
         user.chatTransition.push(newChatTransition);
+        provider.chatTransition.push(newChatTransitionProvider);
 
         user.lastChatTransitionId = newChatTransitionId;
+        provider.lastChatTransitionId = newChatTransitionId;
 
         // console.log("newChatTransition", newChatTransition)
 
         await user.save();
+        await provider.save();
 
         return {
             success: true,
@@ -779,6 +808,15 @@ exports.chatEnd = async (userId, astrologerId) => {
             };
         }
 
+        const findProvider = await Provider.findById(astrologerId);
+        if (!findProvider) {
+            return {
+                success: false,
+                message: 'Provider not found',
+                error: 'Provider not found',
+            };
+        }
+
         // Check if the user is a provider, in which case we should find the provider
         let user;
         if (findUser.role === 'provider') {
@@ -809,11 +847,24 @@ exports.chatEnd = async (userId, astrologerId) => {
             (transition) => transition._id.toString() === user.lastChatTransitionId.toString()
         );
 
+        // Find the last chat transition
+        const providerLastTransition = findProvider.chatTransition.find(
+            (transition) => transition._id.toString() === findProvider.lastChatTransitionId.toString()
+        );
+
         if (!lastTransition) {
             return {
                 success: false,
-                message: 'No active chat found to end',
-                error: 'No active chat found to end',
+                message: 'No active chat found to end in user',
+                error: 'No active chat found to end in user',
+            };
+        }
+
+        if (!providerLastTransition) {
+            return {
+                success: false,
+                message: 'No active chat found to end in provider',
+                error: 'No active chat found to end in provider',
             };
         }
 
@@ -832,9 +883,20 @@ exports.chatEnd = async (userId, astrologerId) => {
         lastTransition.endingChatAmount = (user.walletAmount * 100 - walletUsedInPaise) / 100; // Deducted amount in rupees
         user.walletAmount -= walletUsedInPaise / 100;  // Deduct wallet amount for chat duration (converted back to rupees)
         user.lastChatTransitionId = null;
+        lastTransition.deductionAmount = walletUsedInPaise / 100;
+        lastTransition.Date = endTime
+
+        // Set the chat ending details
+        providerLastTransition.endingChatTime = endTime.toISOString();
+        // providerLastTransition.endingChatAmount = (user.walletAmount * 100 - walletUsedInPaise) / 100; // Deducted amount in rupees
+        findProvider.walletAmount += walletUsedInPaise / 100;  // Deduct wallet amount for chat duration (converted back to rupees)
+        findProvider.lastChatTransitionId = null;
+        providerLastTransition.deductionAmount = walletUsedInPaise / 100;
+        providerLastTransition.Date = endTime
 
         // Save the updated user data
         await user.save();
+        await findProvider.save();
 
         return {
             success: true,

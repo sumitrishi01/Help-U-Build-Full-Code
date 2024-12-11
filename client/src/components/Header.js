@@ -13,6 +13,7 @@ const Header = () => {
     dashboard: ''
   });
 
+
   const [scrollValue, setScrollValue] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const handleOpen = () => {
@@ -59,6 +60,8 @@ const Header = () => {
   // console.log(sessionData)
   const location = useLocation();
   const [active, setActive] = useState(location.pathname);
+
+  // console.log("sessionData",sessionData)
 
   useEffect(() => {
     setActive(location.pathname);
@@ -132,7 +135,7 @@ const Header = () => {
 
                           <Link onClick={handleLinkClick}
                             className={`as_btn ${active === "/Profile" ? "active" : ""}`}
-                            to={`${sessionData.role === 'provider' ? `/profile?role=${sessionData.role}` : `/user-profile`
+                            to={`${sessionData?.user?.role === 'provider' ? `/profile?role=${sessionData.role}` : `/user-profile`
                               }`}
                           >
                             Profile

@@ -24,10 +24,10 @@ function Login() {
     }
 
     const handleloginSubmit = async (e) => {
-        console.log("first")
+        // console.log("first")
         e.preventDefault()
         try {
-            const { data } = await axios.post('https://api.helpubuild.co.in/api/v1/login', logindata);
+            const { data } = await axios.post('http://localhost:5000/api/v1/login', logindata);
             console.log(data)
             const { token, user, message } = data
             setData('token', token)
@@ -121,7 +121,7 @@ function Login() {
                                                         Login Now
                                                     </button>
                                                 </div>
-                                                <a className="small text-white" href="#!">Forgot password?
+                                                <a className="small text-white" href="/forget-password">Forgot password?
                                                 </a>
                                                 <p className=" mt-3 pb-lg-2 text-white">
                                                     Don't have an account? {""}

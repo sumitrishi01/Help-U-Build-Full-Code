@@ -108,8 +108,11 @@ exports.GetMyProfile = async (req, res) => {
         if (!userId) {
             return res.status(401).json({ message: 'Please login To Access Your Dashboard ' });
         }
-        const provider = await providersModel.findById(userId).populate('portfolio');
-        console.log(provider)
+        const provider = await providersModel.findById(userId)
+            .populate('portfolio')
+            .populate('chatTransition.user');
+
+        // console.log(provider)
         if (!provider) {
             return res.status(404).json({ message: 'Provider not found' });
         }
@@ -505,6 +508,74 @@ exports.updateAvailable = async (req, res) => {
         });
     } catch (error) {
         console.log('Internal server error in updating', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+};
+
+exports.updateBankDetail = async (req, res) => {
+    try {
+        const { providerId } = req.params;
+        const {
+            accountHolderName,
+            bankName,
+            accountNumber,
+            ifscCode,
+            branchName,
+            panCardNumber
+        } = req.body;
+
+        // Validate input
+        if (!accountHolderName || !bankName || !accountNumber || !ifscCode || !branchName || !panCardNumber) {
+            return res.status(400).json({
+                success: false,
+                message: 'All fields are required',
+            });
+        }
+
+        // Find the provider
+        const provider = await providersModel.findById(providerId);
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider not found',
+            });
+        }
+
+        // Check if bank details already exist
+        if (provider.bankDetail && Object.keys(provider.bankDetail).length > 0) {
+            // Update only the provided fields
+            provider.bankDetail.accountHolderName = accountHolderName;
+            provider.bankDetail.bankName = bankName;
+            provider.bankDetail.accountNumber = accountNumber;
+            provider.bankDetail.ifscCode = ifscCode;
+            provider.bankDetail.branchName = branchName;
+            provider.bankDetail.panCardNumber = panCardNumber;
+        } else {
+            // Create new bank details
+            provider.bankDetail = {
+                accountHolderName,
+                bankName,
+                accountNumber,
+                ifscCode,
+                branchName,
+                panCardNumber,
+            };
+        }
+
+        // Save the updated provider
+        await provider.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Bank details updated successfully',
+            bankDetail: provider.bankDetail,
+        });
+    } catch (error) {
+        console.error("Internal server error", error);
         res.status(500).json({
             success: false,
             message: 'Internal server error',

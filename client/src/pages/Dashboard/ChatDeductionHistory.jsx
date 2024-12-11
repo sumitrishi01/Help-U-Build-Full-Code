@@ -14,11 +14,7 @@ function ChatDeductionHistory() {
     const fetchChatDeduction = async () => {
         try {
             const UserId = UserData?._id;
-            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/user/${UserId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-user/${UserId}`);
             const chatHistory = data.data?.chatTransition;
             setChat(chatHistory.reverse());
         } catch (error) {
@@ -59,8 +55,9 @@ function ChatDeductionHistory() {
                                     <th>Start Time</th>
                                     <th>Starting Amount</th>
                                     <th>Provider Price Per Minute</th>
-                                    <th>Time Remaining (mins)</th>
+                                    {/* <th>Time Remaining (mins)</th> */}
                                     <th>Ending Amount</th>
+                                    <th>Duration</th>
                                     <th>End Time</th>
                                 </tr>
                             </thead>
@@ -71,8 +68,9 @@ function ChatDeductionHistory() {
                                         <td>{formatChatTime(chat.startChatTime)}</td>
                                         <td>₹{chat.startingChatAmount ? chat.startingChatAmount.toFixed(2) : 'N/A'}</td>
                                         <td>₹{chat.providerPricePerMin}</td>
-                                        <td>{chat.chatTimingRemaining}</td>
+                                        {/* <td>{chat.chatTimingRemaining}</td> */}
                                         <td>₹{chat.endingChatAmount ? chat.endingChatAmount.toFixed(2) : 'N/A'}</td>
+                                        <td>₹{chat.deductionAmount ? chat.deductionAmount.toFixed(2) : '0.00'}</td>
                                         <td>{chat.endingChatTime ? formatChatTime(chat.endingChatTime) : 'N/A'}</td>
                                     </tr>
                                 ))}

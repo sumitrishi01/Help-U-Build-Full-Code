@@ -1,7 +1,7 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
-const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable } = require('../controllers/provider.controller');
+const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail } = require('../controllers/provider.controller');
 const multer = require('multer');
 const { getAllChat } = require('../controllers/ChatController');
 const { createReview, getAllReview, getReviewByProviderId } = require('../controllers/review.Controller');
@@ -20,7 +20,7 @@ const router = express.Router();
 
 //User registration related routes
 router.post('/register', registeruser);
-router.put('/user/update-profile', protect, updateProfile);
+router.put('/user/update-profile/:id',upload.single('ProfileImage'), updateProfile);
 router.post('/login', login);
 router.post('/logout', protect, logout);
 router.post('/verify/:type', verifyEmail);
@@ -58,6 +58,7 @@ router.put('/update-provider-documents/:providerId', upload.fields([
     { name: 'photo', maxCount: 1 }
 ]), updateDocuments)
 router.put('/update-provider-profile/:_id', updateProvider)
+router.put('/update-bank-detail/:providerId', updateBankDetail)
 router.put('/update-provider-password/:providerId', updatePassword)
 router.get('/GetMyProfile', protect, GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
@@ -88,6 +89,7 @@ router.get('/get-all-provider', getAllProvider)
 //admin routes
 router.get('/users', protect, getAllUsers);
 router.get('/user/:id', protect, getSingleUserById);
+router.get('/get-single-user/:id',getSingleUser)
 router.delete('/user/:userId', protect, deleteAccount);
 router.put('/user/:userId/ban', protect, banUserToggle);
 

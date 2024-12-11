@@ -225,16 +225,3 @@ exports.getChatByUserid = async (req, res) => {
         })
     }
 }
-
-// exports.saveChat = async (req,res) => {
-//     try {
-        
-//     } catch (error) {
-//         console.log("Internal server error in saving chat",error)
-//         res.status(500).json({
-//             success: false,
-//             message: "Internal server error",
-//             error: error.message
-//         })
-//     }
-// }

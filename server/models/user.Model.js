@@ -10,7 +10,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-
     },
     PhoneNumber: {
         type: String,
@@ -94,11 +93,13 @@ const userSchema = new mongoose.Schema({
         startingChatAmount: { type: Number },
         endingChatAmount: { type: Number },
         providerPricePerMin: { type: Number },
-        chatTimingRemaining: {type:Number},
+        chatTimingRemaining: { type: Number },
         provider: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Provider'
-        }
+        },
+        deductionAmount: { type: Number },
+        Date: { type: Date, default: Date.now },
     },],
     lastChatTransitionId: {
         type: String

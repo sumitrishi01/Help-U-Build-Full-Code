@@ -266,10 +266,6 @@ app.get('/', (req, res) => {
     res.send('Welcome To Help U Build')
 })
 
-// app.listen(PORT, () => {
-//     console.log(`Server is running on port ${PORT}`)
-// })
-
 server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
 })

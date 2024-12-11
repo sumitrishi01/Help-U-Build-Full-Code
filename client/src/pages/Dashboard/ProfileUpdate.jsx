@@ -7,14 +7,15 @@ function ProfileUpdate() {
     const Data = GetData('user');
     const UserData = JSON.parse(Data);
     const UserId = UserData?._id;
-    const role = UserData?.type
+    const role = UserData?.type;
     const token = GetData('token');
 
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         PhoneNumber: '',
-        Gender: ''
+        Gender: '',
+        ProfileImage: null // to handle image file
     });
 
     const [loading, setLoading] = useState(false);
@@ -27,60 +28,80 @@ function ProfileUpdate() {
         }));
     };
 
+    const handleFileChange = (e) => {
+        const { name, files } = e.target;
+        if (files && files[0]) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                [name]: files[0]
+            }));
+        }
+    };
+
     const handleFetchUser = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-user-by-id/${UserId}`)
-            console.log(data.data)
+            const { data } = await axios.get(`http://localhost:5000/api/v1/get-user-by-id/${UserId}`);
+            // console.log(data.data);
             const allData = data.data;
-            console.log("object",allData)
             setFormData({
                 name: allData.name,
                 email: allData.email,
                 PhoneNumber: allData.PhoneNumber,
-                Gender: allData.gender
-            })
+                Gender: allData.gender,
+                ProfileImage: allData.ProfileImage?.url || null // add the URL if available
+            });
         } catch (error) {
             console.log("Internal server error in getting user data", error);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
+        const formDataToSend = new FormData();
+        formDataToSend.append('name', formData.name);
+        formDataToSend.append('email', formData.email);
+        formDataToSend.append('PhoneNumber', formData.PhoneNumber);
+        // formDataToSend.append('Gender', formData.Gender);
+
+        // If there's a profile image, append it to the form data
+        if (formData.ProfileImage) {
+            formDataToSend.append('ProfileImage', formData.ProfileImage);
+        }
+
         try {
             const response = await axios.put(
-                `https://api.helpubuild.co.in/api/v1/user/update-profile`,
-                formData,
+                `http://localhost:5000/api/v1/user/update-profile/${UserId}`,
+                formDataToSend,
                 {
                     headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
                     },
                 }
             );
             toast.success('Profile updated successfully!');
         } catch (error) {
-            console.log("Internal server error in updating", error)
+            console.log("Internal server error in updating", error);
             toast.error(
                 error?.response?.data?.message || 'Failed to update profile. Please try again.'
             );
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         handleFetchUser();
-    }, [])
+    }, []);
 
     return (
         <div className="mt-5">
             <h1 className="text-center mb-4">Profile</h1>
-            <form onSubmit={handleSubmit} className="card p-4">
+            <form onSubmit={handleSubmit} className="card p-4" encType="multipart/form-data">
                 <div className="row mb-3">
                     <div className="col-md-6">
                         <label htmlFor="name" className="form-label">
@@ -123,6 +144,20 @@ function ProfileUpdate() {
                             onChange={handleChange}
                         />
                     </div>
+                    {/* Profile Image Upload */}
+                    <div className="col-md-6 mt-2">
+                        <label htmlFor="ProfileImage" className="form-label">
+                            Profile Image
+                        </label>
+                        <input
+                            type="file"
+                            className="form-control"
+                            id="ProfileImage"
+                            name="ProfileImage"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                        />
+                    </div>
                 </div>
                 <button
                     type="submit"
@@ -133,7 +168,7 @@ function ProfileUpdate() {
                 </button>
             </form>
         </div>
-    )
+    );
 }
 
-export default ProfileUpdate
+export default ProfileUpdate;

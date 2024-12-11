@@ -7,6 +7,7 @@ import UploadGallery from './UploadGallery';
 import { toast } from 'react-hot-toast';
 import Settings from './Settings.js';
 import './userdashboard.css';
+import Wallet from './Wallet.js';
 
 const UserDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -18,6 +19,8 @@ const UserDashboard = () => {
   const [myProfile, setMyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Gallery')
+
+  const [walletAmount, setWalletAmount] = useState(0);
 
   // Get token from session storage
   const GetToken = () => {
@@ -31,11 +34,14 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
+      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       // console.log(data)
       setMyProfile(data.provider);
+      const formattedAmount = data.provider.walletAmount.toFixed(2);
+
+      setWalletAmount(formattedAmount);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -70,7 +76,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -90,6 +96,10 @@ const UserDashboard = () => {
   const handleLogout = () => {
     sessionStorage.clear()
     window.location.href = '/'
+  }
+
+  if(loading){
+    return <div>Loading...</div>
   }
 
   if (!myProfile) {
@@ -117,42 +127,70 @@ const UserDashboard = () => {
           <div className="col col-xl-12">
             <div className="card  profile-card-header" style={{ borderRadius: 15 }}>
               <div className="card-body p-4">
-                <div style={{ alignItems: 'center' }} className='d-flex mb-2'>
-                  <a href="#!">
-                    <img
-                      src={myProfile?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(myProfile.name || 'User')}&background=random`}
-                      alt="avatar"
-                      className="img-fluid d-flex object-cover rounded-circle me-3"
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                      }}
-                    />
+                <div className="d-flex justify-content-between">
+                  <div>
+                    <div style={{ alignItems: 'center' }} className='d-flex mb-2'>
+                      <a href="#!">
+                        <div style={{ position: 'relative' }}>
+                          <img
+                            src={myProfile?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(myProfile.name || 'User')}&background=random`}
+                            alt="avatar"
+                            className="img-fluid d-flex object-cover rounded-circle me-3"
+                            style={{
+                              width: '80px',
+                              height: '80px',
+                            }}
+                          />
+                          {myProfile?.isVerified && (
+                            <span
+                              className="badge "
+                              style={{
+                                position: 'absolute',
+                                top: '0',
+                                right: '0',
+                                // borderRadius: '50%',
+                                padding: '5px',
+                                backgroundColor: '#090986',
+                                color: 'white'
+                              }}
+                            >
+                              Verified
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                      <h3 className="mb-3">{myProfile.name}</h3>
+                    </div>
+                    <p className="small mb-0">
+                      <i className="fas fa-star fa-lg text-warning" />{" "}<span>{myProfile?.type}</span>
+                      <span className="mx-2">|</span>
+                      {`₹ ${myProfile.pricePerMin}/min`} <span className="mx-2">|</span>
 
-                  </a>
-                  <h3 className="mb-3">{myProfile.name}</h3>
+                      <span>{myProfile.language && myProfile.language.map((lang, index) => {
+                        return (
+                          <span key={index} className="archi-language-tag">
+                            {lang}{index < myProfile.language.length - 1 ? ', ' : ''}
+                          </span>
+                        );
+                      }) || ''}</span>
+                      <span className="mx-2">|</span>
+                      <span>{myProfile.expertiseSpecialization && myProfile.expertiseSpecialization.map((lang, index) => {
+                        return (
+                          <span key={index} className="archi-language-tag">
+                            {lang}{index < myProfile.expertiseSpecialization.length - 1 ? ', ' : ''}
+                          </span>
+                        );
+                      }) || ''}</span>
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex' }} className=" flex-column gap-2 align-items-center justify-content-center">
+                    <div style={{ display: 'flex' }} className='architectur-bar'>
+                      <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ {walletAmount} </main></div>
+                    </div>
+                    <a className="profileRecharge">Withdrawal</a>
+                  </div>
                 </div>
-                <p className="small mb-0">
-                  <i className="fas fa-star fa-lg text-warning" />{" "}<span>{myProfile?.type}</span>
-                  <span className="mx-2">|</span>
-                  {`₹ ${myProfile.pricePerMin}/min`} <span className="mx-2">|</span>
 
-                  <span>{myProfile.language && myProfile.language.map((lang, index) => {
-                    return (
-                      <span key={index} className="archi-language-tag">
-                        {lang}{index < myProfile.language.length - 1 ? ', ' : ''}
-                      </span>
-                    );
-                  }) || ''}</span>
-                  <span className="mx-2">|</span>
-                  <span>{myProfile.expertiseSpecialization && myProfile.expertiseSpecialization.map((lang, index) => {
-                    return (
-                      <span key={index} className="archi-language-tag">
-                        {lang}{index < myProfile.expertiseSpecialization.length - 1 ? ', ' : ''}
-                      </span>
-                    );
-                  }) || ''}</span>
-                </p>
                 <hr className="my-4" />
                 <div className="featured-list d-flex justify-content-start align-items-center">
                   <p onClick={() => setActiveTab('settings')} style={{ fontWeight: '700' }} className="mb-0 text-uppercase">
@@ -165,6 +203,12 @@ const UserDashboard = () => {
                     <i className="fas fa-link ms-4 me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Portfolio' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Portfolio
+                    </span>
+                  </p>
+                  <p onClick={() => setActiveTab('Wallet')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
+                    <i className="fas fa-link ms-4 me-2" />{" "}
+                    <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Wallet' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
+                      Wallet
                     </span>
                   </p>
 
@@ -220,6 +264,7 @@ const UserDashboard = () => {
                   </button>
 
                 </div>
+
 
               </div>
             </div>
@@ -491,8 +536,21 @@ const UserDashboard = () => {
             <Settings data={myProfile} />
 
           </div>
-
         )}
+
+        {activeTab === "Wallet" && (
+          <div className="w-100 py-4 mt-5 mb-3">
+          <h2>
+            <i className="fas fa-user-cog text-dark me-2" />
+            My Wallet
+
+          </h2>
+
+          <Wallet data={myProfile}  />
+
+        </div>
+        )}
+
       </div>
     </div>
   );
