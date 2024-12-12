@@ -62,7 +62,7 @@ router.put('/update-provider-documents/:providerId', upload.fields([
 router.put('/update-provider-profile/:_id', updateProvider)
 router.put('/update-bank-detail/:providerId', updateBankDetail)
 router.put('/update-provider-password/:providerId', updatePassword)
-router.get('/GetMyProfile', GetMyProfile)
+router.get('/GetMyProfile', protect, GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
 router.post('/addPortfolio', (req, res, next) => {
     upload.fields([

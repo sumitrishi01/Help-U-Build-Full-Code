@@ -103,6 +103,7 @@ exports.CreateProvider = async (req, res) => {
 
 exports.GetMyProfile = async (req, res) => {
     try {
+        console.log(req.user)
         const userId = req.user.id._id;
         console.log(req.user.id)
         if (!userId) {

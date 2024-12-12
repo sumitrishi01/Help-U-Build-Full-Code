@@ -11,7 +11,7 @@ function Withdraw({ data }) {
 
   const handleFetchWithdraw = async () => {
     try {
-      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-withdrawals-by-providerid/${providerId}`)
+      const { data } = await axios.get(`http://localhost:5000/api/v1/get-withdrawals-by-providerid/${providerId}`)
       // console.log("data", data.data)
       const alldata = data.data;
       const reverse = [...alldata].reverse(); // Creates a new reversed array
