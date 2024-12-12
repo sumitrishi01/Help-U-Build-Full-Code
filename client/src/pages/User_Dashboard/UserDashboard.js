@@ -31,13 +31,13 @@ const UserDashboard = () => {
     }
   };
 
-  console.log("token ",myProfile)
+  // console.log("token ",myProfile)
 
   const GetMyProfile = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       // console.log(data)
@@ -79,7 +79,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ const UserDashboard = () => {
 
   const handleFetchCommission = async () => {
     try {
-      const {data} = await axios.get('http://localhost:5000/api/v1/get-all-commision')
+      const {data} = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-commision')
       const commissiondata = data.data
       // console.log("commission",commissiondata[0]?.commissionPercent)
       setCommissionPercent(commissiondata[0]?.commissionPercent)
@@ -150,7 +150,7 @@ const UserDashboard = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/v1/create-withdraw-request", {
+      const response = await axios.post("https://api.helpubuild.co.in/api/v1/create-withdraw-request", {
         provider: myProfile._id,
         amount: parseFloat(amount),
         commission,

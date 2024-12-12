@@ -64,7 +64,7 @@ router.put('/update-bank-detail/:providerId', updateBankDetail)
 router.put('/update-provider-password/:providerId', updatePassword)
 router.get('/GetMyProfile', protect, GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
-router.post('/addPortfolio', (req, res, next) => {
+router.post('/addPortfolio', protect, (req, res, next) => {
     upload.fields([
         { name: 'PortfolioLink', maxCount: 1 },
         { name: 'GalleryImages', maxCount: 10 },
@@ -90,7 +90,7 @@ router.get('/get-all-provider', getAllProvider)
 
 //admin routes
 router.get('/users', getAllUsers);
-router.get('/user/:id', getSingleUserById);
+// router.get('/user/:id', getSingleUserById);
 router.get('/get-single-user/:id',getSingleUser)
 router.delete('/user/:userId', deleteAccount);
 router.put('/user/:userId/ban', banUserToggle);

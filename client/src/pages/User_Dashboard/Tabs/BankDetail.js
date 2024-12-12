@@ -22,10 +22,12 @@ function BankDetail() {
     useEffect(() => {
         async function fetchBankDetails() {
             try {
-                const response = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${UserId}`);
-                console.log("response",response.data.data)
+                const response = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${UserId}`);
                 if (response.data.success) {
-                    setBankDetail(response.data.data.bankDetail || {});
+                    setBankDetail((prev) => ({
+                        ...prev,
+                        ...response.data.data.bankDetail, // Merge existing fields
+                    }));
                 }
             } catch (error) {
                 console.error('Error fetching bank details:', error);
@@ -43,7 +45,7 @@ function BankDetail() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.put(`http://localhost:5000/api/v1/update-bank-detail/${UserId}`, bankDetail);
+            const response = await axios.put(`https://api.helpubuild.co.in/api/v1/update-bank-detail/${UserId}`, bankDetail);
             if (response.data.success) {
                 toast.success('Bank details updated successfully');
             }
@@ -59,7 +61,7 @@ function BankDetail() {
         <div className="mt-5">
             <h2 className="text-center mb-4">Update Bank Details</h2>
             <form onSubmit={handleSubmit} className="p-4 border rounded">
-                <div className='row'>
+                <div className="row">
                     {Object.keys(bankDetail).map((key) => (
                         <div className="mb-3 col-xl-6" key={key}>
                             <label className="form-label text-capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
@@ -67,8 +69,9 @@ function BankDetail() {
                                 type="text"
                                 className="form-control"
                                 name={key}
-                                value={bankDetail[key]}
+                                value={bankDetail[key] || ''} // Handle missing values
                                 onChange={handleChange}
+                                placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1')}`}
                                 required
                             />
                         </div>

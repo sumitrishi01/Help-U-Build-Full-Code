@@ -443,7 +443,7 @@ exports.getAllUsers = async (req, res) => {
 
 exports.getSingleUserById = async (req, res) => {
     try {
-        console.log(id)
+        // console.log(id)
         const userId = req.params.id;
         const user = await User.findById(userId).select('-Password');
 

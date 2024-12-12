@@ -67,7 +67,7 @@ function ArchitectProfile() {
                 userId: UserData._id,
             }
             try {
-                const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm)
+                const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm)
                 window.location.href = '/chat'
             } catch (error) {
                 console.log("Internal server error", error)
@@ -79,7 +79,7 @@ function ArchitectProfile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
                 setProfile(data.data);
                 setLoading(false);
             } catch (error) {
@@ -99,7 +99,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
+                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);

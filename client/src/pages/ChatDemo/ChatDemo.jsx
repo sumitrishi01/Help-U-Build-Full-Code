@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import AccessDenied from '../../components/AccessDenied/AccessDenied';
 // import Login from '../auth/Login'
 
-const ENDPOINT = 'http://localhost:5000/';
+const ENDPOINT = 'https://api.helpubuild.co.in/';
 
 const ChatDemo = () => {
     const [message, setMessage] = useState('');
@@ -29,7 +29,7 @@ const ChatDemo = () => {
     const handleChatStart = async (chatId) => {
         console.log("chatId", chatId);
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-id/${chatId}`);
+            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-id/${chatId}`);
             setIsChatBoxActive(true);
             setMessage([]);
             const allData = data.data;
@@ -128,7 +128,7 @@ const ChatDemo = () => {
         } else if (UserData?.role === 'provider') {
             const providerId = UserData._id;
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-providerId/${providerId}`)
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-providerId/${providerId}`)
                 const allData = data.data
                 // const allMessage = allData;
                 // setMessages(allMessage)
@@ -141,7 +141,7 @@ const ChatDemo = () => {
         } else {
             const userId = UserData._id;
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-userId/${userId}`)
+                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-userId/${userId}`)
                 const allData = data.data
                 const filterReverse = allData.reverse();
                 setProviderChat(filterReverse)
