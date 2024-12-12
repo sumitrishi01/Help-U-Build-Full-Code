@@ -156,15 +156,12 @@ const ProviderProfileSchema = new mongoose.Schema({
     bankDetail: {
         accountHolderName: {
             type: String,
-            required: true,
         },
         bankName: {
             type: String,
-            required: true,
         },
         accountNumber: {
             type: String,
-            required: true,
             validate: {
                 validator: function (v) {
                     return /^\d{9,18}$/.test(v); // Ensures the account number is numeric and 9–18 digits long
@@ -174,7 +171,6 @@ const ProviderProfileSchema = new mongoose.Schema({
         },
         ifscCode: {
             type: String,
-            required: true,
             validate: {
                 validator: function (v) {
                     return /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v); // Standard IFSC code format
@@ -184,7 +180,6 @@ const ProviderProfileSchema = new mongoose.Schema({
         },
         branchName: {
             type: String,
-            required: true,
         },
         // mobileNumber: {
         //     type: String,
@@ -208,7 +203,6 @@ const ProviderProfileSchema = new mongoose.Schema({
         // },
         panCardNumber: {
             type: String,
-            required: true,
             validate: {
                 validator: function (v) {
                     return /^[A-Z]{5}\d{4}[A-Z]{1}$/.test(v); // Standard PAN card format
