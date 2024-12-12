@@ -24,7 +24,7 @@ const router = express.Router();
 router.post('/register', registeruser);
 router.put('/user/update-profile/:id',upload.single('ProfileImage'), updateProfile);
 router.post('/login', login);
-router.post('/logout', protect, logout);
+router.post('/logout', logout);
 router.post('/verify/:type', verifyEmail);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
@@ -62,9 +62,9 @@ router.put('/update-provider-documents/:providerId', upload.fields([
 router.put('/update-provider-profile/:_id', updateProvider)
 router.put('/update-bank-detail/:providerId', updateBankDetail)
 router.put('/update-provider-password/:providerId', updatePassword)
-router.get('/GetMyProfile', protect, GetMyProfile)
+router.get('/GetMyProfile', GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
-router.post('/addPortfolio', protect, (req, res, next) => {
+router.post('/addPortfolio', (req, res, next) => {
     upload.fields([
         { name: 'PortfolioLink', maxCount: 1 },
         { name: 'GalleryImages', maxCount: 10 },
@@ -89,11 +89,11 @@ router.get('/get-all-provider', getAllProvider)
 
 
 //admin routes
-router.get('/users', protect, getAllUsers);
-router.get('/user/:id', protect, getSingleUserById);
+router.get('/users', getAllUsers);
+router.get('/user/:id', getSingleUserById);
 router.get('/get-single-user/:id',getSingleUser)
-router.delete('/user/:userId', protect, deleteAccount);
-router.put('/user/:userId/ban', protect, banUserToggle);
+router.delete('/user/:userId', deleteAccount);
+router.put('/user/:userId/ban', banUserToggle);
 
 router.get('/get-all-chat', getAllChat)
 
