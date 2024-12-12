@@ -8,6 +8,8 @@ function Wallet({ data }) {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5; // Number of items to display per page
 
+    // console.log("data",filteredData)
+
     const calculateDuration = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);

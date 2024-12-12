@@ -75,7 +75,7 @@ const StepWizard = () => {
     const fetchCurrentLocation = async () => {
         if (!coords) return;
         try {
-            const res = await axios.post('http://localhost:5000/Fetch-Current-Location', {
+            const res = await axios.post('https://api.helpubuild.co.in/Fetch-Current-Location', {
                 lat: coords.latitude,
                 lng: coords.longitude
             });
@@ -143,7 +143,7 @@ const StepWizard = () => {
         if (!validatePhone() || !validateAge()) return;
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/v1/register-provider', makeFormData());
+            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register-provider', makeFormData());
             toast.success(res.data.message);
             const { token, user } = res.data;
             localStorage.clear();

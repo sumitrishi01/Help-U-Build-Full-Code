@@ -13,6 +13,8 @@ const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestim
 const { createBlog, getAllBlog, getSingleBlog, updateBlog, deleteBlog } = require('../controllers/blog.controller');
 const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogComment } = require('../controllers/blogCommont.controller');
 const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById } = require('../controllers/chatAndPayment.Controller');
+const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId } = require('../controllers/withdraw.controller');
+const { createCommission, updateCommission, getSingleCommission, getAllCommissions, deleteCommission } = require('../controllers/commission.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
@@ -171,5 +173,18 @@ router.put('/update-available-status/:providerId', updateAvailable)
 // recharge route here 
 router.post('/create-payment/:userId', createPayment);
 router.post('/verify-payment', PaymentVerify);
+
+// withdraw request routes here 
+router.post('/create-withdraw-request',createWithdrawal)
+router.put('/update-withdraw-status/:id',updateWithdrawStatus)
+router.delete('/delete-withdraw-request/:id',deleteWithdrawRequest)
+router.get('/get-withdrawals-by-providerid/:providerId', getWithdrawalsByProviderId);
+
+// commission route here 
+router.post('/create-commission',createCommission)
+router.put('/update-commission/:id',updateCommission)
+router.get('/get-single-commision/:id',getSingleCommission)
+router.get('/get-all-commision',getAllCommissions)
+router.delete('/delete-commission/:id',deleteCommission)
 
 module.exports = router;

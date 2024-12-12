@@ -16,7 +16,8 @@ const Settings = () => {
     { id: 3, title: 'Bank Detail', content: 'Tab 4 content' },
     { id: 4, title: 'Change Password', content: 'Tab 3 content' },
     { id: 5, title: 'Availability Status', content: 'Share your profile with others' },
-    { id: 6, title: 'Enquiry', content: 'Tab 3 content' }
+    // { id: 6, title: 'Enquiry', content: 'Tab 3 content' }
+    // { id: 6, title: 'Enquiry', content: 'Tab 3 content' }
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
@@ -53,7 +54,7 @@ const Settings = () => {
         {activeTab === 3 && <BankDetail />}
         {activeTab === 4 && <Password />}
         {activeTab === 5 && <StatusPage/>}
-        {activeTab === 6 && <Enquiry />}
+        {/* {activeTab === 6 && <Enquiry />} */}
       </div>
     </>
   );

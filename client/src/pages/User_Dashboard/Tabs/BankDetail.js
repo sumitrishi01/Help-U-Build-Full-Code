@@ -22,9 +22,10 @@ function BankDetail() {
     useEffect(() => {
         async function fetchBankDetails() {
             try {
-                const response = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${UserId}`);
+                const response = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${UserId}`);
+                console.log("response",response.data.data)
                 if (response.data.success) {
-                    setBankDetail(response.data.provider.bankDetail || {});
+                    setBankDetail(response.data.data.bankDetail || {});
                 }
             } catch (error) {
                 console.error('Error fetching bank details:', error);
@@ -42,17 +43,9 @@ function BankDetail() {
         e.preventDefault();
         setLoading(true);
         try {
-            const response = await axios.put(`http://localhost:5000/api/v1/update-bank-detail/${UserId}`, bankDetail);
+            const response = await axios.put(`https://api.helpubuild.co.in/api/v1/update-bank-detail/${UserId}`, bankDetail);
             if (response.data.success) {
                 toast.success('Bank details updated successfully');
-                setBankDetail({
-                    accountHolderName: '',
-                    bankName: '',
-                    accountNumber: '',
-                    ifscCode: '',
-                    branchName: '',
-                    panCardNumber: '',
-                })
             }
         } catch (error) {
             console.error('Error updating bank details:', error);

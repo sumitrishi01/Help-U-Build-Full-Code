@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import Settings from './Settings.js';
 import './userdashboard.css';
 import Wallet from './Wallet.js';
+import Withdraw from './Withdraw.js';
 
 const UserDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -34,7 +35,7 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('http://localhost:5000/api/v1/GetMyProfile', {
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       // console.log(data)
@@ -76,7 +77,7 @@ const UserDashboard = () => {
     setUploading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/addPortfolio?type=Portfolio', formData, {
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/addPortfolio?type=Portfolio', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -98,7 +99,80 @@ const UserDashboard = () => {
     window.location.href = '/'
   }
 
-  if(loading){
+  const [amount, setAmount] = useState("");
+  const [commission, setCommission] = useState(0);
+  const [finalAmount, setFinalAmount] = useState(0);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [commissionPercent,setCommissionPercent] = useState(0)
+
+  const handleFetchCommission = async () => {
+    try {
+      const {data} = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-commision')
+      const commissiondata = data.data
+      // console.log("commission",commissiondata[0]?.commissionPercent)
+      setCommissionPercent(commissiondata[0]?.commissionPercent)
+    } catch (error) {
+      console.log("Internale server error",error)
+    }
+  }
+
+  useEffect(()=>{
+    handleFetchCommission();
+  },[])
+
+  const handleAmountChange = (e) => {
+    const inputAmount = parseFloat(e.target.value) || 0;
+    const calculatedCommission = (inputAmount * commissionPercent) / 100;
+    const calculatedFinalAmount = inputAmount - calculatedCommission;
+
+    setAmount(e.target.value);
+    setCommission(calculatedCommission);
+    setFinalAmount(calculatedFinalAmount);
+    // setError("");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!amount || parseFloat(amount) <= 0) {
+      // setError("Please enter a valid amount.");
+      toast.error("Please enter a valid amount.");
+      return;
+    }
+
+    if (parseFloat(amount) > walletAmount) {
+      // setError("Insufficient wallet balance.");
+      toast.error("Insufficient wallet balance.");
+      return;
+    }
+
+    try {
+      const response = await axios.post("https://api.helpubuild.co.in/api/v1/create-withdraw-request", {
+        provider: myProfile._id,
+        amount: parseFloat(amount),
+        commission,
+        finalAmount,
+        providerWalletAmount: walletAmount,
+        commissionPercent: commissionPercent
+      });
+
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setAmount("");
+        setCommission(0);
+        setFinalAmount(0);
+      } else {
+        // setError(response.data.message);
+        toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+      }
+    } catch (error) {
+      console.log("Failed to create withdrawal request. Please try again.",error)
+      toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+    }
+  };
+
+  if (loading) {
     return <div>Loading...</div>
   }
 
@@ -187,7 +261,7 @@ const UserDashboard = () => {
                     <div style={{ display: 'flex' }} className='architectur-bar'>
                       <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ {walletAmount} </main></div>
                     </div>
-                    <a className="profileRecharge">Withdrawal</a>
+                    <a data-bs-toggle="modal" data-bs-target="#withdrawalModal" className="profileRecharge">Withdrawal</a>
                   </div>
                 </div>
 
@@ -205,10 +279,18 @@ const UserDashboard = () => {
                       Portfolio
                     </span>
                   </p>
+                  
                   <p onClick={() => setActiveTab('Wallet')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-link ms-4 me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Wallet' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Wallet
+                    </span>
+                  </p>
+
+                  <p onClick={() => setActiveTab('Withdraw')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
+                    <i className="fas fa-link ms-4 me-2" />{" "}
+                    <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Withdraw' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
+                      Withdraw History
                     </span>
                   </p>
 
@@ -540,17 +622,101 @@ const UserDashboard = () => {
 
         {activeTab === "Wallet" && (
           <div className="w-100 py-4 mt-5 mb-3">
-          <h2>
-            <i className="fas fa-user-cog text-dark me-2" />
-            My Wallet
+            <h2>
+              <i className="fas fa-user-cog text-dark me-2" />
+              My Wallet
 
-          </h2>
+            </h2>
 
-          <Wallet data={myProfile}  />
+            <Wallet data={myProfile} />
 
-        </div>
+          </div>
         )}
 
+        {activeTab === "Withdraw" && (
+          <div className="w-100 py-4 mt-5 mb-3">
+            <h2>
+              <i className="fas fa-user-cog text-dark me-2" />
+              Withdraw History
+
+            </h2>
+
+            <Withdraw data={myProfile} />
+
+          </div>
+        )}
+
+      </div>
+
+      <div
+        className="modal fade"
+        id="withdrawalModal"
+        tabIndex="-1"
+        aria-labelledby="withdrawalModalLabel"
+        aria-hidden="true"
+      >
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="withdrawalModalLabel">
+                Create Withdrawal Request
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <form onSubmit={handleSubmit}>
+              <div className="modal-body">
+                {error && <div className="alert alert-danger">{error}</div>}
+                {success && <div className="alert alert-success">{success}</div>}
+
+                <div className="mb-3">
+                  <label htmlFor="amount" className="form-label">
+                    Enter Amount
+                  </label>
+                  <input
+                    style={{border:'1px solid #0000001a'}}
+                    type="number"
+                    className="form-control"
+                    id="amount"
+                    name="amount"
+                    value={amount}
+                    onChange={handleAmountChange}
+                    placeholder="Enter withdrawal amount"
+                  />
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-muted">
+                    <strong>Commission Percentage:</strong> {commissionPercent}%
+                  </p>
+                  <p className="text-muted">
+                    <strong>Commission Amount:</strong> ₹{commission.toFixed(2)}
+                  </p>
+                  <p className="text-muted">
+                    <strong>Final Amount:</strong> ₹{finalAmount.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Submit Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );

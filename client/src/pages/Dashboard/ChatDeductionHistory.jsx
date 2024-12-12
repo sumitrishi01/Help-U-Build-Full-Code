@@ -14,7 +14,7 @@ function ChatDeductionHistory() {
     const fetchChatDeduction = async () => {
         try {
             const UserId = UserData?._id;
-            const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-user/${UserId}`);
+            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-user/${UserId}`);
             const chatHistory = data.data?.chatTransition;
             setChat(chatHistory.reverse());
         } catch (error) {
@@ -26,10 +26,19 @@ function ChatDeductionHistory() {
         fetchChatDeduction();
     }, []);
 
-    // Function to format the start chat time
+    // Function to format the start and end chat time
     const formatChatTime = (time) => {
         const date = new Date(time);
         return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    };
+
+    // Function to calculate the duration between start and end times
+    const calculateDuration = (startChatTime, endChatTime) => {
+        const startTime = new Date(startChatTime);
+        const endTime = new Date(endChatTime);
+        const durationInMilliseconds = endTime - startTime;
+        const durationInMinutes = durationInMilliseconds / (1000 * 60); // Convert to minutes
+        return durationInMinutes.toFixed(2); // Return the duration rounded to two decimal places
     };
 
     // Pagination logic
@@ -49,16 +58,16 @@ function ChatDeductionHistory() {
                 {data && data.length > 0 ? (
                     <>
                         <table className="table table-bordered table-hover">
-                            <thead className="table-dark">
+                            <thead style={{backgroundColor:'#093369',color:'white'}} className="">
                                 <tr>
                                     <th>#</th>
                                     <th>Start Time</th>
                                     <th>Starting Amount</th>
                                     <th>Provider Price Per Minute</th>
-                                    {/* <th>Time Remaining (mins)</th> */}
                                     <th>Ending Amount</th>
-                                    <th>Duration</th>
+                                    <th>Deduction</th>
                                     <th>End Time</th>
+                                    <th>Duration (mins)</th> {/* New column for duration */}
                                 </tr>
                             </thead>
                             <tbody>
@@ -68,10 +77,14 @@ function ChatDeductionHistory() {
                                         <td>{formatChatTime(chat.startChatTime)}</td>
                                         <td>₹{chat.startingChatAmount ? chat.startingChatAmount.toFixed(2) : 'N/A'}</td>
                                         <td>₹{chat.providerPricePerMin}</td>
-                                        {/* <td>{chat.chatTimingRemaining}</td> */}
                                         <td>₹{chat.endingChatAmount ? chat.endingChatAmount.toFixed(2) : 'N/A'}</td>
                                         <td>₹{chat.deductionAmount ? chat.deductionAmount.toFixed(2) : '0.00'}</td>
                                         <td>{chat.endingChatTime ? formatChatTime(chat.endingChatTime) : 'N/A'}</td>
+                                        <td>
+                                            {chat.startChatTime && chat.endingChatTime
+                                                ? calculateDuration(chat.startChatTime, chat.endingChatTime)
+                                                : 'N/A'}
+                                        </td> {/* Display the duration */}
                                     </tr>
                                 ))}
                             </tbody>

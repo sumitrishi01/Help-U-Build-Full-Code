@@ -662,9 +662,9 @@ exports.PaymentVerify = async (req, res) => {
             // Save updated order
             await findOrder.save();
 
-            // return res.redirect(
-            //     `http://localhost:5174/vendors/payment-failure?error=Payment failed via ${method || 'unknown method'}`
-            // );
+            return res.redirect(
+                `https://helpubuild.co.in/payment-failure?error=Payment failed via ${method || 'unknown method'}&transactionId=${razorpay_payment_id}&amount=${failedAmount}&date=${currentTime}`
+            );
         }
 
         // Update payment details for successful payment
@@ -684,15 +684,16 @@ exports.PaymentVerify = async (req, res) => {
         await findOrder.save();
         // console.log("payment verify end")
 
-        return res.status(200).json({
-            success: true,
-            message: 'Payment verified and wallet updated successfully',
-            data: {
-                transactionId: razorpay_payment_id,
-                walletAmount: findOrder.walletAmount,
-                rechargeHistory: findOrder.rechargeHistory,
-            },
-        });
+        // return res.status(200).json({
+        //     success: true,
+        //     message: 'Payment verified and wallet updated successfully',
+        //     data: {
+        //         transactionId: razorpay_payment_id,
+        //         walletAmount: findOrder.walletAmount,
+        //         rechargeHistory: findOrder.rechargeHistory,
+        //     },
+        // });
+        return res.redirect(`https://helpubuild.co.in/successfull-recharge?amount=${price}&transactionId=${razorpay_payment_id}&date=${currentTime}`)
     } catch (error) {
         console.log('Internal server error', error);
         return res.status(500).json({

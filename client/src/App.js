@@ -31,7 +31,9 @@ import ArchitectProfile from "./pages/Services/ArchitectProfile";
 import StepWizard from "./components/StepWizard";
 import Blog_Page from "./pages/Blog_Page/Blog_Page";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import SuccessFull from "./pages/SuccessFull/SuccessFull";
 import Forget from "./pages/auth/Forget";
+import FailedPayment from "./pages/FailedPayment/FailedPayment";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -87,6 +89,8 @@ function App() {
 
         {/* <Route path="/demo-register" element={<StepWizard />} /> */}
         <Route path="/forget-password" element={<Forget />} />
+        <Route path="/successfull-recharge" element={<SuccessFull />} />
+        <Route path="/payment-failure" element={<FailedPayment />} />
       </Routes>
       <Toaster />
       <Footer />
