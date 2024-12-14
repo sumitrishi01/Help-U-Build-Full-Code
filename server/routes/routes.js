@@ -12,7 +12,7 @@ const { createAboutImage, getAllAboutImage, deleteAboutImage, updateAboutActiveS
 const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial, updateTestimonialActiveStatus } = require('../controllers/testimonial.controller');
 const { createBlog, getAllBlog, getSingleBlog, updateBlog, deleteBlog } = require('../controllers/blog.controller');
 const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogComment } = require('../controllers/blogCommont.controller');
-const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById } = require('../controllers/chatAndPayment.Controller');
+const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById, markAllChatsAsRead, markUserChatsAsRead, markProviderChatsAsRead } = require('../controllers/chatAndPayment.Controller');
 const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId } = require('../controllers/withdraw.controller');
 const { createCommission, updateCommission, getSingleCommission, getAllCommissions, deleteCommission } = require('../controllers/commission.controller');
 const storage = multer.memoryStorage();
@@ -22,7 +22,7 @@ const router = express.Router();
 
 //User registration related routes
 router.post('/register', registeruser);
-router.put('/user/update-profile/:id',upload.single('ProfileImage'), updateProfile);
+router.put('/user/update-profile/:id', upload.single('ProfileImage'), updateProfile);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/verify/:type', verifyEmail);
@@ -91,7 +91,7 @@ router.get('/get-all-provider', getAllProvider)
 //admin routes
 router.get('/users', getAllUsers);
 // router.get('/user/:id', getSingleUserById);
-router.get('/get-single-user/:id',getSingleUser)
+router.get('/get-single-user/:id', getSingleUser)
 router.delete('/user/:userId', deleteAccount);
 router.put('/user/:userId/ban', banUserToggle);
 
@@ -169,22 +169,24 @@ router.get('/get-chat-by-providerId/:providerId', getChatByProviderid)
 router.get('/get-chat-by-userId/:userId', getChatByUserid)
 router.get('/get-chat-by-id/:id', getChatById)
 router.put('/update-available-status/:providerId', updateAvailable)
+router.put('/mark-user-chats-as-read/:userId', markUserChatsAsRead);
+router.put('/mark-provider-chats-as-read/:providerId', markProviderChatsAsRead);
 
 // recharge route here 
 router.post('/create-payment/:userId', createPayment);
 router.post('/verify-payment', PaymentVerify);
 
 // withdraw request routes here 
-router.post('/create-withdraw-request',createWithdrawal)
-router.put('/update-withdraw-status/:id',updateWithdrawStatus)
-router.delete('/delete-withdraw-request/:id',deleteWithdrawRequest)
+router.post('/create-withdraw-request', createWithdrawal)
+router.put('/update-withdraw-status/:id', updateWithdrawStatus)
+router.delete('/delete-withdraw-request/:id', deleteWithdrawRequest)
 router.get('/get-withdrawals-by-providerid/:providerId', getWithdrawalsByProviderId);
 
 // commission route here 
-router.post('/create-commission',createCommission)
-router.put('/update-commission/:id',updateCommission)
-router.get('/get-single-commision/:id',getSingleCommission)
-router.get('/get-all-commision',getAllCommissions)
-router.delete('/delete-commission/:id',deleteCommission)
+router.post('/create-commission', createCommission)
+router.put('/update-commission/:id', updateCommission)
+router.get('/get-single-commision/:id', getSingleCommission)
+router.get('/get-all-commision', getAllCommissions)
+router.delete('/delete-commission/:id', deleteCommission)
 
 module.exports = router;

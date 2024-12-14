@@ -48,7 +48,16 @@ function ChatDeductionHistory() {
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
 
-    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+    const pageNumbersToShow = 5; // Number of page numbers to display
+    const startPage = Math.max(1, currentPage - Math.floor(pageNumbersToShow / 2));
+    const endPage = Math.min(totalPages, startPage + pageNumbersToShow - 1);
+    const visiblePages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
+
+    const handlePageChange = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+        }
+    };
 
     return (
         <div className="my-5">
@@ -58,7 +67,7 @@ function ChatDeductionHistory() {
                 {data && data.length > 0 ? (
                     <>
                         <table className="table table-bordered table-hover">
-                            <thead style={{backgroundColor:'#093369',color:'white'}} className="">
+                            <thead style={{ backgroundColor: '#093369', color: 'white' }}>
                                 <tr>
                                     <th>#</th>
                                     <th>Start Time</th>
@@ -67,7 +76,7 @@ function ChatDeductionHistory() {
                                     <th>Ending Amount</th>
                                     <th>Deduction</th>
                                     <th>End Time</th>
-                                    <th>Duration (mins)</th> {/* New column for duration */}
+                                    <th>Duration (mins)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -84,21 +93,37 @@ function ChatDeductionHistory() {
                                             {chat.startChatTime && chat.endingChatTime
                                                 ? calculateDuration(chat.startChatTime, chat.endingChatTime)
                                                 : 'N/A'}
-                                        </td> {/* Display the duration */}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+
+                        {/* Pagination */}
                         <div className="pagination d-flex justify-content-center mt-3">
-                            {Array.from({ length: totalPages }, (_, index) => (
+                            <button
+                                className="btn btn-outline-primary mx-1"
+                                disabled={currentPage === 1}
+                                onClick={() => handlePageChange(currentPage - 1)}
+                            >
+                                Previous
+                            </button>
+                            {visiblePages.map((page) => (
                                 <button
-                                    key={index}
-                                    className={`btn btn-outline-primary mx-1 ${currentPage === index + 1 ? 'active' : ''}`}
-                                    onClick={() => paginate(index + 1)}
+                                    key={page}
+                                    className={`btn btn-outline-primary mx-1 ${currentPage === page ? 'active' : ''}`}
+                                    onClick={() => handlePageChange(page)}
                                 >
-                                    {index + 1}
+                                    {page}
                                 </button>
                             ))}
+                            <button
+                                className="btn btn-outline-primary mx-1"
+                                disabled={currentPage === totalPages}
+                                onClick={() => handlePageChange(currentPage + 1)}
+                            >
+                                Next
+                            </button>
                         </div>
                     </>
                 ) : (

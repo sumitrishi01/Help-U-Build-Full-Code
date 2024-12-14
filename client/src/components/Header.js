@@ -3,8 +3,11 @@ import { Link, useLocation } from "react-router-dom";
 import logo from "./helpubuil-web-logo.webp";
 import "./header.css";
 import { GetData } from "../utils/sessionStoreage";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Header = () => {
+  const [allChat, setAllChat] = useState(0)
   const [sessionData, setSessionData] = useState({
     isAuthenticated: false,
     user: null,
@@ -34,6 +37,63 @@ const Header = () => {
     };
   }, []);
 
+  const fetchChatProverId = async () => {
+    const Data = GetData('user')
+    const UserData = JSON.parse(Data)
+    if (!UserData) {
+      return toast.error("Please Login First");
+    }
+
+    try {
+      const url = UserData?.role === "provider"
+        ? `https://api.helpubuild.co.in/api/v1/get-chat-by-providerId/${UserData._id}`
+        : `https://api.helpubuild.co.in/api/v1/get-chat-by-userId/${UserData._id}`;
+
+      const { data } = await axios.get(url);
+      const fullData = data.data
+      const filter = fullData.filter(item => item.newChat === true)
+      // console.log('allData', filter)
+      const allData = filter.length;
+      setAllChat(allData);
+    } catch (error) {
+      console.error("Internal server error", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChatProverId();
+  }, [])
+
+  const handleChatRead = async () => {
+    // Get user data from local storage or other storage mechanism
+    const Data = GetData('user');
+    const UserData = JSON.parse(Data);
+    if (!UserData) {
+      return;
+    }
+
+    if (UserData.role !== 'provider') {
+      return;
+    }
+
+    // Check if the user role is 'user' or 'provider' and call the corresponding API route
+    try {
+      let response;
+      const url = `https://api.helpubuild.co.in/api/v1/mark-${UserData.role}-chats-as-read/${UserData._id}`;
+
+      // Use axios to make the request
+      response = await axios.put(url);
+
+      // Handle successful response
+      console.log(`${UserData.role} chats marked as read:`, response.data);
+
+    } catch (error) {
+      // Handle error
+      console.log("Internal server error", error)
+      console.error(`Error marking ${UserData.role} chats as read:`, error.response ? error.response.data.message : error.message);
+    }
+  };
+
   useEffect(() => {
 
     const isAuthenticatedValue = GetData('islogin')
@@ -46,7 +106,7 @@ const Header = () => {
 
     const Data = GetData('user')
     const UserData = JSON.parse(Data)
-    
+
     // Check if UserData exists and has a role
     if (UserData && UserData.role === 'provider') {
       setSessionData(prevState => ({
@@ -124,11 +184,57 @@ const Header = () => {
                           blog
                         </Link>
                       </li>
-                      <li>
-                        <Link onClick={handleLinkClick} to="/chat" className={active === "/chat" ? "active" : ""}>
-                          Chat
-                        </Link>
-                      </li>
+                      {
+                        sessionData.isAuthenticated && (
+                          <>
+                            {sessionData?.user?.role === 'provider' ? (
+                              <li>
+                                <Link
+                                  onClick={() => {
+                                    handleChatRead(); // Call handleChatRead after clicking the link
+                                    handleLinkClick();
+                                  }}
+                                  to="/chat"
+                                  className={active === "/chat" ? "active" : ""}
+                                >
+                                  {
+                                    allChat > 0 ? (
+                                      <>
+                                        Chat
+                                        <span className="badge-chat">
+                                          {allChat}
+
+                                        </span></>
+                                    ) :
+                                      (
+                                        <>
+                                          Chat
+                                          {/* <span className="badge-chat">
+                                            0
+                                          </span> */}
+                                        </>
+                                      )
+                                  }
+                                </Link>
+                              </li>
+                            ) : (
+                              <li>
+                                <Link
+                                  onClick={() => {
+                                    // handleChatRead(); 
+                                    handleLinkClick();
+                                  }}
+                                  to="/chat"
+                                  className={active === "/chat" ? "active" : ""}
+                                >
+                                  Chat
+                                </Link>
+                              </li>
+                            )
+                            }
+                          </>
+                        )
+                      }
 
                       <li>
                         {sessionData.isAuthenticated ? (

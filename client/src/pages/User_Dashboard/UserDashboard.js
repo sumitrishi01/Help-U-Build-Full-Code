@@ -17,6 +17,7 @@ const UserDashboard = () => {
   const [showGalleryUpload, setShowGalleryUpload] = useState(false);
 
   const [token, setToken] = useState(null);
+  const [providerId, setProviderId] = useState(null);
   const [myProfile, setMyProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('Gallery')
@@ -26,8 +27,13 @@ const UserDashboard = () => {
   // Get token from session storage
   const GetToken = () => {
     const data = GetData('token');
+    const user = GetData('user');
+    const UserData = JSON.parse(user);
     if (data) {
       setToken(data);
+    }
+    if(UserData){
+      setProviderId(UserData._id)
     }
   };
 
@@ -37,12 +43,10 @@ const UserDashboard = () => {
     if (!token) return;
     setLoading(true);
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/GetMyProfile', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${providerId}`);
       // console.log(data)
-      setMyProfile(data.provider);
-      const formattedAmount = data.provider.walletAmount.toFixed(2);
+      setMyProfile(data.data);
+      const formattedAmount = data.data.walletAmount.toFixed(2);
 
       setWalletAmount(formattedAmount);
       setLoading(false);

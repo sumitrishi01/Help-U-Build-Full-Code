@@ -34,7 +34,9 @@ const Password = () => {
         passwordData
       );
       toast.success(res.data.message || 'Password updated successfully!');
-      setPasswordData({ password: '', newPassword: '' }); // Reset form
+      sessionStorage.clear();
+      window.location.href = '/login';
+      // setPasswordData({ password: '', newPassword: '' }); // Reset form
     } catch (error) {
       console.error('Error updating password:', error);
       toast.error(

@@ -58,9 +58,14 @@ function ArchitectProfile() {
     const handleActiveTime = async (Chat) => {
         if (!UserData) {
             return toast.error('Login first')
-        } else if (UserData.role === 'provider') {
+        }
+        if (UserData.role === 'provider') {
             return toast.error("Access Denied: Providers are not authorized to access this feature.");
-        } else if (Chat === 'Chat') {
+        }
+        if (!profile.pricePerMin || profile.pricePerMin <= 0) {
+            return toast.error("Chat cannot be started. Provider pricing information is unavailable or invalid.");
+          }
+        if (Chat === 'Chat') {
 
             const newForm = {
                 ...formData,
@@ -172,29 +177,56 @@ function ArchitectProfile() {
                             </div>
                             <div className='col-xl-4 col-lg-4 col-md-6 col-12'>
                                 <div className='profile-info'>
-                                    <h4 className=' fw-bold archi-profile-name'> {profile.name} <HiBadgeCheck /></h4>
-                                    <p className="archi-cateogry">{profile.type}</p>
+                                    <h4 className='fw-bold archi-profile-name'>
+                                        {profile.name ? (
+                                            <>
+                                                {profile.name} <HiBadgeCheck />
+                                            </>
+                                        ) : (
+                                            "Profile is not Updated"
+                                        )}
+                                    </h4>
+
+                                    <p className="archi-cateogry">
+                                        {profile.type ? profile.type : "Profile is not Updated"}
+                                    </p>
+
                                     <p className='archi-Language'>
-                                        {profile.language && profile.language.map((lang, index) => {
-                                            return (
+                                        {profile.language && profile.language.length > 0 ? (
+                                            profile.language.map((lang, index) => (
                                                 <span key={index} className="archi-language-tag">
                                                     {lang}{index < profile.language.length - 1 ? ', ' : ''}
                                                 </span>
-                                            );
-                                        }) || ''}
+                                            ))
+                                        ) : (
+                                            "Profile is not Updated"
+                                        )}
                                     </p>
-                                    <p className='archi-experties'> {profile.expertiseSpecialization && profile.expertiseSpecialization.map((lang, index) => {
-                                        return (
-                                            <span key={index} className="archi-language-tag">
-                                                {lang}{index < profile.expertiseSpecialization.length - 1 ? ', ' : ''}
-                                            </span>
-                                        );
-                                    }) || ''}</p>
-                                    <p className='archi-exp'> Exp: 3 Years</p>
-                                    <p className="fw-bold archi-duration-price">{`₹ ${profile.pricePerMin}/min`}</p>
+
+                                    <p className='archi-experties'>
+                                        {profile.expertiseSpecialization && profile.expertiseSpecialization.length > 0 ? (
+                                            profile.expertiseSpecialization.map((specialization, index) => (
+                                                <span key={index} className="archi-language-tag">
+                                                    {specialization}{index < profile.expertiseSpecialization.length - 1 ? ', ' : ''}
+                                                </span>
+                                            ))
+                                        ) : (
+                                            "Profile is not Updated"
+                                        )}
+                                    </p>
+
+                                    <p className='archi-exp'>
+                                        {profile.experience ? `Exp: ${profile.experience} Years` : "Experience is not Updated"}
+                                    </p>
+
+                                    <p className="fw-bold archi-duration-price">
+                                        {profile.pricePerMin ? `₹ ${profile.pricePerMin}/min` : "Pricing is not Updated"}
+                                    </p>
+                                    {/* Uncomment if required */}
                                     {/* <p className="text-muted total-archi-duration">59K mins | 29K mins</p> */}
                                 </div>
                             </div>
+
                             <div className='col-xl-4 col-lg-4 col-md-6 col-12'>
                                 <div className='connect-area'>
                                     <button className={`btn ${profile.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.callStatus} ><i class="fa-solid fa-phone-volume"></i> Call</button>

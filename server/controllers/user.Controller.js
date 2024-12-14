@@ -276,7 +276,7 @@ exports.updateProfile = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        
+
         const { any, password } = req.body;
         // console.log(req.body)
         if (!any || !password) {
@@ -707,8 +707,6 @@ exports.PaymentVerify = async (req, res) => {
 
 exports.chatStart = async (userId, astrologerId) => {
     try {
-        // console.log("userId", userId)
-        // console.log("astrologerId", astrologerId)
         const user = await User.findById(userId)
         const provider = await Provider.findById(astrologerId)
         if (!user) {
@@ -744,6 +742,14 @@ exports.chatStart = async (userId, astrologerId) => {
                 error: 'Your wallet amount is too low. Please recharge your wallet.'
             }
         }
+        if (providerPricePerMin === 0) {
+            return {
+                success: false,
+                message: 'Provider price per minute is zero. The provider has not been updated.',
+                error: 'Provider price per minute is zero. The provider has not been updated.',
+            };
+        }
+
         // Generate a unique ObjectId for the new chat transition
         const newChatTransitionId = new mongoose.Types.ObjectId();
 
@@ -784,6 +790,105 @@ exports.chatStart = async (userId, astrologerId) => {
             data: {
                 chatTimingRemaining: chatTimingRemaining,
                 chatTransition: newChatTransition,
+                lastChatTransitionId: user.lastChatTransitionId,
+            }
+        }
+
+    } catch (error) {
+        console.error('Error in createChatRoom:', error);
+        return {
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        };
+    }
+}
+
+exports.chatStartFromProvider = async (userId, astrologerId) => {
+    try {
+        const user = await User.findById(userId)
+        const provider = await Provider.findById(astrologerId)
+        if (!user) {
+            return {
+                success: false,
+                message: 'User is not found',
+                error: 'User is not found'
+            }
+        }
+        if (!provider) {
+            return {
+                success: false,
+                message: 'Provider is not found',
+                error: 'Provider is not found'
+            }
+        }
+
+        if (user?.role !== 'user') {
+            return {
+                success: true,
+                message: 'Chat started',
+                error: 'Chat started',
+            };
+        }
+
+        const walletAmount = user?.walletAmount;
+        const providerWalletAmount = provider?.walletAmount;
+        const providerPricePerMin = provider?.pricePerMin;
+        if (walletAmount < providerPricePerMin) {
+            return {
+                success: false,
+                message: `${user?.name} wallet amount is too low. So you can't able to chat.`,
+                error: `${user?.name} wallet amount is too low. So you can't able to chat.`
+            }
+        }
+        if (providerPricePerMin === 0) {
+            return {
+                success: false,
+                message: 'Your price per minute is zero. You has not been updated.',
+                error: 'Your price per minute is zero. You has not been updated.',
+            };
+        }
+
+        // Generate a unique ObjectId for the new chat transition
+        const newChatTransitionId = new mongoose.Types.ObjectId();
+
+        const chatTimingRemaining = Math.floor(walletAmount / providerPricePerMin);
+        const currentTime = new Date().toISOString();
+        // user.chatTransition = user.chatTransition || []; // Initialize if undefined
+        provider.chatTransition = provider.chatTransition || []; // Initialize if undefined
+        // const newChatTransition = {
+        //     _id: newChatTransitionId,
+        //     startChatTime: currentTime,
+        //     startingChatAmount: walletAmount,
+        //     providerPricePerMin: providerPricePerMin,
+        //     chatTimingRemaining: chatTimingRemaining,
+        //     provider: provider._id,
+        // };
+        const newChatTransitionProvider = {
+            _id: newChatTransitionId,
+            startChatTime: currentTime,
+            startingChatAmount: providerWalletAmount,
+            providerPricePerMin: providerPricePerMin,
+            chatTimingRemaining: chatTimingRemaining,
+            user: user._id,
+        };
+        // user.chatTransition.push(newChatTransition);
+        provider.chatTransition.push(newChatTransitionProvider);
+
+        // user.lastChatTransitionId = newChatTransitionId;
+        provider.lastChatTransitionId = newChatTransitionId;
+
+        // console.log("newChatTransition", newChatTransition)
+
+        // await user.save();
+        await provider.save();
+
+        return {
+            success: true,
+            message: 'Chat Stated Successfully',
+            data: {
+                chatTimingRemaining: chatTimingRemaining,
+                chatTransition: newChatTransitionId,
                 lastChatTransitionId: user.lastChatTransitionId,
             }
         }

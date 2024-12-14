@@ -31,6 +31,10 @@ const ChatAndPaymentSchema = new mongoose.Schema({
         type: String,
         default: 'pending'
     },
+    newChat: {
+        type: Boolean,
+        default: true
+    },
     messages: [
         {
             sender: { type: String, required: true },

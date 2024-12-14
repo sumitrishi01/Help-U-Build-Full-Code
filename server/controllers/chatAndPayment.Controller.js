@@ -225,3 +225,68 @@ exports.getChatByUserid = async (req, res) => {
         })
     }
 }
+
+
+exports.markUserChatsAsRead = async (req, res) => {
+    try {
+        const { userId } = req.params; // Get userId from the request parameters
+        console.log("user",userId)
+
+        // Find all chats related to the user and where newChat is true, then update them to false
+        const result = await ChatAndPayment.updateMany(
+            { userId: userId, newChat: true },
+            { $set: { newChat: false } }
+        );
+
+        console.log("result",result)
+
+        // Check if any documents were modified
+        if (result.nModified > 0) {
+            return res.status(200).json({
+                message: 'All new chats for this user have been marked as read.',
+                modifiedCount: result.nModified,
+            });
+        } else {
+            return res.status(200).json({
+                message: 'No new chats found for this user to update.',
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: 'An error occurred while marking user chats as read.',
+            error: error.message,
+        });
+    }
+};
+
+exports.markProviderChatsAsRead = async (req, res) => {
+    try {
+        const { providerId } = req.params; // Get providerId from the request parameters
+        console.log("provider",providerId)
+
+        // Find all chats related to the provider and where newChat is true, then update them to false
+        const result = await ChatAndPayment.updateMany(
+            { providerId: providerId, newChat: true },
+            { $set: { newChat: false } }
+        );
+
+        // Check if any documents were modified
+        if (result.nModified > 0) {
+            return res.status(200).json({
+                message: 'All new chats for this provider have been marked as read.',
+                modifiedCount: result.nModified,
+            });
+        } else {
+            return res.status(200).json({
+                message: 'No new chats found for this provider to update.',
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: 'An error occurred while marking provider chats as read.',
+            error: error.message,
+        });
+    }
+};

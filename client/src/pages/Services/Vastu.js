@@ -7,18 +7,24 @@ import { GetData } from '../../utils/sessionStoreage'
 import { Modal, Button, Form } from 'react-bootstrap';
 
 const Vastu = () => {
+  const [allProviders, setAllProviders] = useState([]);
+  const [filteredProviders, setFilteredProviders] = useState([]);
+  const [sortCriteria, setSortCriteria] = useState("");
+  const [searchText, setSearchText] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
-  const [allProvider, setAllProvider] = useState([])
   const [showModal, setShowModal] = useState(false);
   const [amount, setAmount] = useState('');
   const Data = GetData('user')
   const token = GetData('token')
   const UserData = JSON.parse(Data)
   const [walletAmount, setWalletAmount] = useState(0);
+  const [role, setRole] = useState('')
   const [formData, setFormData] = useState({
     userId: '',
     providerId: "",
-})
+  })
 
   const handleFetchUser = async () => {
     try {
@@ -28,29 +34,86 @@ const Vastu = () => {
       const formattedAmount = data.data.walletAmount.toFixed(2);
 
       setWalletAmount(formattedAmount);
+      setRole(data?.data?.role)
     } catch (error) {
       console.log("Internal server error in fetching User")
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
     }
   }
 
+  useEffect(() => {
+    applyFilters();
+  }, [sortCriteria, allProviders, searchText]);
+
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider')
-      const allData = data.data;
-      const filterData = allData.filter((item) => item.type === 'Vastu')
-      setAllProvider(filterData)
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider');
+      const allData = data.data.filter((item) => item.type === 'Vastu');
+      setAllProviders(allData);
+      setFilteredProviders(allData);
     } catch (error) {
-      console.log("Internal server error in fetching providers")
+      console.error("Internal server error in fetching providers");
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
     }
-  }
+  };
   useEffect(() => {
     if (UserData?.role === 'user') {
       handleFetchUser();
     }
     handleFetchProvider();
   }, [])
+
+  const applyFilters = () => {
+    let sortedData = [...allProviders];
+
+    // Apply search filter
+    if (searchText) {
+      sortedData = sortedData.filter(provider =>
+        provider.name.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    // Sorting logic
+    switch (sortCriteria) {
+      case "sortByExperience_asc":
+        sortedData.sort((a, b) => (a.yearOfExperience || 0) - (b.yearOfExperience || 0));
+        break;
+      case "sortByExperience_desc":
+        sortedData.sort((a, b) => (b.yearOfExperience || 0) - (a.yearOfExperience || 0));
+        break;
+      case "sortByPrice_asc":
+        sortedData.sort((a, b) => (a.pricePerMin || 0) - (b.pricePerMin || 0));
+        break;
+      case "sortByPrice_desc":
+        sortedData.sort((a, b) => (b.pricePerMin || 0) - (a.pricePerMin || 0));
+        break;
+      case "sortByRating_asc":
+        sortedData.sort((a, b) => (a.averageRating || 0) - (b.averageRating || 0));
+        break;
+      case "sortByRating_desc":
+        sortedData.sort((a, b) => (b.averageRating || 0) - (a.averageRating || 0));
+        break;
+      default:
+        break;
+    }
+
+    setFilteredProviders(sortedData);
+  };
+
+  const handleSortChange = (e) => {
+    setSortCriteria(e.target.value);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value); // Update search text
+  };
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProviders = filteredProviders.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleOpenModel = async () => {
     if (!token) {
@@ -84,9 +147,17 @@ const Vastu = () => {
   const handleActiveTime = async (Chat, providerId) => {
     if (!UserData) {
       return toast.error('Login first');
-    } else if (UserData.role === 'provider') {
+    }
+
+    if (UserData.role === 'provider') {
       return toast.error("Access Denied: Providers are not authorized to access this feature.");
-    } else if (Chat === 'Chat') {
+    }
+
+    if (!providerId.pricePerMin || providerId.pricePerMin <= 0) {
+      return toast.error("Chat cannot be started. Provider pricing information is unavailable or invalid.");
+    }
+
+    if (Chat === 'Chat') {
       const newForm = {
         ...formData,
         userId: UserData._id,
@@ -96,7 +167,7 @@ const Vastu = () => {
         const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm);
         window.location.href = '/chat';
       } catch (error) {
-        console.log("Internal server error", error);
+        console.error("Internal server error", error);
         toast.error(
           error?.response?.data?.errors?.[0] ||
           error?.response?.data?.message ||
@@ -105,7 +176,8 @@ const Vastu = () => {
       }
     }
   };
-  
+
+
 
   const handleMakePayment = async () => {
     if (!amount || amount <= 0) {
@@ -174,16 +246,39 @@ const Vastu = () => {
                       <div className='architectur-bar'>
                         <h3 className='architecture-heading'>Talk To Vastu Expert</h3>
                       </div>
-                      <div className='architectur-bar'>
-                        <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ {walletAmount} </main></div>
-                      </div>
+                      {
+                        role === 'user' ? (
+                          <div className='architectur-bar'>
+                            <div className="available-balance medium-device-balance"> Available balance: <main class="balance-avail"> ₹ {walletAmount} </main></div>
+                          </div>
+                        ) : (<></>)
+                      }
                       <div className='architectur-bar'>
                         <div className='recharge-btn'>
-                          <a onClick={handleOpenModel} className="medium-device-recharge">Recharge</a>
-                          <button className="filter_short-btn"><i class="fa fa-filter"></i> Filter </button>
-                          <button type="button" class="btn filter-short-by" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i className="fa fa-sort-amount-desc"></i> Sort by</button>
+                          {
+                            role === 'user' ? (
+                              <a onClick={handleOpenModel} className="medium-device-recharge">Recharge</a>
+                            ) : (<></>)
+                          }
+                          {/* <button className="filter_short-btn"><i class="fa fa-filter"></i> Filter </button> */}
+                          <button
+                            type="button"
+                            className="btn filter-short-by"
+                            data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop"
+                          >
+                            <i className="fa fa-sort-amount-desc"></i> Sort by
+                          </button>
                           {/* filter-short-by modal popup */}
-                          <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                          <div
+                            className="modal fade"
+                            id="staticBackdrop"
+                            data-bs-backdrop="static"
+                            data-bs-keyboard="false"
+                            tabIndex="-1"
+                            aria-labelledby="staticBackdropLabel"
+                            aria-hidden="true"
+                          >
                             <div className="modal-dialog">
                               <div className="modal-content">
                                 <div className="modal-header">
@@ -191,24 +286,88 @@ const Vastu = () => {
                                   <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div className="modal-body">
-                                  <div class="short_by_object">
-                                    <input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_0" value="" />
-                                    <label class="lable_radio selected popularty-lable" for="short_0"> Popularity </label>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByExperience_asc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Experience: Low to High</label>
                                   </div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_2" value="sortByExperience_0" /><label class="lable_radio" for="short_2"> Experience  : Low to High </label></div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_3" value="sortByOrder_1" /><label class="lable_radio" for="short_3"> Total orders : High to Low </label></div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_4" value="sortByOrder_0" /><label class="lable_radio" for="short_4"> Total orders : Low to High </label></div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_5" value="sortByPrice_1" /><label class="lable_radio" for="short_5"> Price : High to Low </label></div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_6" value="sortByPrice_0" /><label class="lable_radio" for="short_6"> Price : Low to High </label></div>
-                                  <div class="short_by_object"><input type="radio" name="shorting" autocomplete="off" class="form-check-input" id="short_7" value="sortByRating_1" /><label class="lable_radio" for="short_7"> Rating : High to Low </label></div>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByExperience_desc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Experience: High to Low</label>
+                                  </div>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByPrice_asc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Price: Low to High</label>
+                                  </div>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByPrice_desc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Price: High to Low</label>
+                                  </div>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByRating_desc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Rating: High to Low</label>
+                                  </div>
+                                  <div className="short_by_object">
+                                    <input
+                                      type="radio"
+                                      name="shorting"
+                                      className="form-check-input"
+                                      value="sortByRating_asc"
+                                      onChange={handleSortChange}
+                                      data-bs-dismiss="modal"
+                                    />
+                                    <label className="lable_radio">Rating: Low to High</label>
+                                  </div>
                                 </div>
-
                               </div>
                             </div>
                           </div>
                           {/* enf of filter sort by*/}
                           <div className="form-search classsearhMbile">
-                            <input name="searchText" type="search" autocomplete="off" id="searchAstroQuery" class="form-control customform-control postion_Rel ng-pristine ng-valid ng-touched" placeholder="Search..." /><i class="fa fa-search"></i></div>
+                            <input
+                              name="searchText"
+                              type="text"
+                              value={searchText}
+                              onChange={handleSearchChange}
+                              autoComplete="off"
+                              id="searchAstroQuery"
+                              className="form-control customform-control postion_Rel"
+                              placeholder="Search..."
+                            /><i class="fa fa-search"></i></div>
                         </div>
                       </div>
                     </div>
@@ -222,7 +381,7 @@ const Vastu = () => {
         <div className='section architecture-section-2 mb-5'>
           <div className="container-fluid architecture-section-p">
             <div className='row'>
-              {allProvider && allProvider.map((item, index) => (
+              {currentProviders && currentProviders.map((item, index) => (
                 <div className='col-12 col-md-6 col-lg-6 col-xl-4' key={index}>
                   <div className="card-custom align-items-center justify-content-between my-2">
                     <div className="card-detail align-items-center">
@@ -238,26 +397,58 @@ const Vastu = () => {
                           {/* <p className="text-small text-muted mb-1 me-4">{item.Orders}</p> */}
                         </Link>
                         <div className='profile-content'>
-                          <h5 className="mb-1"><Link to={`/architect-profile/${item._id}`}>{item.name}</Link></h5>
-                          <p className="text-small text-muted mb-1">{item.type}</p>
-                          <p className="text-small text-muted mb-1"> {item.language && item.language.map((lang, index) => {
-                            return (
-                              <span key={index} className="archi-language-tag">
-                                {lang}{index < item.language.length - 1 ? ', ' : ''}
-                              </span>
-                            );
-                          }) || ''}</p>
+                          <h5 className="mb-1">
+                            {item.name ? (
+                              <Link to={`/architect-profile/${item._id}`}>{item.name}</Link>
+                            ) : (
+                              "Not Available"
+                            )}
+                          </h5>
+
                           <p className="text-small text-muted mb-1">
-                            {item.expertiseSpecialization && item.expertiseSpecialization.map((lang, index) => {
-                              return (
-                                <span key={index} className="archi-language-tag">
-                                  {lang}{index < item.expertiseSpecialization.length - 1 ? ', ' : ''}
-                                </span>
-                              );
-                            }) || ''}
+                            {item.type ? item.type : "Not Available"}
                           </p>
+
                           <p className="text-small text-muted mb-1">
-                            <span className='archi-language-tag'>{`₹ ${item.pricePerMin}/min`}</span>
+                            {item.yearOfExperience ? (
+                              <span className='archi-language-tag'>{`${item.yearOfExperience} year`}</span>
+                            ) : (
+                              "Not Available"
+                            )}
+                          </p>
+
+                          <p className="text-small text-muted mb-1">
+                            {item.language && item.language.length > 0 ? (
+                              item.language.map((lang, index) => (
+                                <span key={index} className="archi-language-tag">
+                                  {lang}
+                                  {index < item.language.length - 1 ? ", " : ""}
+                                </span>
+                              ))
+                            ) : (
+                              "Not Available"
+                            )}
+                          </p>
+
+                          <p className="text-small text-muted mb-1">
+                            {item.expertiseSpecialization && item.expertiseSpecialization.length > 0 ? (
+                              item.expertiseSpecialization.map((specialization, index) => (
+                                <span key={index} className="archi-language-tag">
+                                  {specialization}
+                                  {index < item.expertiseSpecialization.length - 1 ? ", " : ""}
+                                </span>
+                              ))
+                            ) : (
+                              "Not Available"
+                            )}
+                          </p>
+
+                          <p className="text-small text-muted mb-1">
+                            {item.pricePerMin ? (
+                              <span className='archi-language-tag'>{`₹ ${item.pricePerMin}/min`}</span>
+                            ) : (
+                              "Not Available"
+                            )}
                           </p>
                         </div>
                       </div>
@@ -268,7 +459,7 @@ const Vastu = () => {
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-chat-btn mt-2"><i class="fa-regular fa-comments"></i> Chat</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-video-btn mt-2"><i class="fa-solid fa-video"></i> Video</button> */}
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
-                            <button onClick={() => handleActiveTime("Chat", item._id)}  style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
+                            <button onClick={() => handleActiveTime("Chat", item._id)} style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                           </div>
                         </div>
@@ -288,6 +479,19 @@ const Vastu = () => {
                 </div>
               ))}
             </div>
+            <nav>
+              <ul className="pagination">
+                {Array.from({ length: Math.ceil(filteredProviders.length / itemsPerPage) }).map((_, index) => (
+                  <li
+                    key={index}
+                    className={`page-item ${currentPage === index + 1 ? "active" : ""}`}
+                    onClick={() => paginate(index + 1)}
+                  >
+                    <a className="page-link">{index + 1}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
         </div>

@@ -274,7 +274,17 @@ exports.getAllProvider = async (req, res) => {
 exports.getSingleProvider = async (req, res) => {
     try {
         const providerId = req.params._id;
-        const provider = await providersModel.findById(providerId).populate('portfolio').exec();
+        const provider = await providersModel
+            .findById(providerId)
+            .populate('portfolio')
+            .populate({
+                path: 'chatTransition',
+                populate: {
+                    path: 'user', // Field inside chatTransition to populate
+                    model: 'User', // Replace with your user model name if different
+                },
+            })
+            .exec();
         if (!provider) {
             return res.status(404).json({
                 success: false,

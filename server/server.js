@@ -13,7 +13,8 @@ const { rateLimit } = require('express-rate-limit');
 const router = require('./routes/routes');
 const { singleUploadImage } = require('./middlewares/Multer');
 const Chat = require('./models/chatAndPayment.Model');
-const { chatStart, chatEnd } = require('./controllers/user.Controller');
+const { chatStart, chatEnd, chatStartFromProvider } = require('./controllers/user.Controller');
+const mongoose = require('mongoose')
 // Middlewares
 ConnectDB()
 
@@ -59,7 +60,7 @@ io.on('connection', (socket) => {
     const roomMembers = {};
 
     // Join a specific room
-    socket.on('join_room', async ({ userId, astrologerId, role }) => {
+    socket.on('join_room', async ({ userId, astrologerId, role }, callback) => {
         try {
             const room = `${userId}_${astrologerId}`;
 
@@ -68,9 +69,17 @@ io.on('connection', (socket) => {
 
                 if (!result.success) {
                     socket.emit('error_message', { message: result.message });
-                    return; // Stop further execution if room creation fails
+                    return callback({ success: false, message: result.message });
                 }
 
+            }
+
+            if (role === 'provider') {
+                const result = await chatStartFromProvider(userId, astrologerId)
+                if (!result.success) {
+                    socket.emit('error_message', { message: result.message });
+                    return callback({ success: false, message: result.message });
+                }
             }
 
             // Join the room and store the role information
@@ -81,7 +90,9 @@ io.on('connection', (socket) => {
             console.log(`Current members in ${room}:`, [...socket.adapter.rooms.get(room)]);
 
             // Notify the client about successful room joining
-            socket.emit('room_joined', { message: 'Successfully joined the room', room });
+            socket.emit('room_joined', { message: 'Welcome back. Start chat', room });
+            // Respond with success to the callback
+            callback({ success: true, message: 'Welcome back. Start chat' });
         } catch (error) {
             console.error('Error in join_room event:', error);
             socket.emit('error_message', { message: 'An error occurred while joining the room' });
@@ -92,9 +103,27 @@ io.on('connection', (socket) => {
     socket.on('message', async ({ room, message, senderId, timestamp }) => {
         console.log(`Message from ${senderId} to ${room}:`, message);
 
+        // Define prohibited patterns
+        const prohibitedPatterns = [
+            /\b\d{10}\b/,             // Detects 10-digit phone numbers
+            /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, // Detects phone numbers like 123-456-7890, etc.
+            /\b(?:\d{1,3}[.-]){1,3}\d{1,3}\b/, // Detects some IP address formats (e.g. 192.168.1.1)
+            /@[\w.-]+\.[a-zA-Z]{2,6}/, // Detects email addresses (e.g. example@example.com)
+            /\b18\+|adult\b/i,         // Detects terms like "18+" or "adult"
+        ];
+
+        // Check if the message matches any of the prohibited patterns
+        const containsProhibitedContent = prohibitedPatterns.some(pattern => pattern.test(message));
+
+        if (containsProhibitedContent) {
+            // console.log("Prohibited content detected in the message.");
+            socket.emit('wrong_message', { message: 'Your message contains prohibited content (phone number, email, or inappropriate terms).' });
+            return; // Reject the message
+        }
+
         try {
             // Save message to the database
-            console.log("room id for update", room)
+            console.log("room id for update", room);
             await Chat.findOneAndUpdate(
                 { room },
                 { $push: { messages: { sender: senderId, text: message, timestamp: timestamp || new Date().toISOString() } } },
@@ -108,24 +137,96 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle file uploads
+    // Handle message deletion
+    socket.on('delete_message_request', async ({ room, messageId, senderId }) => {
+        try {
+            // Delete the message from the database
+            const chat = await Chat.findOne({ room });
+            // console.log("object", messageId)
+            const objectIdMessage = new mongoose.Types.ObjectId(messageId);
+            // console.log("objectIdMessage",objectIdMessage)
+            if (chat) {
+                const updatedMessages = chat.messages.filter(msg => msg._id.toString() !== objectIdMessage.toString());
+                const updatedChat = await Chat.findOneAndUpdate(
+                    { room },
+                    { $set: { messages: updatedMessages } },
+                    { new: true }  // Returns the updated document
+                );
+                socket.emit('delete_message', { messageId });
+                socket.to(room).emit('delete_message', { messageId });
+            }
+        } catch (error) {
+            console.error('Error deleting message:', error);
+        }
+    });
+
+
+
     socket.on('file_upload', async ({ room, fileData, senderId, timestamp }) => {
         console.log(`File received in ${room}:`, fileData);
-
+    
         try {
+            // Basic validation on file
+            if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileData.type)) {
+                throw new Error('Invalid file type.');
+            }
+    
+            if (Buffer.byteLength(fileData.content, 'base64') > 5 * 1024 * 1024) { // 5MB size check
+                throw new Error('File size exceeds 5MB.');
+            }
+    
             // Save file to the database
             await Chat.findOneAndUpdate(
                 { room },
-                { $push: { messages: { senderId, file: fileData, timestamp: timestamp || new Date().toISOString() } } },
+                { $push: { messages: { sender: senderId, file: fileData, timestamp: timestamp || new Date().toISOString() } } },
                 { upsert: true, new: true }
             );
-
+    
             // Emit the file to all participants in the room except the sender
             socket.to(room).emit('return_message', { text: 'Attachment received', file: fileData, sender: senderId });
         } catch (error) {
             console.error('Error saving file to database:', error);
+            socket.emit('file_upload_error', { error: error.message });
         }
     });
+    
+
+    // socket.on('delete_file', async ({ room, messageId }) => {
+    //     try {
+    //         // Validate the ObjectId
+    //         if (!mongoose.Types.ObjectId.isValid(messageId)) {
+    //             console.log("Invalid ObjectId:", messageId);
+    //             return;
+    //         }
+    
+    //         // Convert `messageId` to ObjectId
+    //         const objectIdMessage = new mongoose.Types.ObjectId(messageId);
+    
+    //         // Find the chat and filter out the file message
+    //         const chat = await Chat.findOne({ room });
+    //         if (!chat) {
+    //             console.log("Chat not found!");
+    //             return;
+    //         }
+    
+    //         const updatedMessages = chat.messages.filter(msg => msg._id.toString() !== objectIdMessage.toString());
+    
+    //         // Update the chat with the filtered messages
+    //         const updatedChat = await Chat.findOneAndUpdate(
+    //             { room },
+    //             { $set: { messages: updatedMessages } },
+    //             { new: true }
+    //         );
+    
+    //         console.log("Updated Chat after File Deletion:", updatedChat);
+    
+    //         // Emit success to clients
+    //         socket.to(room).emit('file_deleted', { messageId });
+    
+    //     } catch (error) {
+    //         console.error("Error deleting file message:", error);
+    //     }
+    // });
 
     // Handle client disconnect
     // socket.on('disconnect', () => {
@@ -136,6 +237,8 @@ io.on('connection', (socket) => {
     //         delete roomMembers[socket.id];
     //     }
     // });
+
+    
 
     socket.on('disconnect', async () => {
         console.log('A client disconnected:', socket.id);

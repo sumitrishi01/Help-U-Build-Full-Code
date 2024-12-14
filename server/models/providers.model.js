@@ -110,7 +110,8 @@ const ProviderProfileSchema = new mongoose.Schema({
         type: Number
     },
     pricePerMin: {
-        type: Number
+        type: Number,
+        default: 0
     },
     roomId: {
         type: String
@@ -127,11 +128,11 @@ const ProviderProfileSchema = new mongoose.Schema({
     },
     callStatus: {
         type: Boolean,
-        default: true
+        default: false
     },
     meetStatus: {
         type: Boolean,
-        default: true
+        default: false
     },
     walletAmount: {
         type: Number,

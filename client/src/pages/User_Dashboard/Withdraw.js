@@ -1,38 +1,44 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import toast from 'react-hot-toast'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function Withdraw({ data }) {
-  // console.log("data",data)
   const providerId = data._id;
-  const [withdraw, setWithdraw] = useState([])
+  const [withdraw, setWithdraw] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   const handleFetchWithdraw = async () => {
     try {
-      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-withdrawals-by-providerid/${providerId}`)
-      // console.log("data", data.data)
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-withdrawals-by-providerid/${providerId}`);
       const alldata = data.data;
-      const reverse = [...alldata].reverse(); // Creates a new reversed array
+      const reverse = [...alldata].reverse(); // Reverses the order of the data
       setWithdraw(reverse);
     } catch (error) {
-      console.log("Internal server error", error)
-      toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
+      console.log('Internal server error', error);
     }
-  }
+  };
 
   useEffect(() => {
     handleFetchWithdraw();
-  }, [])
+  }, []);
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
+    if (pageNumber >= 1 && pageNumber <= Math.ceil(withdraw.length / itemsPerPage)) {
+      setCurrentPage(pageNumber);
+    }
   };
 
+  const totalItems = withdraw.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = withdraw.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Pagination: Show 5 page numbers at a time
+  const pageNumbersToShow = 5;
+  const startPage = Math.max(1, currentPage - Math.floor(pageNumbersToShow / 2));
+  const endPage = Math.min(totalPages, startPage + pageNumbersToShow - 1);
+  const visiblePages = Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
 
   return (
     <div className="container wallet-list mt-4">
@@ -48,35 +54,55 @@ function Withdraw({ data }) {
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((item, index) => (
-              <tr key={index}>
-                <td>{item.amount ? item.amount.toFixed(2) : '0.00'}</td>
-                <td>{item.commissionPercent ? item.commissionPercent : '0'}%</td>
-                <td>₹{item.commission ? item.commission : '0'}</td>
-                <td>₹{item.finalAmount ? item.finalAmount : '0'}</td>
-                <td>{item.status}</td>
-                {/* <td>{new Date(item.Date).toLocaleString()}</td> */}
-                {/* <td>{calculateDuration(item.startChatTime, transition.endingChatTime)}</td> */}
-              </tr>
-            ))}
+            {
+              currentItems.length > 0 ? (
+                currentItems.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.amount ? item.amount.toFixed(2) : '0.00'}</td>
+                    <td>{item.commissionPercent ? item.commissionPercent : '0'}%</td>
+                    <td>₹{item.commission ? item.commission : '0'}</td>
+                    <td>₹{item.finalAmount ? item.finalAmount : '0'}</td>
+                    <td>{item.status}</td>
+                  </tr>
+                ))
+              ): (
+                <div>
+                  <p className=' mb-0'>There in no previous transactions.</p>
+                </div>
+              )
+            }
           </tbody>
         </table>
 
         {/* Pagination */}
         <div className="pagination">
-          {Array.from({ length: Math.ceil(withdraw.length / itemsPerPage) }).map((_, index) => (
+          <button
+            className="page-btn"
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+          >
+            Previous
+          </button>
+          {visiblePages.map((page) => (
             <button
-              key={index}
-              className={`page-btn ${currentPage === index + 1 ? 'active' : ''}`}
-              onClick={() => handlePageChange(index + 1)}
+              key={page}
+              className={`page-btn ${currentPage === page ? 'active' : ''}`}
+              onClick={() => handlePageChange(page)}
             >
-              {index + 1}
+              {page}
             </button>
           ))}
+          <button
+            className="page-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Withdraw
+export default Withdraw;

@@ -41,7 +41,7 @@ function SuccessFull() {
               </div>
 
               <div className="mt-4">
-                <a href="/" className="btn btn-primary btn-lg">Go to Dashboard</a>
+                <a href="/" className="btn btn-primary btn-lg text-white">Go to Home Page</a>
               </div>
             </div>
           </div>

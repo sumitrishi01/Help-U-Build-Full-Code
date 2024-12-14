@@ -43,7 +43,7 @@ function FailedPayment() {
               </div>
 
               <div className="mt-4">
-                <a href="/" className="btn btn-danger btn-lg">Go to Dashboard</a>
+                <a href="/" className="btn btn-danger btn-lg">Go to Home Page</a>
               </div>
             </div>
           </div>

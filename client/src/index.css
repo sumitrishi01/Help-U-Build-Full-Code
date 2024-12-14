@@ -24,3 +24,43 @@ code {
   cursor: pointer;
   background: #fff;
 }
+
+
+.delete-button {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 0.8rem;
+}
+
+.delete-button:hover {
+  background-color: darkred;
+}
+
+
+.recent-chat-message {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge-chat{
+  position: absolute;
+  top: 13%;
+  right: -30%;
+  background-color: #f0ad4e;
+  color: #fff;
+  /* padding: 1px 6px; */
+  height: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 15px;
+  
+}
