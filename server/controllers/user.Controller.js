@@ -351,6 +351,37 @@ exports.login = async (req, res) => {
     }
 };
 
+exports.updateUserPassword = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { Password, newPassword } = req.body;
+        const existingData = await User.findById(userId);
+        if (!existingData) {
+            return res.status(404).json({
+                success: false, message: "User not found."
+            });
+        }
+        const isMatch = await existingData.comparePassword(Password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, message: "The password you entered is incorrect. Please Enter Correct Password." });
+        }
+        existingData.Password = newPassword;
+        await existingData.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Password updated successfully.',
+            data: existingData
+        })
+    } catch (error) {
+        console.log("Internal server error", error)
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        })
+    }
+}
+
 
 exports.logout = (req, res) => {
     try {
@@ -493,13 +524,16 @@ exports.deleteAccount = async (req, res) => {
 exports.banUserToggle = async (req, res) => {
     try {
         const { userId } = req.params;
+        const {isBanned} = req.body;
+        // console.log("userid",userId)
+        // console.log("banned",isBanned)
 
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        user.isBanned = !user.isBanned; // Toggle the isBanned status
+        user.isBanned = isBanned; // Toggle the isBanned status
         await user.save();
 
         const status = user.isBanned ? "banned" : "unbanned";

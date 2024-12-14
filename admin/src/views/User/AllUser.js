@@ -20,7 +20,7 @@ function AllUser() {
     const [currentPage, setCurrentPage] = React.useState(1);
     const itemsPerPage = 10;
 
-    console.log("token", token)
+    // console.log("token", token)
 
     const handleFetchBanner = async () => {
         setLoading(true);
@@ -32,7 +32,7 @@ function AllUser() {
                     }
                 }
             );
-            setBanners(data.data || []); // Ensure default empty array
+            setBanners(data.data || []);
         } catch (error) {
             console.error('Error fetching user:', error);
             toast.error(
@@ -48,25 +48,15 @@ function AllUser() {
     // Update Active Status
     const handleUpdateActive = async (id, currentStatus) => {
         setLoading(true);
-        // console.log("i am hit",currentStatus)
         try {
             const updatedStatus = !currentStatus;
-            const res = await axios.put(`https://api.helpubuild.co.in/api/v1/update-testimonial-status/${id}`, {
-                active: updatedStatus,
+            const res = await axios.put(`https://api.helpubuild.co.in/api/v1/user-ban/${id}`, {
+                isBanned: updatedStatus,
             });
-
-            // console.log("i am hit 2")
-
-            setBanners((prevBanners) =>
-                prevBanners.map((banner) =>
-                    banner._id === id ? { ...banner, active: updatedStatus } : banner
-                )
-            );
-            // toast.success('Status updated successfully!');
+            handleFetchBanner();
             toast.success(res?.data?.message);
         } catch (error) {
             console.error('Error updating status:', error);
-            // toast.error('Unable to update status. Please try again.');
             toast.error(
                 error?.response?.data?.errors?.[0] ||
                 error?.response?.data?.message ||
@@ -81,12 +71,13 @@ function AllUser() {
     const handleDeleteBanner = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`https://api.helpubuild.co.in/api/v1/delete-testimonial/${id}`);
-            setBanners((prevBanners) => prevBanners.filter((banner) => banner._id !== id));
-            toast.success('Testimonial deleted successfully!');
+            await axios.delete(`https://api.helpubuild.co.in/api/v1/user-delete/${id}`);
+            // setBanners((prevBanners) => prevBanners.filter((banner) => banner._id !== id));
+            handleFetchBanner()
+            toast.success('User deleted successfully!');
         } catch (error) {
-            console.error('Error deleting testimonial:', error);
-            toast.error('Failed to delete the testimonial. Please try again.');
+            console.error('Error deleting User:', error);
+            toast.error('Failed to delete the user. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -139,9 +130,9 @@ function AllUser() {
                 </div>
             ) : (
                 <Table
-                    heading="All Testimonial"
-                    btnText="Add Testimonial"
-                    btnURL="/testimonial/add_testimonial"
+                    heading="All User"
+                    btnText=""
+                    btnURL=""
                     tableHeading={heading}
                     tableContent={
                         currentData.map((item, index) => (
@@ -158,8 +149,8 @@ function AllUser() {
                                 <CTableDataCell>
                                     <CFormSwitch
                                         id={`formSwitch-${item._id}`}
-                                        checked={item.active}
-                                        onChange={() => handleUpdateActive(item._id, item.active)}
+                                        checked={item.isBanned}
+                                        onChange={() => handleUpdateActive(item._id, item.isBanned)}
                                     />
                                 </CTableDataCell>
                                 <CTableDataCell>

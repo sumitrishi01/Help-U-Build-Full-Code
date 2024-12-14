@@ -20,9 +20,12 @@ function Table({ heading, btnText, btnURL, tableHeading, pagination, tableConten
                 <CCard className="mb-4">
                     <CCardHeader style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <h3 className='m-0'>{heading}</h3>
-                        <CNavLink className='btn btn-ghost-primary active p-1 px-2' href={`#${btnURL}`} active>
-                            {btnText}
-                        </CNavLink>
+                        {btnText ? (
+                            <CNavLink className='btn btn-ghost-primary active p-1 px-2' href={`#${btnURL}`} active>
+                                {btnText}
+                            </CNavLink>
+                        ) : null}
+
                     </CCardHeader>
                     <CCardBody>
                         <div className='table-parent'>

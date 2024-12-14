@@ -1,5 +1,5 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
 const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail } = require('../controllers/provider.controller');
 const multer = require('multer');
@@ -29,6 +29,7 @@ router.post('/verify/:type', verifyEmail);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.get('/get-user-by-id/:id', getUserById);
+router.put('/update-user-password/:userId',updateUserPassword)
 
 //providers registration related routes
 router.post(
@@ -61,7 +62,7 @@ router.put('/update-provider-documents/:providerId', upload.fields([
 ]), updateDocuments)
 router.put('/update-provider-profile/:_id', updateProvider)
 router.put('/update-bank-detail/:providerId', updateBankDetail)
-router.put('/update-provider-password/:providerId', updatePassword)
+router.put('/update-provider-`password/:providerId', updatePassword)
 router.get('/GetMyProfile', protect, GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
 router.post('/addPortfolio', protect, (req, res, next) => {
@@ -92,8 +93,8 @@ router.get('/get-all-provider', getAllProvider)
 router.get('/users', getAllUsers);
 // router.get('/user/:id', getSingleUserById);
 router.get('/get-single-user/:id', getSingleUser)
-router.delete('/user/:userId', deleteAccount);
-router.put('/user/:userId/ban', banUserToggle);
+router.delete('/user-delete/:userId', deleteAccount);
+router.put('/user-ban/:userId', banUserToggle);
 
 router.get('/get-all-chat', getAllChat)
 
