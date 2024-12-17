@@ -54,28 +54,23 @@ const io = new Server(server, {
 
 app.locals.socketIo = io;
 
+const activeTimers = {};
+const roomMembers = {};
+let providerconnect ;
+
 io.on('connection', (socket) => {
     console.log('A new client connected:', socket.id);
 
-    const roomMembers = {};
 
     // Join a specific room
     socket.on('join_room', async ({ userId, astrologerId, role }, callback) => {
         try {
             const room = `${userId}_${astrologerId}`;
 
-            if (role === 'user') {
-                const result = await chatStart(userId, astrologerId);
-
-                if (!result.success) {
-                    socket.emit('error_message', { message: result.message });
-                    return callback({ success: false, message: result.message });
-                }
-
-            }
-
             if (role === 'provider') {
-                const result = await chatStartFromProvider(userId, astrologerId)
+                const result = await chatStartFromProvider(userId, astrologerId);
+                socket.to(room).emit('provider_connected', { room });
+                // console.log("iam hit")
                 if (!result.success) {
                     socket.emit('error_message', { message: result.message });
                     return callback({ success: false, message: result.message });
@@ -99,89 +94,117 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle incoming messages
-    socket.on('message', async ({ room, message, senderId, timestamp }) => {
-        console.log(`Message from ${senderId} to ${room}:`, message);
-
-        // Define prohibited patterns
-        const prohibitedPatterns = [
-            /\b\d{10}\b/,             // Detects 10-digit phone numbers
-            /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, // Detects phone numbers like 123-456-7890, etc.
-            /\b(?:\d{1,3}[.-]){1,3}\d{1,3}\b/, // Detects some IP address formats (e.g. 192.168.1.1)
-            /@[\w.-]+\.[a-zA-Z]{2,6}/, // Detects email addresses (e.g. example@example.com)
-            /\b18\+|adult\b/i,         // Detects terms like "18+" or "adult"
-        ];
-
-        // Check if the message matches any of the prohibited patterns
-        const containsProhibitedContent = prohibitedPatterns.some(pattern => pattern.test(message));
-
-        if (containsProhibitedContent) {
-            // console.log("Prohibited content detected in the message.");
-            socket.emit('wrong_message', { message: 'Your message contains prohibited content (phone number, email, or inappropriate terms).' });
-            return; // Reject the message
-        }
-
+    // Handle the first message from the user
+    socket.on('message', async ({ room, message, senderId, timestamp, role }) => {
         try {
-            // Save message to the database
-            console.log("room id for update", room);
+            const isFirstMessage = !activeTimers[room]; // Check if this is the first message
+            const roomData = roomMembers[socket.id];
+
+            if (role === 'user' && isFirstMessage) {
+                // Call chatStart when the first message is sent
+                const result = await chatStart(roomData.userId, roomData.astrologerId);
+
+                if (!result.success) {
+                    socket.emit('error_message', { message: result.message });
+                    return;
+                }
+
+                socket.emit('one_min_notice', { message: 'Please wait a minute for the provider to come online.' });
+
+                socket.emit('time_out', { time: result.data.chatTimingRemaining })
+
+                // Start a 1-minute timer
+                activeTimers[room] = setTimeout(async () => {
+                    const connectedSockets = await io.in(room).fetchSockets();
+                    const providerStillConnected = connectedSockets.some((s) => {
+                        const member = roomMembers[s.id];
+                        return member?.role === 'provider';
+                    });
+
+                    if (!providerStillConnected) {
+                        console.log(`Provider not connected within 1 minute. Disconnecting user from room: ${room}`);
+                        const userSocket = connectedSockets.find((s) => roomMembers[s.id]?.role === 'user');
+                        if (userSocket) {
+                            io.to(userSocket.id).emit('timeout_disconnect', { message: 'Provider did not connect. Chat ended.' });
+                            userSocket.disconnect();
+                        }
+                    } else {
+                        console.log('Provider connected within 1 minute. Starting wallet deduction.');
+                        // Start wallet deduction logic here (e.g., call a function to start deductions)
+                    }
+                }, 60000); // 1 minute
+            }
+
+            // Check for prohibited content in the message
+            const prohibitedPatterns = [
+                /\b\d{10}\b/, // Phone numbers
+                /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, // Phone numbers like 123-456-7890
+                /@[\w.-]+\.[a-zA-Z]{2,6}/, // Emails
+                /\b18\+|adult\b/i, // Inappropriate terms
+            ];
+
+            const containsProhibitedContent = prohibitedPatterns.some((pattern) => pattern.test(message));
+            if (containsProhibitedContent) {
+                socket.emit('wrong_message', { message: 'Your message contains prohibited content.' });
+                return;
+            }
+
+            // Save the message to the database
             await Chat.findOneAndUpdate(
                 { room },
                 { $push: { messages: { sender: senderId, text: message, timestamp: timestamp || new Date().toISOString() } } },
                 { upsert: true, new: true }
             );
 
-            // Send message to all participants in the room except the sender
+            // Broadcast the message to other participants in the room
             socket.to(room).emit('return_message', { text: message, sender: senderId, timestamp });
         } catch (error) {
-            console.error('Error saving message to database:', error);
+            console.error('Error handling message event:', error);
         }
     });
 
-    // Handle message deletion
-    socket.on('delete_message_request', async ({ room, messageId, senderId }) => {
-        try {
-            // Delete the message from the database
-            const chat = await Chat.findOne({ room });
-            // console.log("object", messageId)
-            const objectIdMessage = new mongoose.Types.ObjectId(messageId);
-            // console.log("objectIdMessage",objectIdMessage)
-            if (chat) {
-                const updatedMessages = chat.messages.filter(msg => msg._id.toString() !== objectIdMessage.toString());
-                const updatedChat = await Chat.findOneAndUpdate(
-                    { room },
-                    { $set: { messages: updatedMessages } },
-                    { new: true }  // Returns the updated document
-                );
-                socket.emit('delete_message', { messageId });
-                socket.to(room).emit('delete_message', { messageId });
+    socket.on('provider_connected', ({ room }) => {
+        console.log('Provider connected to room:', room);
+
+        // Clear the 1-minute timer if it's active
+        if (activeTimers[room]) {
+            console.log(`Clearing timer for room: ${room}`);
+            clearTimeout(activeTimers[room]);
+            delete activeTimers[room];
+        }
+
+        // Mark the provider as connected in the roomMembers object for the user
+        const connectedSockets = [...socket.adapter.rooms.get(room) || []];
+        connectedSockets.forEach((socketId) => {
+            if (roomMembers[socketId]?.role === 'user') {
+                console.log("i am hit")
+                roomMembers[socketId].providerConnected = true;
             }
-        } catch (error) {
-            console.error('Error deleting message:', error);
-        }
+        });
+        console.log(`Provider connected to room: ${room}. Timer cleared.`);
     });
-
 
 
     socket.on('file_upload', async ({ room, fileData, senderId, timestamp }) => {
         console.log(`File received in ${room}:`, fileData);
-    
+
         try {
             // Basic validation on file
             if (!['image/jpeg', 'image/png', 'image/gif'].includes(fileData.type)) {
                 throw new Error('Invalid file type.');
             }
-    
+
             if (Buffer.byteLength(fileData.content, 'base64') > 5 * 1024 * 1024) { // 5MB size check
                 throw new Error('File size exceeds 5MB.');
             }
-    
+
             // Save file to the database
             await Chat.findOneAndUpdate(
                 { room },
                 { $push: { messages: { sender: senderId, file: fileData, timestamp: timestamp || new Date().toISOString() } } },
                 { upsert: true, new: true }
             );
-    
+
             // Emit the file to all participants in the room except the sender
             socket.to(room).emit('return_message', { text: 'Attachment received', file: fileData, sender: senderId });
         } catch (error) {
@@ -189,56 +212,6 @@ io.on('connection', (socket) => {
             socket.emit('file_upload_error', { error: error.message });
         }
     });
-    
-
-    // socket.on('delete_file', async ({ room, messageId }) => {
-    //     try {
-    //         // Validate the ObjectId
-    //         if (!mongoose.Types.ObjectId.isValid(messageId)) {
-    //             console.log("Invalid ObjectId:", messageId);
-    //             return;
-    //         }
-    
-    //         // Convert `messageId` to ObjectId
-    //         const objectIdMessage = new mongoose.Types.ObjectId(messageId);
-    
-    //         // Find the chat and filter out the file message
-    //         const chat = await Chat.findOne({ room });
-    //         if (!chat) {
-    //             console.log("Chat not found!");
-    //             return;
-    //         }
-    
-    //         const updatedMessages = chat.messages.filter(msg => msg._id.toString() !== objectIdMessage.toString());
-    
-    //         // Update the chat with the filtered messages
-    //         const updatedChat = await Chat.findOneAndUpdate(
-    //             { room },
-    //             { $set: { messages: updatedMessages } },
-    //             { new: true }
-    //         );
-    
-    //         console.log("Updated Chat after File Deletion:", updatedChat);
-    
-    //         // Emit success to clients
-    //         socket.to(room).emit('file_deleted', { messageId });
-    
-    //     } catch (error) {
-    //         console.error("Error deleting file message:", error);
-    //     }
-    // });
-
-    // Handle client disconnect
-    // socket.on('disconnect', () => {
-    //     console.log('A client disconnected:', socket.id);
-    //     const room = roomMembers[socket.id];
-    //     if (room) {
-    //         console.log(`${socket.id} left room: ${room}`);
-    //         delete roomMembers[socket.id];
-    //     }
-    // });
-
-    
 
     socket.on('disconnect', async () => {
         console.log('A client disconnected:', socket.id);
@@ -246,33 +219,66 @@ io.on('connection', (socket) => {
         const roomData = roomMembers[socket.id];
         if (roomData) {
             const { userId, astrologerId, room, role } = roomData;
-            console.log(`${socket.id} left room: ${room}`);
-            delete roomMembers[socket.id];  // Remove the user from the room members list
 
-            // Check who disconnected based on the role
-            if (role === 'user') {
-                console.log("User disconnected. Running wallet deduction logic...");
-
-                // Run wallet deduction logic only if the user disconnects
-                try {
-                    const response = await chatEnd(userId, astrologerId);  // Assuming chatEnd takes userId and astrologerId
-                    if (response.success) {
-                        console.log('Chat ended successfully:', response.message);
-                    } else {
-                        console.error('Chat end error:', response.message);
-                    }
-                } catch (error) {
-                    console.error('Error calling chatEnd:', error);
-                }
-            } else if (role === 'provider') {
-                console.log("Astrologer (provider) disconnected. No wallet deduction logic.");
-            } else {
-                console.log("Unknown role for disconnector.");
+            // Clear any active timer for the room
+            if (activeTimers[room]) {
+                clearTimeout(activeTimers[room]);
+                delete activeTimers[room];
             }
-        } else {
-            console.log("Room data not found for socket:", socket.id);
+
+            delete roomMembers[socket.id];
+            console.log(`${socket.id} left room: ${room}`);
+
+            // Check remaining connections in the room
+            const connectedSockets = [...socket.adapter.rooms.get(room) || []];
+            const userSocket = connectedSockets.find((s) => roomMembers[s]?.role === 'user');
+            const providerSocket = connectedSockets.find((s) => roomMembers[s]?.role === 'provider');
+            
+            // if(providerSocket){
+            // }
+            
+            if (role === 'provider') {
+                providerconnect = true;
+                // console.log("providerconnect",providerconnect)
+                console.log('Provider disconnected. Waiting for user to disconnect to end the chat.');
+                // Notify the user that the provider disconnected
+                if (userSocket) {
+                    io.to(userSocket).emit('provider_disconnected', { message: 'The provider has left the chat.' });
+                }
+
+            } else if (role === 'user') {
+                console.log('User disconnected. Checking provider status...');
+                if(providerconnect) {
+                    console.log("i am in providerconnect")
+                    roomData.providerConnected = true;
+                }
+                // If the provider was connected at some point, end the chat
+                if (roomData.providerConnected) {
+                    console.log('Both user and provider connected at some point. Running chatEnd...');
+                    try {
+                        const response = await chatEnd(userId, astrologerId);
+                        if (response.success) {
+                            providerconnect = false;
+                            console.log('Chat ended successfully:', response.message);
+                        } else {
+                            console.error('Chat end error:', response.message);
+                        }
+                    } catch (error) {
+                        console.error('Error calling chatEnd:', error);
+                    }
+                } else {
+                    console.log("User disconnected before provider connected. No wallet deduction performed.");
+                }
+            }
+
+            // Update `bothConnected` flag if both parties are still in the room
+            if (userSocket && providerSocket) {
+                roomMembers[userSocket].providerConnected = true;
+                roomMembers[providerSocket].providerConnected = true;
+            }
         }
     });
+
 
 });
 

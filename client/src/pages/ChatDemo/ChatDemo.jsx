@@ -22,6 +22,8 @@ const ChatDemo = () => {
     const UserData = JSON.parse(Data)
     const [astroId, setAstroId] = useState('')
     const [IsChatBoxActive, setIsChatBoxActive] = useState(false)
+    const [isProviderConnected, setIsProviderConnected] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(0)
 
     // console.log("message",UserData._id)
     const id = UserData?._id || ''
@@ -50,11 +52,15 @@ const ChatDemo = () => {
             const room = `${userId}_${providerId}`;
             // Join the room
             // const room = `${userId}_${providerId}`;
+            if (UserData?.role === 'provider') {
+                socket.emit('provider_connected', { room: room });
+                console.log('Emitting provider_connected event to room:', room);
+            }
             socket.emit('join_room', { userId, astrologerId: providerId, role: UserData.role }, (response) => {
                 // Check if socket connection was successful and join room was acknowledged
                 if (response.success) {
                     setIsChatBoxActive(true);  // Only activate the chat box after successful response
-                    toast.success(response.message);  // Log the success message
+                    toast.success(response.message);
                 } else {
                     console.error(response.message);  // Log the error message
                 }
@@ -90,12 +96,79 @@ const ChatDemo = () => {
             toast.error(data.message)
         })
 
+        socket.on('timeout_disconnect', (data) => {
+            toast.success(data.message)
+        })
+
+        // Listen for the 'provider_connected' event from the backend
+        socket.on('provider_connected', ({ room }) => {
+            // // This will handle the provider's connection
+            // console.log(`Provider connected to room: ${room}`);
+
+            // If the provider connects, mark them as connected
+            setIsProviderConnected(true);
+            // console.log("provider connected")
+            toast.success('Provider has connected.');
+
+            // Optionally, you can trigger any other UI update here
+            // such as enabling the chat or showing provider-specific messages
+        });
+
+        socket.on('one_min_notice', (data) => {
+            toast.success(data.message)
+        })
+
+        socket.on('time_out', (data) => {
+            setTimeLeft(data.time); // Set the timeLeft from the socket response
+        });
+
         return () => {
             socket.off('connect');
             socket.off('return_message');
+            socket.off('error_message');
+            socket.off('wrong_message');
+            socket.off('timeout_disconnect');
+            socket.off('provider_connected');
+            socket.off('one_min_notice');
+            socket.off('time_out');
             socket.disconnect();
         };
     }, [socket]);
+
+    useEffect(() => {
+        const handleProviderDisconnected = (data) => {
+            toast.success(data.message);
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
+        };
+
+        socket.on('provider_disconnected', handleProviderDisconnected);
+
+        // Cleanup the socket listener on component unmount
+        return () => {
+            socket.off('provider_disconnected', handleProviderDisconnected);
+        };
+    }, []);
+
+
+
+    useEffect(() => {
+        // Set the timeout to disconnect the socket after the timeLeft in minutes
+        if (timeLeft > 0) {
+            const timeout = timeLeft * 60000; // Convert minutes to milliseconds
+
+            // Set a timeout to disconnect the socket after the calculated time
+            const disconnectTimeout = setTimeout(() => {
+                socket.disconnect();
+                toast.error('Your chat has ended. Please recharge your wallet to continue.');
+            }, timeout);
+
+            // Clean up the timeout when the component is unmounted or timeLeft changes
+            return () => clearTimeout(disconnectTimeout);
+        }
+    }, [timeLeft]);
 
 
     const handleFileChange = (event) => {
@@ -188,7 +261,7 @@ const ChatDemo = () => {
             room = `${UserData._id}_${astroId}`;
         }
 
-        const payload = { room, message: safeMessage, senderId: UserData._id, timestamp: new Date().toISOString() };
+        const payload = { room, message: safeMessage, senderId: UserData._id, timestamp: new Date().toISOString(), role: UserData.role };
         socket.emit('message', payload);
 
         setMessages((prev) => [
@@ -200,50 +273,6 @@ const ChatDemo = () => {
             },
         ]);
         setMessage('');
-
-        // Validate file before processing
-        // if (file) {
-        //     if (!file.type.startsWith('image/')) {
-        //         toast.error('Only image files are allowed.');
-        //         return;
-        //     }
-
-        //     if (file.size > 5 * 1024 * 1024) { // Limit file size to 5MB
-        //         toast.error('File size should not exceed 5MB.');
-        //         return;
-        //     }
-
-        //     const reader = new FileReader();
-        //     reader.onload = () => {
-        //         const fileData = { name: file.name, type: file.type, content: reader.result };
-        //         socket.emit('file_upload', { room, fileData, senderId: UserData._id, timestamp: new Date().toISOString() });
-
-        //         setMessages((prev) => [
-        //             ...prev,
-        //             {
-        //                 text: file.name,
-        //                 file: fileData,
-        //                 sender: UserData._id,
-        //                 timestamp: new Date().toISOString(),
-        //             },
-        //         ]);
-        //         setFile(null);
-        //     };
-        //     reader.readAsDataURL(file);
-        // } else if (safeMessage) {
-        //     const payload = { room, message: safeMessage, senderId: UserData._id, timestamp: new Date().toISOString() };
-        //     socket.emit('message', payload);
-
-        //     setMessages((prev) => [
-        //         ...prev,
-        //         {
-        //             text: safeMessage,
-        //             sender: UserData._id,
-        //             timestamp: new Date().toISOString(),
-        //         },
-        //     ]);
-        //     setMessage('');
-        // }
     };
 
 
