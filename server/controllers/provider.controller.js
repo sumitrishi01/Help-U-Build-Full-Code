@@ -595,6 +595,61 @@ exports.updateBankDetail = async (req, res) => {
     }
 };
 
+exports.updateIsBanned = async (req, res) => {
+    try {
+        const providerId = req.params.providerId;
+        const isBanned = req.body.isBanned;
+        const provider = await providersModel.findById(providerId);
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider not found',
+                error: 'Provider not found',
+            });
+        }
+        provider.isBanned = isBanned;
+        await provider.save();
+        res.status(200).json({
+            success: true,
+            message: 'Provider banned status updated successfully',
+            isBanned: provider.isBanned,
+        });
+
+    } catch (error) {
+        console.error("Internal server error", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+}
+
+exports.deleteprovider = async (req, res) => {
+    // console.log("i am hit")
+    try {
+        const { id } = req.params;
+        const findProvider = await providersModel.findByIdAndDelete(id)
+        if (!findProvider) {
+            return res.status(500).json({
+                success: false,
+                message: "Provider nout founded",
+                error: "Provider nout founded"
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Provider deleted successfully",
+        })
+    } catch (error) {
+        console.error("Internal server error", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+}
 
 const uploadToCloudinary = (fileBuffer) => {
     return new Promise((resolve, reject) => {

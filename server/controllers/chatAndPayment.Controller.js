@@ -8,85 +8,6 @@ require('dotenv').config()
 //     key_secret: process.env.RAZORPAY_KEY_SECRET,
 // });
 
-// exports.createChatAndPayment = async (req, res) => {
-//     try {
-//         const { userId, providerId, amount, time, service } = req.body;
-//         const emptyField = [];
-//         if (!userId) emptyField.push('User Id')
-//         if (!providerId) emptyField.push('Provider Id')
-//         if (!amount) emptyField.push('Amount')
-//         if (!time) emptyField.push('Time')
-//         if (!service) emptyField.push('service')
-//         if (emptyField.length > 0) {
-//             return res.status(400).json({
-//                 message: `Please fill in the following fields: ${emptyField.join(', ')}`
-//             })
-//         }
-//         const user = await User.findById(userId);
-//         const provider = await Provider.findById(providerId);
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-//         if (!provider) {
-//             return res.status(404).json({ message: 'Provider not found' });
-//         }
-//         const roomId = `${userId}_${providerId}`
-//         user.roomId = roomId;
-//         provider.roomId = roomId;
-//         if (!amount && amount === 0) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Amount cannot be zero'
-//             })
-//         }
-
-//         const razorpayOptions = {
-//             amount: amount * 100 || 5000000,
-//             currency: 'INR',
-//             payment_capture: 1,
-//         };
-
-//         const razorpayOrder = await razorpayInstance.orders.create(razorpayOptions)
-
-//         if (!razorpayOrder) {
-//             return res.status(500).json({
-//                 success: false,
-//                 message: 'Error in creating Razorpay order'
-//             })
-//         }
-
-//         // newChatAndPayment.razorpayOrderId = razorpayOrder.id;
-//         const newChatAndPayment = new ChatAndPayment({
-//             userId,
-//             providerId,
-//             roomId: roomId,
-//             amount,
-//             time,
-//             service
-//         })
-//         await user.save()
-//         await provider.save()
-//         await newChatAndPayment.save()
-
-//         return res.status(201).json({
-//             success: true,
-//             message: 'Razorpay order created successfully',
-//             data: {
-//                 newChatAndPayment,
-//                 razorpayOrder
-//             }
-//         })
-
-//     } catch (error) {
-//         console.log("Internal server error in creating chat and payment", error)
-//         res.status(500).json({
-//             success: false,
-//             message: "Internal server error",
-//             error: error.message
-//         })
-//     }
-// }
-
 exports.createChatWithNew = async (req, res) => {
     try {
         // console.log("i am hit")
@@ -104,8 +25,8 @@ exports.createChatWithNew = async (req, res) => {
             })
         }
         const room = `${userId}_${providerId}`
-        const check = await ChatAndPayment.findOne({room:room})
-        if(check){
+        const check = await ChatAndPayment.findOne({ room: room })
+        if (check) {
             return res.status(400).json({
                 success: false,
                 message: 'Chat is already started. Check Your chat room.',
@@ -115,7 +36,7 @@ exports.createChatWithNew = async (req, res) => {
         const newChat = new ChatAndPayment({
             userId,
             providerId,
-            room:room
+            room: room
         })
         await newChat.save();
         return res.status(201).json({
@@ -230,7 +151,7 @@ exports.getChatByUserid = async (req, res) => {
 exports.markUserChatsAsRead = async (req, res) => {
     try {
         const { userId } = req.params; // Get userId from the request parameters
-        console.log("user",userId)
+        console.log("user", userId)
 
         // Find all chats related to the user and where newChat is true, then update them to false
         const result = await ChatAndPayment.updateMany(
@@ -238,7 +159,7 @@ exports.markUserChatsAsRead = async (req, res) => {
             { $set: { newChat: false } }
         );
 
-        console.log("result",result)
+        console.log("result", result)
 
         // Check if any documents were modified
         if (result.nModified > 0) {
@@ -263,7 +184,7 @@ exports.markUserChatsAsRead = async (req, res) => {
 exports.markProviderChatsAsRead = async (req, res) => {
     try {
         const { providerId } = req.params; // Get providerId from the request parameters
-        console.log("provider",providerId)
+        console.log("provider", providerId)
 
         // Find all chats related to the provider and where newChat is true, then update them to false
         const result = await ChatAndPayment.updateMany(
@@ -290,3 +211,53 @@ exports.markProviderChatsAsRead = async (req, res) => {
         });
     }
 };
+
+exports.deleteChatRoom = async (req, res) => {
+    try {
+        const { chatRoomId } = req.params;
+        const result = await ChatAndPayment.findByIdAndDelete(chatRoomId);
+        if (result.deletedCount > 0) {
+            return res.status(200).json({
+                message: 'Chat room deleted successfully.',
+                deletedCount: result.deletedCount,
+            });
+        } else {
+            return res.status(404).json({
+                message: 'Chat room not found.',
+                error: 'Chat room not found.',
+            });
+        }
+    } catch (error) {
+        console.log("Internal server error", error)
+        return res.status(500).json({
+            message: 'An error occurred while deleting the chat room.',
+            error: error.message,
+        });
+    }
+}
+
+exports.getchatByRoom = async (req, res) => {
+    try {
+        const { chatRoomId } = req.params;
+        const result = await ChatAndPayment.find({ room: chatRoomId }).populate('userId').populate('providerId');
+        if (result.length > 0) {
+            return res.status(200).json({
+                message: 'Chat retrieved successfully.',
+                data: result,
+            });
+        } else {
+            return res.status(404).json({
+                message: 'No chats found for this chat room.',
+                error: 'No chats found for this chat room.',
+            });
+        }
+
+    } catch (error) {
+        console.log("Internal server error", error)
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching the chat.',
+            error: error.message,
+        });
+    }
+}

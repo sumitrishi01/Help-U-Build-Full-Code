@@ -4,7 +4,7 @@ import './Chat.css';
 import { MdAttachment } from "react-icons/md";
 import ScrollToBottom from 'react-scroll-to-bottom';
 
-const ENDPOINT = 'https://api.helpubuild.co.in/';
+const ENDPOINT = 'http://localhost:5000/';
 
 const Chat = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -17,7 +17,7 @@ const Chat = () => {
     const file = event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      console.log('Selected File:', file);
+      // console.log('Selected File:', file);
     }
   };
 
@@ -35,7 +35,7 @@ const Chat = () => {
     socket.connect();
 
     socket.on('connect', () => {
-      console.log('Connected!', socket.id);
+      // console.log('Connected!', socket.id);
       setSocketId(socket.id);
 
       const room = `${user._id}_${astrologerId}`;
@@ -43,7 +43,7 @@ const Chat = () => {
     });
 
     socket.on('return_message', (data) => {
-      console.log('Message received:', data);
+      // console.log('Message received:', data);
 
       if (data.senderId !== socketId) {
         setMessages((prev) => [...prev, data]);

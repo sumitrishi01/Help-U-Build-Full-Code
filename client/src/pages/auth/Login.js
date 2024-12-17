@@ -27,8 +27,8 @@ function Login() {
         // console.log("first")
         e.preventDefault()
         try {
-            const { data } = await axios.post('https://api.helpubuild.co.in/api/v1/login', logindata);
-            console.log(data)
+            const { data } = await axios.post('http://localhost:5000/api/v1/login', logindata);
+            // console.log(data)
             const { token, user, message } = data
             setData('token', token)
             setData('islogin', token ? true : false)

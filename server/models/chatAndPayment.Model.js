@@ -47,7 +47,7 @@ const ChatAndPaymentSchema = new mongoose.Schema({
             timestamp: { type: Date, default: Date.now },
         },
     ],
-})
+},{timestamps:true})
 
 const ChatAndPayment = mongoose.model('ChatAndPayment', ChatAndPaymentSchema)
 module.exports = ChatAndPayment

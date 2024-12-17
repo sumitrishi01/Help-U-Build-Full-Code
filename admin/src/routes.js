@@ -10,6 +10,9 @@ import AllBlogs from './views/Blogs/AllBlogs'
 import AddBlogs from './views/Blogs/AddBlogs'
 import EditBlogs from './views/Blogs/EditBlogs'
 import AllUser from './views/User/AllUser'
+import AllChatRoom from './views/ChatRoom/AllChatRoom'
+import AllProvider from './views/Provider/AllProvider'
+import AllWithdraw from './views/Withdraw/AllWithdraw'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -114,7 +117,7 @@ const routes = [
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
-  
+
   { path: '/widgets', name: 'Widgets', element: Widgets },
 
 
@@ -159,6 +162,24 @@ const routes = [
   // { path: '/user/add_user', name: 'Add Blogs', element: AddBlogs },
   { path: '/user/all_user', name: 'All Users', element: AllUser },
   // { path: '/user/edit_user/:id', name: 'Edit Blogs', element: EditBlogs },
+
+  // chat routes here 
+  { path: '/chats', name: 'Chats', element: Cards, exact: true },
+  // { path: '/blogs/add_blogs', name: 'Add Blogs', element: AddBlogs },
+  { path: '/chats/all_chat', name: 'All Chats', element: AllChatRoom },
+  // { path: '/blogs/edit_blogs/:id', name: 'Edit Blogs', element: EditBlogs },
+
+  // provider routes here 
+  { path: '/provider', name: 'Provider', element: Cards, exact: true },
+  // { path: '/blogs/add_blogs', name: 'Add Blogs', element: AddBlogs },
+  { path: '/provider/all_provider', name: 'All Provider', element: AllProvider },
+  // { path: '/blogs/edit_blogs/:id', name: 'Edit Blogs', element: EditBlogs },
+
+  // withdraw routes here 
+  { path: '/withdraw', name: 'Withdraw Request', element: Cards, exact: true },
+  // { path: '/blogs/add_blogs', name: 'Add Blogs', element: AddBlogs },
+  { path: '/withdraw/all_withdraw', name: 'All Withdraw Request', element: AllWithdraw },
+  // { path: '/blogs/edit_blogs/:id', name: 'Edit Blogs', element: EditBlogs },
 ]
 
 export default routes

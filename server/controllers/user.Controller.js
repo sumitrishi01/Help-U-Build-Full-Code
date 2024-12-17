@@ -524,7 +524,7 @@ exports.deleteAccount = async (req, res) => {
 exports.banUserToggle = async (req, res) => {
     try {
         const { userId } = req.params;
-        const {isBanned} = req.body;
+        const { isBanned } = req.body;
         // console.log("userid",userId)
         // console.log("banned",isBanned)
 
@@ -1058,5 +1058,29 @@ exports.chatEnd = async (userId, astrologerId) => {
     }
 };
 
+exports.getTotalRechargeAmount = async (req, res) => {
+    try {
+        // Aggregate the rechargeHistory amounts from all users
+        const totalRechargeAmount = await User.aggregate([
+            { $unwind: '$rechargeHistory' }, // Unwind the rechargeHistory array
+            { $group: { _id: null, totalAmount: { $sum: '$rechargeHistory.amount' } } } // Sum the 'amount' field
+        ]);
 
+        if (totalRechargeAmount.length === 0) {
+            return res.status(404).json({ success: false, message: 'No recharge history found' });
+        }
 
+        // Return the total recharge amount
+        return res.status(200).json({
+            success: true,
+            message: 'Total recharge amount retrieved successfully',
+            data: totalRechargeAmount[0].totalAmount
+        });
+
+    } catch (error) {
+        console.error('Error fetching total recharge amount:', error);
+        return res.status(500).json({
+            message: 'Server error while fetching total recharge amount. Please try again later.'
+        });
+    }
+};

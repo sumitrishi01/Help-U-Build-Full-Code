@@ -1,7 +1,7 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword, getTotalRechargeAmount } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
-const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail } = require('../controllers/provider.controller');
+const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail, updateIsBanned, deleteprovider } = require('../controllers/provider.controller');
 const multer = require('multer');
 const { getAllChat } = require('../controllers/ChatController');
 const { createReview, getAllReview, getReviewByProviderId } = require('../controllers/review.Controller');
@@ -12,8 +12,8 @@ const { createAboutImage, getAllAboutImage, deleteAboutImage, updateAboutActiveS
 const { createTestimonial, getAllTestimonial, getsingleTestimonial, deleteTestimonial, updateTestimonial, updateTestimonialActiveStatus } = require('../controllers/testimonial.controller');
 const { createBlog, getAllBlog, getSingleBlog, updateBlog, deleteBlog } = require('../controllers/blog.controller');
 const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogComment } = require('../controllers/blogCommont.controller');
-const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById, markAllChatsAsRead, markUserChatsAsRead, markProviderChatsAsRead } = require('../controllers/chatAndPayment.Controller');
-const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId } = require('../controllers/withdraw.controller');
+const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById, markAllChatsAsRead, markUserChatsAsRead, markProviderChatsAsRead, deleteChatRoom, getchatByRoom } = require('../controllers/chatAndPayment.Controller');
+const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId, getAllWithdrawals, getTotalWithdrawAndCommission } = require('../controllers/withdraw.controller');
 const { createCommission, updateCommission, getSingleCommission, getAllCommissions, deleteCommission } = require('../controllers/commission.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -30,6 +30,7 @@ router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.get('/get-user-by-id/:id', getUserById);
 router.put('/update-user-password/:userId',updateUserPassword)
+router.get('/total-recharge-amount', getTotalRechargeAmount);
 
 //providers registration related routes
 router.post(
@@ -62,7 +63,8 @@ router.put('/update-provider-documents/:providerId', upload.fields([
 ]), updateDocuments)
 router.put('/update-provider-profile/:_id', updateProvider)
 router.put('/update-bank-detail/:providerId', updateBankDetail)
-router.put('/update-provider-`password/:providerId', updatePassword)
+router.put('/update-provider-password/:providerId', updatePassword)
+router.put('/update-provider-isbanned/:providerId', updateIsBanned)
 router.get('/GetMyProfile', protect, GetMyProfile)
 router.get('/get-single-provider/:_id', getSingleProvider)
 router.post('/addPortfolio', protect, (req, res, next) => {
@@ -83,6 +85,7 @@ router.post('/addPortfolio', protect, (req, res, next) => {
     });
 }, addPortfolio)
 router.get('/get-all-provider', getAllProvider)
+router.delete('/delete-provider/:id', deleteprovider)
 
 
 
@@ -172,6 +175,8 @@ router.get('/get-chat-by-id/:id', getChatById)
 router.put('/update-available-status/:providerId', updateAvailable)
 router.put('/mark-user-chats-as-read/:userId', markUserChatsAsRead);
 router.put('/mark-provider-chats-as-read/:providerId', markProviderChatsAsRead);
+router.delete('/delete-chat-room/:chatRoomId',deleteChatRoom)
+router.get('/get-chat-by-room/:chatRoomId',getchatByRoom)
 
 // recharge route here 
 router.post('/create-payment/:userId', createPayment);
@@ -182,6 +187,8 @@ router.post('/create-withdraw-request', createWithdrawal)
 router.put('/update-withdraw-status/:id', updateWithdrawStatus)
 router.delete('/delete-withdraw-request/:id', deleteWithdrawRequest)
 router.get('/get-withdrawals-by-providerid/:providerId', getWithdrawalsByProviderId);
+router.get('/get-all-withdrawals', getAllWithdrawals);
+router.get('/total-withdraw-and-commission', getTotalWithdrawAndCommission);
 
 // commission route here 
 router.post('/create-commission', createCommission)

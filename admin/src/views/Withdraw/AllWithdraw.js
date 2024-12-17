@@ -5,64 +5,47 @@ import {
     CSpinner,
     CPagination,
     CPaginationItem,
-    CFormSwitch,
-    CNavLink,
+    CFormSelect,
+    CButton,
     CModal,
     CModalHeader,
     CModalTitle,
     CModalBody,
     CModalFooter,
-    CButton,
 } from '@coreui/react';
 import Table from '../../components/Table/Table';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
-function AllUser() {
-    const token = sessionStorage.getItem('token')
+function AllWithdraw() {
     const [banners, setBanners] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
-    const [currentPage, setCurrentPage] = React.useState(1);
     const [modalVisible, setModalVisible] = React.useState(false);
-    const [selectedTransition, setSelectedTransition] = React.useState([]);
+    const [selectedTransition, setSelectedTransition] = React.useState({});
+    const [currentPage, setCurrentPage] = React.useState(1);
     const itemsPerPage = 10;
-
-    // console.log("token", token)
 
     const handleFetchBanner = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get('http://localhost:5000/api/v1/users',
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
-            setBanners(data.data.reverse() || []);
+            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-withdrawals');
+            setBanners(data.data.reverse() || []); // Ensure default empty array
         } catch (error) {
-            console.error('Error fetching user:', error);
-            toast.error(
-                error?.response?.data?.errors?.[0] ||
-                error?.response?.data?.message ||
-                'Failed to fetching users. Please try again later.'
-            );
+            console.error('Error fetching banners:', error);
+            toast.error('Failed to load banners. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
-    // Update Active Status
-    const handleUpdateActive = async (id, currentStatus) => {
+    const handleStatusChange = async (id, newStatus, providerId) => {
         setLoading(true);
         try {
-            const updatedStatus = !currentStatus;
-            const res = await axios.put(`http://localhost:5000/api/v1/user-ban/${id}`, {
-                isBanned: updatedStatus,
-            });
-            handleFetchBanner();
+            const res = await axios.put(`http://localhost:5000/api/v1/update-withdraw-status/${id}`, { status: newStatus, providerId: providerId });
+            // toast.success('Status updated successfully!');
             toast.success(res?.data?.message);
+            handleFetchBanner(); // Refresh the provider list to reflect changes
         } catch (error) {
             console.error('Error updating status:', error);
             toast.error(
@@ -84,13 +67,13 @@ function AllUser() {
     const handleDeleteBanner = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`http://localhost:5000/api/v1/user-delete/${id}`);
+            await axios.delete(`http://localhost:5000/api/v1/delete-withdraw-request/${id}`);
             // setBanners((prevBanners) => prevBanners.filter((banner) => banner._id !== id));
-            handleFetchBanner()
-            toast.success('User deleted successfully!');
+            handleFetchBanner();
+            toast.success('Withdraw request deleted successfully!');
         } catch (error) {
-            console.error('Error deleting User:', error);
-            toast.error('Failed to delete the user. Please try again.');
+            console.error('Error deleting Withdraw request:', error);
+            toast.error('Failed to delete the Withdraw request. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -129,7 +112,7 @@ function AllUser() {
         setCurrentPage(page);
     };
 
-    const heading = ['S.No', 'Profile Image', 'Name', 'Email', 'Phone Number', 'Wallet', 'Recharge History', 'IsVerified', 'Block', 'Action'];
+    const heading = ['S.No', 'Provider Name', 'Provider Number', 'Request Amount', 'Commission %', 'Commission Amount', 'Final Amount', 'Bank Detail', 'Status', 'Action'];
 
     return (
         <>
@@ -143,40 +126,50 @@ function AllUser() {
                 </div>
             ) : (
                 <Table
-                    heading="All User"
+                    heading="All Withdraw Request"
                     btnText=""
-                    btnURL=""
+                    btnURL="/testimonial/add_testimonial"
                     tableHeading={heading}
                     tableContent={
                         currentData.map((item, index) => (
                             <CTableRow key={item._id}>
                                 <CTableDataCell>{startIndex + index + 1}</CTableDataCell>
                                 <CTableDataCell>
-                                    <img src={item?.ProfileImage?.imageUrl || 'https://via.placeholder.com/100'} width={100} height={100} alt="Profile image" />
+                                    {item?.provider?.name}
                                 </CTableDataCell>
-                                {/* <CTableDataCell>{item.Gender}</CTableDataCell> */}
-                                <CTableDataCell>{item.name || 'N/A'}</CTableDataCell>
-                                <CTableDataCell>{item.email || 'N/A'}</CTableDataCell>
-                                <CTableDataCell>{item.PhoneNumber || 'N/A'}</CTableDataCell>
-                                <CTableDataCell>Rs.{item.walletAmount.toFixed(1) || 0}</CTableDataCell>
+                                <CTableDataCell>{item?.provider?.mobileNumber}</CTableDataCell>
+                                <CTableDataCell>Rs. {item.amount}</CTableDataCell>
+                                <CTableDataCell>{item.commissionPercent}%</CTableDataCell>
+                                <CTableDataCell>Rs.{item.commission}</CTableDataCell>
+                                <CTableDataCell>Rs.{item.finalAmount}</CTableDataCell>
                                 <CTableDataCell>
                                     <CButton
                                         color="info"
                                         size="sm"
-                                        style={{color:'white'}}
-                                        onClick={() => openChatTransitionModal(item.rechargeHistory || [])}
+                                        style={{ color: 'white' }}
+                                        onClick={() => openChatTransitionModal(item?.provider?.bankDetail)}
                                     >
-                                        View
+                                        {/* {console.log("object",item?.provider?.bankDetail)} */}
+                                        View Detail
                                     </CButton>
                                 </CTableDataCell>
-                                <CTableDataCell>{item.isVerified === true ? 'Yes' : 'No'}</CTableDataCell>
                                 <CTableDataCell>
-                                    <CFormSwitch
-                                        id={`formSwitch-${item._id}`}
-                                        checked={item.isBanned}
-                                        onChange={() => handleUpdateActive(item._id, item.isBanned)}
-                                    />
+                                    <CFormSelect
+                                        aria-label="Change Status"
+                                        value={item.status}
+                                        onChange={(e) => handleStatusChange(item._id, e.target.value, item?.provider?._id)} // Add a handler for status change
+                                    >
+                                        <option value={item.status}>{item.status}</option>
+                                        {['Pending', 'Approved', 'Rejected']
+                                            .filter((status) => status !== item.status) // Exclude the current status
+                                            .map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
+                                    </CFormSelect>
                                 </CTableDataCell>
+
                                 <CTableDataCell>
                                     <div className="action-parent">
                                         {/* <CNavLink href={`#/testimonial/edit_testimonial/${item._id}`} className='edit'>
@@ -221,37 +214,40 @@ function AllUser() {
                 />
             )}
 
+
+
             {/* Modal for Chat Transition Details */}
             <CModal visible={modalVisible} onClose={() => setModalVisible(false)}>
                 <CModalHeader>
-                    <CModalTitle>Recharge History</CModalTitle>
+                    <CModalTitle>Bank Details</CModalTitle>
                 </CModalHeader>
                 <CModalBody style={{ maxHeight: '500px', overflowY: 'auto', minWidth: '100%' }}>
-                    {selectedTransition.length > 0 ? (
+                    {selectedTransition ? (
                         <table className="table table-bordered">
+                            {console.log("object",selectedTransition)}
                             <thead>
                                 <tr>
-                                    <th style={{whiteSpace:"nowrap"}}>Transaction Id</th>
-                                    <th style={{whiteSpace:"nowrap"}}>Amount</th>
-                                    <th style={{whiteSpace:"nowrap"}}>Payment Method</th>
-                                    <th style={{whiteSpace:"nowrap"}}>Payment Status</th>
-                                    <th style={{whiteSpace:"nowrap"}}>Date</th>
+                                    <th>Holder Name</th>
+                                    <th>Account Number</th>
+                                    <th>Bank Name</th>
+                                    <th>Branch Name</th>
+                                    <th>IFCE Code</th>
+                                    <th>Pan Card Number</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {selectedTransition.map((transition) => (
-                                    <tr key={transition._id}>
-                                        <td>{transition.transactionId}</td>
-                                        <td>{transition.amount}</td>
-                                        <td>{transition.paymentMethod}</td>
-                                        <td>{transition.PaymentStatus}</td>
-                                        <td>{new Date(transition.time).toLocaleString()}</td>
-                                    </tr>
-                                ))}
+                                <tr>
+                                    <td>{selectedTransition.accountHolderName}</td>
+                                    <td>{selectedTransition.accountNumber}</td>
+                                    <td>{selectedTransition.bankName}</td>
+                                    <td>{selectedTransition.branchName}</td>
+                                    <td>{selectedTransition.ifscCode}</td>
+                                    <td>{selectedTransition.panCardNumber}</td>
+                                </tr>
                             </tbody>
                         </table>
                     ) : (
-                        <p>No chat transition data available.</p>
+                        <p>No bank detail available.</p>
                     )}
                 </CModalBody>
                 <CModalFooter>
@@ -264,4 +260,4 @@ function AllUser() {
     );
 }
 
-export default AllUser
+export default AllWithdraw

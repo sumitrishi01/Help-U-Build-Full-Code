@@ -4,7 +4,7 @@ const Provider = require('../models/providers.model')
 exports.createWithdrawal = async (req, res) => {
     try {
         const { provider, amount, commission, finalAmount, providerWalletAmount, commissionPercent } = req.body;
-        
+
         // Collect missing fields
         const emptyField = [];
         if (!provider) emptyField.push('Provider');
@@ -29,6 +29,18 @@ exports.createWithdrawal = async (req, res) => {
             });
         }
 
+        const findProvider = await Provider.findById(provider);
+
+        if (!findProvider) {
+            return res.status(400).json({
+                success: false,
+                message: 'Provider not found',
+                error: 'Provider not found',
+            });
+        }
+
+        findProvider.walletAmount -= amount;
+
         // Create a new withdrawal request
         const newRequest = new Withdraw({
             provider,
@@ -39,6 +51,7 @@ exports.createWithdrawal = async (req, res) => {
             commissionPercent
         });
 
+        await findProvider.save();
         // Save the request to the database
         await newRequest.save();
 
@@ -62,6 +75,7 @@ exports.updateWithdrawStatus = async (req, res) => {
     try {
         const { id } = req.params; // Withdraw request ID
         const { status, providerId } = req.body; // Status and Provider ID from the request body
+        // console.log("i am hit", status, providerId)
 
         // Find the withdraw request by ID
         const findWithdraw = await Withdraw.findById(id);
@@ -99,6 +113,15 @@ exports.updateWithdrawStatus = async (req, res) => {
             });
         }
 
+        const withdrawStatus = findWithdraw.status;
+        if (withdrawStatus === 'Approved' || withdrawStatus === 'Rejected') {
+            return res.status(400).json({
+                success: false,
+                message: 'Withdraw request is already approved or rejected',
+                error: 'Withdraw request is already approved or rejected',
+            });
+        }
+
         // If the withdraw status is approved, deduct the amount from the provider's wallet
         if (status === 'Approved') {
             if (findProvider.walletAmount < findWithdraw.amount) {
@@ -109,8 +132,31 @@ exports.updateWithdrawStatus = async (req, res) => {
                 });
             }
 
-            findProvider.walletAmount -= findWithdraw.amount; // Deduct the amount
-            await findProvider.save(); // Save updated provider
+            // findProvider.walletAmount -= findWithdraw.amount; // Deduct the amount
+            // await findProvider.save(); // Save updated provider
+
+            // Update the status of the withdraw request
+            findWithdraw.status = status;
+            await findWithdraw.save();
+            return res.status(200).json({
+                success: true,
+                message: 'Withdraw status updated',
+                data: findWithdraw,
+            });
+        }
+
+        if (status === 'Rejected') {
+            findProvider.walletAmount += findWithdraw.amount; // Deduct the amount
+
+            findWithdraw.status = status;
+
+            await findProvider.save();
+            await findWithdraw.save();
+            return res.status(200).json({
+                success: true,
+                message: 'Withdraw status updated',
+                data: findWithdraw,
+            });
         }
 
         // Update the status of the withdraw request
@@ -132,11 +178,11 @@ exports.updateWithdrawStatus = async (req, res) => {
     }
 };
 
-exports.deleteWithdrawRequest = async (req,res) => {
+exports.deleteWithdrawRequest = async (req, res) => {
     try {
         const { id } = req.params;
         const deleteWithdraw = await Withdraw.findByIdAndDelete(id)
-        if(!deleteWithdraw){
+        if (!deleteWithdraw) {
             return res.status(400).json({
                 success: false,
                 message: 'Withdraw request not fount',
@@ -169,13 +215,71 @@ exports.getWithdrawalsByProviderId = async (req, res) => {
             return res.status(404).json({ message: 'No withdrawals found for this provider.' });
         }
 
-        return res.status(200).json({ 
+        return res.status(200).json({
             success: true,
             message: 'Withdraw request found successfully',
             data: withdrawals
-         });
+        });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.getAllWithdrawals = async (req, res) => {
+    try {
+        const withdrawals = await Withdraw.find().populate('provider');
+        if (!withdrawals) {
+            return res.status(404).json({
+                success: false,
+                message: 'No withdrawals found',
+                error: 'No withdrawals found'
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            message: 'Withdraw request found successfully',
+            data: withdrawals
+        });
+
+    } catch (error) {
+        console.log("Internal server error", error)
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        })
+    }
+}
+
+exports.getTotalWithdrawAndCommission = async (req, res) => {
+    try {
+        // Aggregate the total withdraw amount and total commission from all withdrawals
+        const totals = await Withdraw.aggregate([
+            { $match: { status: 'Approved' } }, // Only consider approved withdrawals
+            {
+                $group: {
+                    _id: null,
+                    totalAmount: { $sum: '$amount' },
+                    totalCommission: { $sum: { $toDouble: '$commission' } } // Sum the commission as a number
+                }
+            }
+        ]);
+
+        if (totals.length === 0) {
+            return res.status(404).json({ message: 'No approved withdrawals found' });
+        }
+
+        // Return the total withdraw amount and total commission
+        return res.status(200).json({
+            totalWithdrawAmount: totals[0].totalAmount,
+            totalCommission: totals[0].totalCommission
+        });
+
+    } catch (error) {
+        console.error('Error fetching total withdraw and commission:', error);
+        return res.status(500).json({
+            message: 'Server error while fetching total withdraw and commission. Please try again later.'
+        });
     }
 };
