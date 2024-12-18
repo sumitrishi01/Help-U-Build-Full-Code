@@ -96,9 +96,9 @@ const ChatDemo = () => {
             toast.error(data.message)
         })
 
-        socket.on('timeout_disconnect', (data) => {
-            toast.success(data.message)
-        })
+        // socket.on('timeout_disconnect', (data) => {
+        //     toast.success(data.message)
+        // })
 
         // Listen for the 'provider_connected' event from the backend
         socket.on('provider_connected', ({ room }) => {
@@ -127,7 +127,7 @@ const ChatDemo = () => {
             socket.off('return_message');
             socket.off('error_message');
             socket.off('wrong_message');
-            socket.off('timeout_disconnect');
+            // socket.off('timeout_disconnect');
             socket.off('provider_connected');
             socket.off('one_min_notice');
             socket.off('time_out');
@@ -141,14 +141,13 @@ const ChatDemo = () => {
 
             setTimeout(() => {
                 window.location.reload();
-            }, 500);
+            }, 2000);
         };
 
-        socket.on('provider_disconnected', handleProviderDisconnected);
+        socket.on('timeout_disconnect', handleProviderDisconnected);
 
-        // Cleanup the socket listener on component unmount
         return () => {
-            socket.off('provider_disconnected', handleProviderDisconnected);
+            socket.off('timeout_disconnect', handleProviderDisconnected);
         };
     }, []);
 
