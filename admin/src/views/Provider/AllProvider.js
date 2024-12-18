@@ -29,7 +29,7 @@ function AllProvider() {
     const fetchProviders = async () => {
         setLoading(true);
         try {
-            const { data } = await axios.get('http://localhost:5000/api/v1/get-all-provider');
+            const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider');
             setProviders(data.data.reverse() || []);
         } catch (error) {
             console.error('Error fetching provider:', error);
@@ -46,7 +46,7 @@ function AllProvider() {
         try {
             const updatedStatus = !currentStatus;
             const res = await axios.put(
-                `http://localhost:5000/api/v1/update-provider-isbanned/${id}`,
+                `https://api.helpubuild.co.in/api/v1/update-provider-isbanned/${id}`,
                 { isBanned: updatedStatus }
             );
             fetchProviders();
@@ -69,7 +69,7 @@ function AllProvider() {
     const handleDelete = async (id) => {
         setLoading(true);
         try {
-            await axios.delete(`http://localhost:5000/api/v1/delete-provider/${id}`);
+            await axios.delete(`https://api.helpubuild.co.in/api/v1/delete-provider/${id}`);
             fetchProviders();
             toast.success('Provider deleted successfully!');
         } catch (error) {

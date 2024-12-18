@@ -95,10 +95,73 @@ io.on('connection', (socket) => {
     });
 
     // Handle the first message from the user
-   
-    
-    
-    
+    socket.on('message', async ({ room, message, senderId, timestamp, role }) => {
+        try {
+            const isFirstMessage = !activeTimers[room]; // Check if this is the first message
+            const roomData = roomMembers[socket.id];
+
+            if (role === 'user' && isFirstMessage) {
+                // Call chatStart when the first message is sent
+                const result = await chatStart(roomData.userId, roomData.astrologerId);
+
+                if (!result.success) {
+                    socket.emit('error_message', { message: result.message });
+                    return;
+                }
+
+                socket.emit('one_min_notice', { message: 'Please wait a minute for the provider to come online.' });
+
+                socket.emit('time_out', { time: result.data.chatTimingRemaining })
+
+                // Start a 1-minute timer
+                activeTimers[room] = setTimeout(async () => {
+                    const connectedSockets = await io.in(room).fetchSockets();
+                    const providerStillConnected = connectedSockets.some((s) => {
+                        const member = roomMembers[s.id];
+                        return member?.role === 'provider';
+                    });
+
+                    if (!providerStillConnected) {
+                        console.log(`Provider not connected within 1 minute. Disconnecting user from room: ${room}`);
+                        const userSocket = connectedSockets.find((s) => roomMembers[s.id]?.role === 'user');
+                        if (userSocket) {
+                            io.to(userSocket.id).emit('timeout_disconnect', { message: 'Provider did not connect. Chat ended.' });
+                            userSocket.disconnect();
+                        }
+                    } else {
+                        console.log('Provider connected within 1 minute. Starting wallet deduction.');
+                        // Start wallet deduction logic here (e.g., call a function to start deductions)
+                    }
+                }, 60000); // 1 minute
+            }
+
+            // Check for prohibited content in the message
+            const prohibitedPatterns = [
+                /\b\d{10}\b/, // Phone numbers
+                /\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b/, // Phone numbers like 123-456-7890
+                /@[\w.-]+\.[a-zA-Z]{2,6}/, // Emails
+                /\b18\+|adult\b/i, // Inappropriate terms
+            ];
+
+            const containsProhibitedContent = prohibitedPatterns.some((pattern) => pattern.test(message));
+            if (containsProhibitedContent) {
+                socket.emit('wrong_message', { message: 'Your message contains prohibited content.' });
+                return;
+            }
+
+            // Save the message to the database
+            await Chat.findOneAndUpdate(
+                { room },
+                { $push: { messages: { sender: senderId, text: message, timestamp: timestamp || new Date().toISOString() } } },
+                { upsert: true, new: true }
+            );
+
+            // Broadcast the message to other participants in the room
+            socket.to(room).emit('return_message', { text: message, sender: senderId, timestamp });
+        } catch (error) {
+            console.error('Error handling message event:', error);
+        }
+    });
 
     socket.on('provider_connected', ({ room }) => {
         console.log('Provider connected to room:', room);
