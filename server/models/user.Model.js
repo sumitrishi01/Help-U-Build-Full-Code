@@ -106,8 +106,7 @@ const userSchema = new mongoose.Schema({
     },],
     lastChatTransitionId: {
         type: String
-    },
-
+    }
 }, { timestamps: true });
 
 

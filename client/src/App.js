@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect } from "react";
+import React,{ useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -34,6 +34,8 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import SuccessFull from "./pages/SuccessFull/SuccessFull";
 import Forget from "./pages/auth/Forget";
 import FailedPayment from "./pages/FailedPayment/FailedPayment";
+import { generateToken, messaging } from "./FireBaseNotification/firebase";
+import { onMessage } from "firebase/messaging";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -47,12 +49,19 @@ function ScrollToTop() {
 }
 
 function App() {
+  const [fcmToken,setFcmToken] = useState(null)
   useEffect(() => {
     AOS.init({
       duration: 1000, // Animation duration in milliseconds
       once: true, // Whether animation should happen only once
     });
   }, []);
+  React.useEffect(()=>{
+    generateToken();
+    onMessage(messaging,(payload) => {
+      console.log(payload);
+    })
+  },[])
   return (
     <BrowserRouter>
       <ScrollToTop />

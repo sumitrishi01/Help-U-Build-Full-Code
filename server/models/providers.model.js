@@ -210,7 +210,7 @@ const ProviderProfileSchema = new mongoose.Schema({
                 },
                 message: props => `${props.value} is not a valid PAN card number!`,
             },
-        },
+        }
     },
     
 });
