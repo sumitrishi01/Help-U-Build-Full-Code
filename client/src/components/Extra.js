@@ -118,7 +118,7 @@ const Extra = () => {
                                             <div className="position-absolute top-0 start-0 w-100 bg-light-dark bg-opacity-50"></div>
                                             <div className="pe-3 d-inline-flex align-items-center fordisplaydirection justify-content-start">
                                                 <div className="d-inline-flex bg-white rounded-pill">
-                                                    <div className="d-flex align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ background: '#0E294C', padding: '10px 30px' }}>
+                                                    <div className=" align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ backgroundColor: '#0E294C', padding: '10px 30px', display:'flex' }}>
                                                         <span className='text-white'>Step-{item.step}</span> {/* Dynamic step number */}
                                                     </div>
                                                 </div>

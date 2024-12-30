@@ -321,7 +321,8 @@ exports.updateProvider = async (req, res) => {
             pricePerMin,
             bio,
             expertiseSpecialization,
-            yearOfExperience
+            yearOfExperience,
+            service
         } = req.body;
 
         const provider = await providersModel.findById(providerId);
@@ -350,6 +351,11 @@ exports.updateProvider = async (req, res) => {
                 typeof expertiseSpecialization === 'string'
                     ? expertiseSpecialization.split(', ')
                     : expertiseSpecialization;
+        }
+
+        // Update services if provided
+        if (service && Array.isArray(service)) {
+            provider.service = service; // Replace the existing services with the new ones
         }
 
         // Calculate age if DOB is updated
@@ -494,7 +500,7 @@ exports.updateAvailable = async (req, res) => {
         const { providerId } = req.params;
         const { chatStatus, callStatus, meetStatus } = req.body;
 
-        console.log("body", req.body);
+        // console.log("body", req.body);
 
         const existingData = await providersModel.findById(providerId);
         if (!existingData) {

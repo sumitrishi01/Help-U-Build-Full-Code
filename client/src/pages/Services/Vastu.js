@@ -384,8 +384,8 @@ const Vastu = () => {
               {currentProviders && currentProviders.map((item, index) => (
                 <div className='col-12 col-md-6 col-lg-6 col-xl-4' key={index}>
                   <div className="card-custom align-items-center justify-content-between my-2">
-                    <div className="card-detail align-items-center">
-                      <div style={{ display: 'flex' }}>
+                    <Link to={`/architect-profile/${item._id}`} className="card-detail align-items-center">
+                      <div className='forProfileWidth' style={{ display: 'flex' }}>
                         <Link to={`/architect-profile/${item._id}`} className='profile-image text-center'>
                           <img
                             src={item?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.name || 'User')}&background=random`}
@@ -458,9 +458,9 @@ const Vastu = () => {
                             {/* <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-call-btn"><i class="fa-solid fa-phone-volume"></i> Call</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-chat-btn mt-2"><i class="fa-regular fa-comments"></i> Chat</button>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} className="btn profile-video-btn mt-2"><i class="fa-solid fa-video"></i> Video</button> */}
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
-                            <button onClick={() => handleActiveTime("Chat", item._id)} style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn samebtn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
+                            <button onClick={() => handleActiveTime("Chat", item._id)} style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn samebtn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn samebtn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                           </div>
                         </div>
                         {/* <div class="dropdown connect-btn">
@@ -474,7 +474,7 @@ const Vastu = () => {
                           </ul>
                         </div> */}
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 </div>
               ))}

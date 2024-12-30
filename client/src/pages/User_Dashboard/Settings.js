@@ -7,11 +7,13 @@ import Enquiry from './Tabs/Enquiry';
 import ShareProfile from './Tabs/ShareProfile'; // New ShareProfile component
 import StatusPage from './Tabs/StatusPage';
 import BankDetail from './Tabs/BankDetail';
+import UpdateServices from './Tabs/UpdateServices';
 
 const Settings = () => {
   // Define tabs as an array of objects
   const tabs = [
     { id: 1, title: 'Profile', content: 'Tab 1 content' },
+    { id: 6, title: 'Update Service', content: 'Tab 5 content' },
     { id: 2, title: 'Documents', content: 'Tab 2 content' },
     { id: 3, title: 'Bank Detail', content: 'Tab 4 content' },
     { id: 4, title: 'Change Password', content: 'Tab 3 content' },
@@ -54,7 +56,7 @@ const Settings = () => {
         {activeTab === 3 && <BankDetail />}
         {activeTab === 4 && <Password />}
         {activeTab === 5 && <StatusPage/>}
-        {/* {activeTab === 6 && <Enquiry />} */}
+        {activeTab === 6 && <UpdateServices />}
       </div>
     </>
   );

@@ -1,40 +1,42 @@
-.new_banner{
+.new_banner {
     padding-top: 20px;
     /* background-image:-webkit-linear-gradient(266deg, rgb(23 35 53) 0%, rgb(3 47 102) 100%); */
     /* background-image: -webkit-linear-gradient(266deg, rgb(0 21 49) 0%, rgb(3 37 80) 100%); */
-    background:#fff;
+    background: #fff;
     padding-bottom: 2px;
 }
 
-.icon_chat{
+.icon_chat {
     width: 70px;
     height: 70px;
 }
 
-.bg-light{
-    background: #e2e6ea!important;
+.bg-light {
+    background: #e2e6ea !important;
 }
 
-.mobile-view{
+.mobile-view {
     display: none;
 }
 
-.para1{
-    color:#111;
+.para1 {
+    color: #111;
     text-align: justify;
 }
-.howwework-imge{
+
+.howwework-imge {
     border: 8px solid #fff;
     box-shadow: 10px 10px 30px #0222523d;
 }
 
 
-@media screen and (max-width: 768px){
-    .icon_chat{
+@media screen and (max-width: 768px) {
+    .icon_chat {
         width: 60px;
         height: 60px;
     }
-    .fs-12{
+
+    .fs-12 {
         font-size: 12px;
         margin-right: 5px;
     }
@@ -48,45 +50,51 @@
     /* .forHeight{
         height: 220px;
     } */
-    
+
 }
 
 @media (max-width:1103px) {
-    .forHeight{
+    .forHeight {
         height: 153px;
     }
-    
+
 }
 
 @media (max-width:767px) {
-    .forHeight{
+    .forHeight {
         height: 260px;
     }
-    
+
 }
 
 @media (max-width:789px) {
-    .forHeight{
+    .forHeight {
         height: 136px;
     }
-    
+
+}
+
+@media (max-width:575px) {
+    .mobile-view {
+        display: block !important;
+        margin-top: -5%;
+    }
 }
 
 @media (max-width:425px) {
     .forHeight {
         height: 110px;
     }
+
     .fs-6 {
         font-size: 12px !important;
     }
+
     .icon_chat {
         width: 50px;
         height: 50px;
     }
-    .mobile-view{
-        display: block;
-        margin-top: -5%;
-    }
+
     .as_menu_wrapper {
         padding: 0px 10px;
     }

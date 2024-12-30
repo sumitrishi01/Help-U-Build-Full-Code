@@ -64,7 +64,7 @@ function ArchitectProfile() {
         }
         if (!profile.pricePerMin || profile.pricePerMin <= 0) {
             return toast.error("Chat cannot be started. Provider pricing information is unavailable or invalid.");
-          }
+        }
         if (Chat === 'Chat') {
 
             const newForm = {
@@ -239,6 +239,32 @@ function ArchitectProfile() {
                                     <button className={`btn mt-2 ${profile.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.meetStatus}><i class="fa-solid fa-video"></i> Video</button>
                                 </div>
                             </div>
+                            {profile?.service.length > 0 ? (
+                                <div className="card p-4 mt-2">
+                                    <table className="table table-hover table-bordered">
+                                        <thead style={{backgroundColor:'#042E65'}} className=" text-white">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Service Name</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {profile.service.map((service, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{service.name}</td>
+                                                    <td>{service.price}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <div className="alert mt-2 alert-info text-center">
+                                    No service data available.
+                                </div>
+                            )}
                             <div className='col-xl-12'>
                                 <div className='about-architect'>
                                     <h3 className='about-title mb-4'>About me</h3>

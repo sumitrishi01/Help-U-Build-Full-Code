@@ -71,7 +71,7 @@ const Cards = () => {
                       data-aos-easing="ease-out-cubic"
                       data-aos-duration="2000" className="col-lg-4 col-md-4 col-sm-12 col-12 mb-4">
                       <div className={`Own-card_card ${post.borderColor} h-100`}>
-                        <div className="Own-card_card-body text-center">
+                        <Link to={`/${post.href}`} className="Own-card_card-body text-center">
                           <div className="Own-card_image-wrapper mb-3">
                             <Link className="Own-card_image-link" to={`/${post.href}`}>
                               {post.image}
@@ -128,7 +128,7 @@ const Cards = () => {
                           </div>
 
 
-                        </div>
+                        </Link>
                       </div>
                     </div>
                   ))}

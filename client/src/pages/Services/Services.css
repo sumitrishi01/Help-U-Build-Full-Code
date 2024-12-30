@@ -25,6 +25,31 @@
   width: 100%;
 }
 
+@media (max-width:550px) {
+  .card-detail {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .contact-btn {
+    width: 100%;
+  }
+
+  .connect-area {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+  }
+
+  .forProfileWidth {
+    width: 100% !important;
+  }
+
+  .samebtn {
+    margin-top: 0px !important;
+  }
+}
+
 .as_icon {
   display: inline-block;
   margin-bottom: 15px;
@@ -103,6 +128,23 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
+}
+
+@media (max-width:550px) {
+  .top-bar {
+    padding: 16px 0;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .connect-area>button{
+    padding: 0px !important;
+    margin-top: 0px !important;
+  }
+
 }
 
 .architecture-heading {
@@ -317,10 +359,10 @@ i.fa.fa-search {
   font-size: 18px;
 }
 
-.connect-area>button{
-  font-size:20px;
+.connect-area>button {
+  font-size: 20px;
   padding: 10px;
-  width:70%;
+  width: 70%;
 }
 
 .about-title {
@@ -331,13 +373,14 @@ i.fa.fa-search {
   padding: 10px;
   border-radius: 5px;
 }
-.about-architect h3{
+
+.about-architect h3 {
   font-weight: 700;
   text-transform: uppercase;
 }
 
-.archi-profile-gallery>img{
-  width:23%;
+.archi-profile-gallery>img {
+  width: 23%;
 }
 
 
@@ -355,30 +398,36 @@ i.fa.fa-search {
 .gallery div {
   padding: 5px;
 }
+
 /* rating area */
 .rating-bar {
   height: 16px;
 }
+
 .rating-bar-5 {
-  background-color: #28a745; 
+  background-color: #28a745;
 }
+
 .rating-bar-gray {
   background-color: #e9ecef;
 }
+
 .rating-star {
   color: #f4c150;
 }
+
 .rating-value {
   font-size: 2rem;
   font-weight: bold;
 }
 
 /* review area */
-.user-review-area{
+.user-review-area {
   height: 450px;
   overflow-y: scroll;
   padding: 5px 15px 10px 0px;
 }
+
 .review-card {
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -393,36 +442,42 @@ i.fa.fa-search {
   border-radius: 50%;
   object-fit: cover;
 }
-.profile-call-btn{
+
+.profile-call-btn {
   border: 2px solid #e74207;
   border-radius: 150px;
 }
-.profile-call-btn>i{
+
+.profile-call-btn>i {
   color: #e74207;
 }
 
-.profile-chat-btn{
+.profile-chat-btn {
   border: 2px solid #059b38;
   border-radius: 150px;
 }
-.profile-chat-btn i{
-  color:#059b38;
+
+.profile-chat-btn i {
+  color: #059b38;
 }
 
-.profile-video-btn{
+.profile-video-btn {
   border: 2px solid #0973bb;
   border-radius: 150px;
 }
-.profile-video-btn i{
+
+.profile-video-btn i {
   color: #0973bb;
 }
 
 .review-stars {
-  color: #f4c150; /* Gold color for stars */
+  color: #f4c150;
+  /* Gold color for stars */
 }
 
 .reply-box {
-  background-color: #f8f9fa; /* Light gray for reply */
+  background-color: #f8f9fa;
+  /* Light gray for reply */
   padding: 10px;
   border-radius: 5px;
   border-left: 3px solid #ddd;

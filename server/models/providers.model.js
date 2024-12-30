@@ -136,7 +136,7 @@ const ProviderProfileSchema = new mongoose.Schema({
     },
     walletAmount: {
         type: Number,
-        default : 0
+        default: 0
     },
     lastChatTransitionId: {
         type: String
@@ -212,7 +212,17 @@ const ProviderProfileSchema = new mongoose.Schema({
             },
         }
     },
-    
+    service: [
+        {
+            name: {
+                type: String,
+            },
+            price: {
+                type: Number,
+            }
+        }
+    ]
+
 });
 
 // Password hashing

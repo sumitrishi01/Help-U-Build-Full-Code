@@ -63,6 +63,14 @@
     
 }
 
+@media (max-width:575px) {
+    .mobile-view {
+        display: block !important;
+        margin-top: -5%;
+    }
+
+}
+
 @media (max-width:425px) {
     .forHeight {
         height: 110px;
@@ -74,10 +82,10 @@
         width: 50px;
         height: 50px;
     }
-    .mobile-view{
+    /* .mobile-view{
         display: block;
         margin-top: -5%;
-    }
+    } */
     .as_menu_wrapper {
         padding: 0px 10px;
     }
