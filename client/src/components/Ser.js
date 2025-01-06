@@ -5,15 +5,8 @@ import chat from './plane-our-jurney.webp'
 import plan from './plan.jpg'
 import budegt from './budget.jpg'
 import exceute from './exceute.jpg'
-
-
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
-
-
-
-// import required modules
 import { Pagination, Autoplay } from 'swiper/modules';
 import axios from 'axios';
 
@@ -35,7 +28,7 @@ const Ser = () => {
     return (
         <div className='' style={{ width: "90%", margin: "0 auto" }}>
             <div className=" service-35 wrap-service35-box">
-                <div className="row no-gutters">
+                <div className="row no-gutters align-items-center">
                     <div className="col-lg-6 col-md-6 align-self-center" data-aos="fade-right" data-aos-offset="300" data-aos-easing="ease-in-sine">
                         {/* <span className="badge badge-success rounded-pill px-3 py-1 font-weight-light">Expert Services</span> */}
                         <h3 className="my-2 main-heading">Plan Your Journey Step by Step</h3>

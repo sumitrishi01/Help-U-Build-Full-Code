@@ -97,6 +97,14 @@ a:visited {
   padding-top: 80px;
 }
 
+.as_customer_img_parent{
+  gap: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
 .as_padderTop90 {
   padding-top: 90px;
 }
@@ -1075,7 +1083,7 @@ a:visited {
 /* banner css end */
 /* about css start */
 .as_about_wrapper {
-  background-image: url("../images/bg2.jpg");
+  /* background-image: url("../images/bg2.jpg"); */
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -1365,6 +1373,54 @@ a:visited {
   z-index: 1;
 }
 
+@media (max-width:1474px) {
+  .as_whychoose_wrapper{
+    padding: 10% 4% 10% 4%;
+  }
+}
+
+@media (max-width:1130px) {
+  .as_whychoose_wrapper{
+    padding: 14% 4% 14% 4%;
+  }
+}
+
+@media (max-width:830px) {
+  .as_whychoose_wrapper{
+    padding: 15% 4% 16% 4%;
+  }
+}
+
+@media (max-width:896px) {
+  .as_whychoose_wrapper{
+    padding: 14% 4% 14% 4%;
+  }
+}
+
+@media (max-width:765px) {
+  .as_whychoose_wrapper{
+    padding: 18% 4% 18% 4%;
+  }
+}
+
+@media (max-width:618px) {
+  .as_whychoose_wrapper{
+    padding: 21% 4% 21% 4%;
+  }
+}
+
+@media (max-width:526px) {
+  .as_whychoose_wrapper{
+    padding: 25% 4% 25% 4%;
+  }
+}
+
+@media (max-width:420px) {
+  .as_whychoose_wrapper{
+    padding: 22% 4% 22% 4%;
+  }
+}
+
 .as_whychoose_wrapper:before {
   position: absolute;
   content: "";
@@ -1477,7 +1533,7 @@ a:visited {
   padding: 30px !important;
 }
 
-.as_customer_img:first-child {
+/* .as_customer_img:first-child {
   margin: 16px 0 0 10px;
 }
 
@@ -1499,7 +1555,7 @@ a:visited {
 
 .as_customer_img:nth-child(5) {
   margin: 5px 0 0 0px;
-}
+} */
 
 .as_customer_nav {
   position: relative;
@@ -2283,7 +2339,7 @@ section.as_pricing_plan .row {
 
 .breadcrumb>li+li:before {
   content: "";
-  background-image: url("../images/star.png");
+  /* background-image: url("../images/star.png"); */
   background-repeat: no-repeat;
   width: 22px;
   height: 20px;
@@ -4276,7 +4332,7 @@ form.d_block {
     margin-bottom: 50px;
   }
 
-  .as_customer_img:nth-child(2) {
+  /* .as_customer_img:nth-child(2) {
     margin: 110px 0 0 -42px;
   }
 
@@ -4294,7 +4350,7 @@ form.d_block {
 
   .as_customer_img:nth-child(6) {
     margin: 10px 0 0 20px;
-  }
+  } */
 
   .as_booking_section ul.as_total_amount {
     border-right: 0px;
@@ -4707,7 +4763,7 @@ form.d_block {
 /* new css */
 
 .info-box {
-  box-shadow: 6px 5px 35px rgb(3 47 99 / 19%);
+  /* box-shadow: 6px 5px 35px rgb(3 47 99 / 19%); */
   background: #032f62 !important;
   border-radius: 4px;
 }
@@ -4796,13 +4852,13 @@ form.d_block {
 
 @media(max-width:1355px) {
   .info-box {
-    height: 190px;
+    height: auto;
   }
 }
 
 @media(max-width:1200px) {
   .info-box {
-    height: 217px;
+    height: auto;
   }
 }
 

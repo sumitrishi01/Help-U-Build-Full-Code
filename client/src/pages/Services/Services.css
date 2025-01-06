@@ -141,7 +141,7 @@
   }
 
   .connect-area>button{
-    padding: 0px !important;
+    padding: 5px !important;
     margin-top: 0px !important;
   }
 
@@ -348,6 +348,16 @@ i.fa.fa-search {
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 10px;
+}
+
+@media (max-width:550px) {
+  .a-profile-image img {
+    width: 100% !important;
+    height: 260px !important;
+    border-radius: 22px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
 }
 
 .profile-info>h4>svg {

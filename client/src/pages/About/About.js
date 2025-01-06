@@ -36,7 +36,7 @@ const About = () => {
             ) : null}
             <section class="as_about_wrapper for-main-padding">
                 <div style={{ width: "90%", margin: "0 auto" }}>
-                    <div class="row">
+                    <div class="row align-items-center">
                         {/* <div class="col-lg-12 col-md-12 text-center">
                             <h1 class="as_heading">Discover <span className="about_color">Help U Build</span></h1>
                             <p class="as_font14 as_padderTop20 as_padderBottom50"></p>

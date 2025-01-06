@@ -308,6 +308,16 @@ i.fa.fa-search {
   margin-bottom: 10px;
 }
 
+@media (max-width:550px) {
+  .a-profile-image img {
+    width: 100% !important;
+    height: 260px !important;
+    border-radius: 22px;
+    object-fit: cover;
+    margin-bottom: 10px;
+  }
+}
+
 .profile-info>h4>svg {
   color: #80c519;
 }

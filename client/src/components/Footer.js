@@ -1,13 +1,14 @@
 import React from "react";
 import logo from "./Help_You_Build__1_-removebg-preview (1).png";
 import { Link } from "react-router-dom";
+import './footer.css'
 
 const Footer = () => {
   return (
     <div>
-      <section style={{ background: "#042F66" }} class="as_padderTop80">
-        <div class="container">
-          <div class="row">
+      <section style={{ background: "#042F66" }} class="as_padderTop80 footer-shap-parent">
+        <div class="container footer-shap">
+          <div class="row footer-shap-child">
             <div class="col-lg-12">
               <div class="as_footer_inner ">
                 <div class="row">

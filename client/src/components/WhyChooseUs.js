@@ -13,7 +13,7 @@ const WhyChooseUs = () => {
                         <div className="col-lg-12">
                             <div className="row mx-auto" data-aos="fade-up" data-aos-offset="300" data-aos-easing="ease-in-sine">
                                 <div className="col-lg-3 text-center col-md-3 col-sm-12 mb-4">
-                                    <div className="as_whychoose_box d-flex flex-column align-content-center jus  text-center">
+                                    <div style={{display:'flex'}} className="as_whychoose_box flex-column align-content-center jus  text-center">
                                         <span className="as_number">
                                             <img src="https://cdn-icons-png.flaticon.com/512/1828/1828652.png" alt="" />
                                         </span>

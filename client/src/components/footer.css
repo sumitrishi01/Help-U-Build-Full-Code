@@ -1,0 +1,19 @@
+.footer-shap-parent {
+    position: relative;
+}
+
+.footer-shap-child{
+    padding-top: 3%;
+}
+
+.footer-shap::before {
+    position: absolute;
+    content: "";
+    background: url(./shape.svg) no-repeat;
+    width: 100%;
+    height: 273px;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 1;
+}

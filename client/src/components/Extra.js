@@ -33,11 +33,11 @@ const Extra = () => {
                 backgroundColor: "#0E294C",
                 borderRadius: "50%",
                 // padding: "10px",
-                width:'40px',
-                height:'40px',
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center'
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             }}
         >
             <FaArrowLeft style={{ color: "white", fontSize: "20px" }} />
@@ -58,11 +58,11 @@ const Extra = () => {
                 backgroundColor: "#0E294C",
                 borderRadius: "50%",
                 // padding: "10px",
-                width:'40px',
-                height:'40px',
-                display:'flex',
-                alignItems:'center',
-                justifyContent:'center'
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
             }}
         >
             <FaArrowRight style={{ color: "white", fontSize: "20px" }} />
@@ -87,7 +87,7 @@ const Extra = () => {
     return (
         <div className="mx-5 extra-mobile">
             <div className='my-4'>
-                <div className='row'>
+                <div className='row align-items-center'>
                     <div className='col-lg-7 col-md-6'>
                         <h2 className='fs-2 main-heading text-capitalize fw-bolder mt-lg-5 mt-sm-1' data-aos="fade-right" data-aos-offset="300" data-aos-easing="ease-in-sine">How We Work Smoothly for Your Experience and Problems</h2>
                         {/* <h2 className='fs-1 fw-bolder'></h2> */}
@@ -118,7 +118,7 @@ const Extra = () => {
                                             <div className="position-absolute top-0 start-0 w-100 bg-light-dark bg-opacity-50"></div>
                                             <div className="pe-3 d-inline-flex align-items-center fordisplaydirection justify-content-start">
                                                 <div className="d-inline-flex bg-white rounded-pill">
-                                                    <div className=" align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ backgroundColor: '#0E294C', padding: '10px 30px', display:'flex' }}>
+                                                    <div className=" align-items-center justify-content-center fs-5 fw-bold rounded-pill" style={{ backgroundColor: '#0E294C', padding: '10px 30px', display: 'flex' }}>
                                                         <span className='text-white'>Step-{item.step}</span> {/* Dynamic step number */}
                                                     </div>
                                                 </div>
