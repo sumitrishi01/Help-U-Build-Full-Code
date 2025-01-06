@@ -1422,6 +1422,7 @@ a:visited {
 }
 
 .as_whychoose_wrapper:before {
+  display: none;
   position: absolute;
   content: "";
   background: url(../images/shape.svg) no-repeat;
@@ -1434,6 +1435,7 @@ a:visited {
 }
 
 .as_whychoose_wrapper:after {
+  display: none;
   position: absolute;
   content: "";
   background: url(../images/shape.svg) no-repeat;
