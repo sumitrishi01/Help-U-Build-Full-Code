@@ -182,26 +182,6 @@ const ProviderProfileSchema = new mongoose.Schema({
         branchName: {
             type: String,
         },
-        // mobileNumber: {
-        //     type: String,
-        //     required: true,
-        //     validate: {
-        //         validator: function (v) {
-        //             return /^[6-9]\d{9}$/.test(v); // Validates Indian mobile numbers
-        //         },
-        //         message: props => `${props.value} is not a valid mobile number!`,
-        //     },
-        // },
-        // email: {
-        //     type: String,
-        //     required: true,
-        //     validate: {
-        //         validator: function (v) {
-        //             return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); // Standard email format
-        //         },
-        //         message: props => `${props.value} is not a valid email address!`,
-        //     },
-        // },
         panCardNumber: {
             type: String,
             validate: {

@@ -58,7 +58,7 @@ const Reviews = () => {
 
   return (
     <div>
-      <section className="as_customer_wrapper review-bg py-5">
+      <section className="as_customer_wrapper review-bg py-5 hitesh_styling">
         <div className="container">
           <div className="row">
             <div className="col-lg-12 text-center">

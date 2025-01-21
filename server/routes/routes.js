@@ -15,6 +15,7 @@ const { createBlogComment, getAllComments, getBlogCommentByBlogId, deleteBlogCom
 const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUserid, getChatById, markAllChatsAsRead, markUserChatsAsRead, markProviderChatsAsRead, deleteChatRoom, getchatByRoom } = require('../controllers/chatAndPayment.Controller');
 const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId, getAllWithdrawals, getTotalWithdrawAndCommission } = require('../controllers/withdraw.controller');
 const { createCommission, updateCommission, getSingleCommission, getAllCommissions, deleteCommission } = require('../controllers/commission.controller');
+const { createProviderService, getAllProviderService, getProviderServiceById, updateProviderService, deleteProviderService, findbyProvider } = require('../controllers/providerService.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
@@ -196,5 +197,14 @@ router.put('/update-commission/:id', updateCommission)
 router.get('/get-single-commision/:id', getSingleCommission)
 router.get('/get-all-commision', getAllCommissions)
 router.delete('/delete-commission/:id', deleteCommission)
+
+// provider service router here
+router.post('/create-provider-service', createProviderService)
+router.get('/get-all-provider-service', getAllProviderService)
+router.get('/get-provider-service-by-id/:providerId', getProviderServiceById)
+router.put('/update-provider-service/:providerId', updateProviderService)
+router.delete('/delete-provider-service/:providerId', deleteProviderService)
+router.get('/get-service-by-provider/:providerId/:category', findbyProvider);
+
 
 module.exports = router;

@@ -13,9 +13,10 @@ function ArchitectProfile() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [reviews, setReviews] = useState([]);
-    const [isActiveTime, setIsActiveTime] = useState(false)
     const Data = GetData('user')
     const UserData = JSON.parse(Data)
+    // console.log("UserData",UserData)
+    const [VenderType, setVenderType] = useState('');
     const [ratingCounts, setRatingCounts] = useState({
         1: 0,
         2: 0,
@@ -30,30 +31,54 @@ function ArchitectProfile() {
         4: 0,
         5: 0,
     });
+    const [selectedCategory, setSelectedCategory] = useState('Residential'); // Default category
+    const [allService, setAllService] = useState({});
+    const [profileLoading, setProfileLoading] = useState(true);
+    //   const [loading, setLoading] = useState(false);
+
+    const handleFetchProvider = async (providerId) => {
+        setLoading(true);
+        try {
+            // Fetch services for the selected category
+            const { data } = await axios.get(
+                `https://api.helpubuild.co.in/api/v1/get-service-by-provider/${providerId}/${selectedCategory}`
+            );
+
+            // Find the service data for the selected category
+            const serviceData = data.data.find(
+                (service) => service.category === selectedCategory
+            );
+
+            // Update state with the selected category data
+            if (serviceData) {
+                setAllService(serviceData);
+            } else {
+                setAllService({});
+            }
+        } catch (error) {
+            console.error('Error fetching provider data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // console.log("allService",allService)
+
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category);
+    };
+
+    useEffect(() => {
+        if (UserData) {
+            handleFetchProvider(id);
+        }
+        // handleFetchProvider();
+    }, [selectedCategory, id]);
 
     const [formData, setFormData] = useState({
         userId: '',
         providerId: id,
     })
-
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        try {
-
-        } catch (error) {
-            console.log("Internal server error in submiting form", error);
-            toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
-        }
-    }
-
-    // const handleActiveTime = (Chat) => {
-    //     // setFormData(())
-    //     // console.log("object", Chat)
-    //     // setIsActiveTime(!isActiveTime)
-    //     if(Chat === 'Chat'){
-
-    //     }
-    // }
 
     const handleActiveTime = async (Chat) => {
         if (!UserData) {
@@ -82,24 +107,27 @@ function ArchitectProfile() {
     }
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
-                setProfile(data.data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching profile:', error);
-                setError('Unable to fetch profile. Please try again later.');
-                setLoading(false);
-                toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
-            }
-        };
-
-
-
-
-        fetchProfile();
+        if (id) {
+            fetchProfile(id);
+        }
     }, [id]);
+
+    const fetchProfile = async (id) => {
+        setProfileLoading(true)
+        try {
+            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
+            setProfile(data.data);
+            setVenderType(data.data.type)
+            setProfileLoading(false);
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            setError('Unable to fetch profile. Please try again later.');
+            setProfileLoading(false);
+            toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later")
+        } finally {
+            setProfileLoading(false);
+        }
+    };
 
     const handleFetchReview = async () => {
         try {
@@ -127,17 +155,11 @@ function ArchitectProfile() {
             setRatingPercentages(percentages);
         } catch (error) {
             console.log("Internal server error in fetching reviews", error);
-            // toast.error(
-            //     error?.response?.data?.error?.[0] ||
-            //     error?.response?.data?.message ||
-            //     "Please try again later"
-            // );
         }
     };
 
     useEffect(() => {
         handleFetchReview();
-
     }, [])
 
     if (loading) {
@@ -146,6 +168,14 @@ function ArchitectProfile() {
 
     if (error) {
         return <div className="text-center text-danger">{error}</div>;
+    }
+
+    if (!allService) {
+        return <div className="text-center">No services available</div>
+    }
+
+    if (profileLoading) {
+        return <div className="text-center">Loading profile...</div>;
     }
 
     return (
@@ -161,7 +191,7 @@ function ArchitectProfile() {
                                         <a href="#">Home</a>
                                     </li>
                                     <li className="breadcrumb-item active" aria-current="page">
-                                        {profile.name}
+                                        {profile.name || 'N/A'}
                                     </li>
                                 </ol>
                             </nav>
@@ -231,40 +261,110 @@ function ArchitectProfile() {
                                 <div className='connect-area'>
                                     <button className={`btn ${profile.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.callStatus} ><i class="fa-solid fa-phone-volume"></i> Call</button>
                                     <button onClick={() => handleActiveTime("Chat")} disabled={!profile.chatStatus} className={`btn mt-2 ${profile.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
-                                    {/* <div className={`video-time-box ${isActiveTime ? 'video-time-box-show' : ''}`}>
-                                        <p className="text-muted mb-0 mt-1 video-time">10 mins</p>
-                                        <p className="text-muted mb-0 mt-1 video-time">15 mins</p>
-                                        <p className="text-muted mb-0 mt-1 video-time">20 mins</p>
-                                    </div> */}
                                     <button className={`btn mt-2 ${profile.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.meetStatus}><i class="fa-solid fa-video"></i> Video</button>
                                 </div>
                             </div>
-                            {profile?.service.length > 0 ? (
-                                <div className="card p-4 mt-2">
-                                    <table className="table table-hover table-bordered">
-                                        <thead style={{backgroundColor:'#042E65'}} className=" text-white">
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Service Name</th>
-                                                <th>Price</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {profile.service.map((service, index) => (
-                                                <tr key={index}>
-                                                    <td>{index + 1}</td>
-                                                    <td>{service.name}</td>
-                                                    <td>{service.price}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+
+                            <div className="container mt-5">
+
+
+                                {/* Services Display */}
+                                <div className="row mt-5">
+                                    {VenderType !== 'Vastu' && (
+                                        loading ? (
+                                            <div className="text-center">
+                                                <div className="spinner-border text-primary" role="status">
+                                                    <span className="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="col-12">
+                                                <div className="text-center">
+                                                    <h2 className="mb-4">Our Services</h2>
+                                                    <p className="text-muted">
+                                                        Choose a category to view the specialized services we offer.
+                                                    </p>
+                                                </div>
+
+                                                <div className="d-flex justify-content-center align-items-center gap-3">
+                                                    <button
+                                                        onClick={() => handleCategoryChange('Residential')}
+                                                        className={`btn ${selectedCategory === 'Residential' ? 'btn-primary' : 'btn-outline-primary'} px-4`}
+                                                    >
+                                                        Residential
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCategoryChange('Commercial')}
+                                                        className={`btn ${selectedCategory === 'Commercial' ? 'btn-primary' : 'btn-outline-primary'} px-4`}
+                                                    >
+                                                        Commercial
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleCategoryChange('Landscape')}
+                                                        className={`btn ${selectedCategory === 'Landscape' ? 'btn-primary' : 'btn-outline-primary'} px-4`}
+                                                    >
+                                                        Landscape
+                                                    </button>
+                                                </div>
+                                                <div className="card shadow-sm p-4 mt-4">
+                                                    <h3 className="text-center mb-4">
+                                                        {selectedCategory} Services
+                                                    </h3>
+                                                    <div className="row">
+                                                        <div className="col-md-6 mb-3">
+                                                            <h5>Concept Design</h5>
+                                                            <p className="text-muted">
+                                                                {allService?.conceptDesignWithStructure
+                                                                    ? `₹${allService.conceptDesignWithStructure}/sq. ft.`
+                                                                    : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <h5>Building Service MEP</h5>
+                                                            <p className="text-muted">
+                                                                {allService?.buildingServiceMEP
+                                                                    ? `₹${allService.buildingServiceMEP}/sq. ft.`
+                                                                    : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <h5>Working Drawing</h5>
+                                                            <p className="text-muted">
+                                                                {allService?.workingDrawing
+                                                                    ? `₹${allService.workingDrawing}/sq. ft.`
+                                                                    : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <h5>Interior 3D</h5>
+                                                            <p className="text-muted">
+                                                                {allService?.interior3D
+                                                                    ? `₹${allService.interior3D}/sq. ft.`
+                                                                    : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                        <div className="col-md-6 mb-3">
+                                                            <h5>Exterior 3D</h5>
+                                                            <p className="text-muted">
+                                                                {allService?.exterior3D
+                                                                    ? `₹${allService.exterior3D}/sq. ft.`
+                                                                    : 'N/A'}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+
+
                                 </div>
-                            ) : (
-                                <div className="alert mt-2 alert-info text-center">
-                                    No service data available.
-                                </div>
-                            )}
+                            </div>
+
+
+
+
+
                             <div className='col-xl-12'>
                                 <div className='about-architect'>
                                     <h3 className='about-title mb-4'>About me</h3>

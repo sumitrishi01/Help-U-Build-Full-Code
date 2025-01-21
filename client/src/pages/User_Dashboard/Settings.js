@@ -8,19 +8,34 @@ import ShareProfile from './Tabs/ShareProfile'; // New ShareProfile component
 import StatusPage from './Tabs/StatusPage';
 import BankDetail from './Tabs/BankDetail';
 import UpdateServices from './Tabs/UpdateServices';
+import { GetData } from '../../utils/sessionStoreage';
 
 const Settings = () => {
+  const Data = GetData('user');
+  const UserData = JSON.parse(Data);
+  const type = UserData?.type;
   // Define tabs as an array of objects
-  const tabs = [
-    { id: 1, title: 'Profile', content: 'Tab 1 content' },
-    { id: 6, title: 'Update Service', content: 'Tab 5 content' },
-    { id: 2, title: 'Documents', content: 'Tab 2 content' },
-    { id: 3, title: 'Bank Detail', content: 'Tab 4 content' },
-    { id: 4, title: 'Change Password', content: 'Tab 3 content' },
-    { id: 5, title: 'Availability Status', content: 'Share your profile with others' },
-    // { id: 6, title: 'Enquiry', content: 'Tab 3 content' }
-    // { id: 6, title: 'Enquiry', content: 'Tab 3 content' }
-  ];
+let tabs;
+  if(type === 'Vastu'){
+    tabs = [
+      { id: 1, title: 'Profile', content: 'Tab 1 content' },
+      { id: 2, title: 'Documents', content: 'Tab 2 content' },
+      { id: 3, title: 'Bank Detail', content: 'Tab 4 content' },
+      { id: 4, title: 'Change Password', content: 'Tab 3 content' },
+      { id: 5, title: 'Enquiry', content: 'Share your profile with others' },
+      { id: 6, title: 'Availability Status', content: 'Share your profile with others' },
+    ];
+  }else{
+    tabs = [
+      { id: 1, title: 'Profile', content: 'Tab 1 content' },
+      { id: 6, title: 'Update Service', content: 'Tab 5 content' },
+      { id: 2, title: 'Documents', content: 'Tab 2 content' },
+      { id: 3, title: 'Bank Detail', content: 'Tab 4 content' },
+      { id: 4, title: 'Change Password', content: 'Tab 3 content' },
+      { id: 5, title: 'Availability Status', content: 'Share your profile with others' },
+    ];
+  }
+
 
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
@@ -55,7 +70,7 @@ const Settings = () => {
         {activeTab === 2 && <Documnets />}
         {activeTab === 3 && <BankDetail />}
         {activeTab === 4 && <Password />}
-        {activeTab === 5 && <StatusPage/>}
+        {activeTab === 5 && <StatusPage />}
         {activeTab === 6 && <UpdateServices />}
       </div>
     </>

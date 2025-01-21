@@ -137,7 +137,7 @@ const Header = () => {
             <div className="col-lg-2 col-md-2 col-sm-2 col-xs-6 forlogoresponsive">
               <div className="as_logo d-none d-md-block">
                 <Link onClick={handleLinkClick} to={"/"}>
-                  <img src={logo} className="img-responsive ws sm-screen-logo" alt="" />
+                  <img src={logo} className="img-responsive sm-screen-logo" alt="" />
                 </Link>
               </div>
             </div>

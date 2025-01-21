@@ -310,7 +310,7 @@ const ChatDemo = () => {
         return <AccessDenied />
     }
     return (
-        <section style={{ backgroundColor: '#CDC4F9' }}>
+        <section className=' hitesh_styling' style={{ backgroundColor: '#CDC4F9' }}>
             <div className="container py-5">
                 <div className="row">
                     <div className="col-md-12">

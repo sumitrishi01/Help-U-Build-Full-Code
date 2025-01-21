@@ -27,3 +27,13 @@
 .form_label{
     font-weight: 700;
 }
+
+.chart-wrapper canvas{
+    height: 590px !important;
+}
+
+@media (max-width:1100px) {
+    .img-responsive{
+        width: 100% !important;
+    }
+}

@@ -89,7 +89,7 @@ const Chat = () => {
 
   return (
     <>
-      <div className='chat-main-section'>
+      <div className='chat-main-section hitesh_styling'>
         <div className="chat-container">
           <div className="chat-header">
             <h2>Welcome to Chat {socketId}</h2>
