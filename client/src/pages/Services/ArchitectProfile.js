@@ -69,7 +69,7 @@ function ArchitectProfile() {
     };
 
     useEffect(() => {
-        if (UserData) {
+        if (id) {
             handleFetchProvider(id);
         }
         // handleFetchProvider();
