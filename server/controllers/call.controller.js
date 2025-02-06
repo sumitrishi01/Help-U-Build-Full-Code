@@ -44,6 +44,8 @@ exports.createCall = async (req, res) => {
             Record: "true"
         }).toString();
 
+        "hello"
+
         const response = await axios.post(callUrl, formBody, {
             headers: {
                 'Authorization': `Basic ${auth}`,
