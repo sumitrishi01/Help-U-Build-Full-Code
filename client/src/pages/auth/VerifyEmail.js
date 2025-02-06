@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast'
@@ -13,6 +13,7 @@ const VerifyEmail = () => {
     const [loading, setLoading] = useState(false);
     const [timer, setTimer] = useState(0);
     const [canResend, setCanResend] = useState(false);
+    const inputRefs = useRef([]);
 
     useEffect(() => {
         const currentTime = new Date().getTime();
@@ -50,17 +51,20 @@ const VerifyEmail = () => {
         const newOtp = [...otp];
         newOtp[index] = value;
         setOtp(newOtp);
+
+        if (value !== '' && index < 5) {
+            inputRefs.current[index + 1]?.focus(); // Move to the next input field
+        }
+    };
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            inputRefs.current[index - 1]?.focus(); // Move to the previous input field
+        }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // console.log("otp",otp)
-
-        // const otpString = otp.join('');
-        // if (otpString.length !== 6 || otpString.includes('')) {
-        //     toast.error('Please enter all 6 digits of the OTP');
-        //     return;
-        // }
 
         const isValidOtp = otp.every((digit) => digit !== '' && !isNaN(digit));
         if (!isValidOtp) {
@@ -69,13 +73,10 @@ const VerifyEmail = () => {
         }
 
         const otpString = otp.join('');
-        // console.log("otp string:", otpString);
 
         setLoading(true);
 
         try {
-            // console.log("otpString".otpString)
-            // console.log("otpString",otpString)
             const response = await axios.post(`https://api.helpubuild.co.in/api/v1/verify/email`, {
                 email,
                 otp: otpString,
@@ -84,7 +85,7 @@ const VerifyEmail = () => {
             const { token, user } = response.data
             setData('token', token)
             setData('islogin', token ? true : false)
-            setData('user',user)
+            setData('user', user)
             window.location.href = '/'
         } catch (error) {
             toast.error(
@@ -134,11 +135,13 @@ const VerifyEmail = () => {
                     {otp.map((digit, index) => (
                         <input
                             key={index}
+                            ref={(el) => (inputRefs.current[index] = el)}
                             className="otp-input mx-1 text-center"
                             type="text"
                             maxLength={1}
                             value={digit}
                             onChange={(e) => handleChange(e, index)}
+                            onKeyDown={(e) => handleKeyDown(e, index)}
                             style={{ width: '50px', height: '50px', fontSize: '1.5rem' }}
                         />
                     ))}

@@ -49,8 +49,9 @@ const Vastu = () => {
     try {
       const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider');
       const allData = data.data.filter((item) => item.type === 'Vastu');
-      setAllProviders(allData);
-      setFilteredProviders(allData);
+      const shownProvider = allData.filter((item) => item.accountVerified === 'Verified')
+      setAllProviders(shownProvider);
+      setFilteredProviders(shownProvider);
     } catch (error) {
       console.error("Internal server error in fetching providers");
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");

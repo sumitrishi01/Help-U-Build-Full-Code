@@ -1,7 +1,7 @@
 const ProviderService = require('../models/ProviderService.model');
 
 // Create and Save a new ProviderService
-exports.createProviderService = (req, res) => {
+exports.createProviderService = async (req, res) => {
     try {
         const { category, conceptDesignWithStructure, buildingServiceMEP, workingDrawing, interior3D, exterior3D, provider } = req.body;
         const emptyFields = [];
@@ -29,7 +29,7 @@ exports.createProviderService = (req, res) => {
             provider,
         });
         // Save ProviderService in the database
-        providerService.save()
+        await providerService.save()
         res.status(201).json({
             success: true,
             message: 'ProviderService created successfully',
@@ -46,9 +46,9 @@ exports.createProviderService = (req, res) => {
 }
 
 // Retrieve and return all ProviderServices from the database.
-exports.getAllProviderService = (req, res) => {
+exports.getAllProviderService = async (req, res) => {
     try {
-        const providerService = ProviderService.find();
+        const providerService = await ProviderService.find();
         if (!providerService) {
             return res.status(404).json({
                 success: false,
@@ -71,10 +71,10 @@ exports.getAllProviderService = (req, res) => {
 }
 
 // Find a single ProviderService with a providerId
-exports.getProviderServiceById = (req, res) => {
+exports.getProviderServiceById = async (req, res) => {
     try {
         const providerId = req.params.providerId;
-        const providerService = ProviderService.findById(providerId);
+        const providerService = await ProviderService.findById(providerId);
         if (!providerService) {
             return res.status(404).json({
                 success: false,
@@ -174,10 +174,10 @@ exports.updateProviderService = async (req, res) => {
     }
 };
 
-exports.deleteProviderService = (req, res) => {
+exports.deleteProviderService = async (req, res) => {
     try {
         const providerId = req.params.providerId;
-        const providerService = ProviderService.findByIdAndDelete(providerId);
+        const providerService = await ProviderService.findByIdAndDelete(providerId);
         if (!providerService) {
             return res.status(404).json({
                 success: false,
@@ -186,7 +186,7 @@ exports.deleteProviderService = (req, res) => {
         }
         res.status(200).json({
             success: true,
-            message: 'ProviderService deleted successfully',
+            message: 'Provider Service deleted successfully',
         });
     } catch (error) {
         console.log(error);

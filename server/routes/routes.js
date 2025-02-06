@@ -1,7 +1,7 @@
 const express = require('express');
 const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword, getTotalRechargeAmount } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
-const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail, updateIsBanned, deleteprovider } = require('../controllers/provider.controller');
+const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail, updateIsBanned, deleteprovider, accountVerification } = require('../controllers/provider.controller');
 const multer = require('multer');
 const { getAllChat } = require('../controllers/ChatController');
 const { createReview, getAllReview, getReviewByProviderId } = require('../controllers/review.Controller');
@@ -16,6 +16,7 @@ const { createChatWithNew, getAllChatRecord, getChatByProviderid, getChatByUseri
 const { createWithdrawal, updateWithdrawStatus, deleteWithdrawRequest, getWithdrawalsByProviderId, getAllWithdrawals, getTotalWithdrawAndCommission } = require('../controllers/withdraw.controller');
 const { createCommission, updateCommission, getSingleCommission, getAllCommissions, deleteCommission } = require('../controllers/commission.controller');
 const { createProviderService, getAllProviderService, getProviderServiceById, updateProviderService, deleteProviderService, findbyProvider } = require('../controllers/providerService.controller');
+const { createCall, call_status } = require('../controllers/call.controller');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const router = express.Router();
@@ -36,24 +37,24 @@ router.get('/total-recharge-amount', getTotalRechargeAmount);
 //providers registration related routes
 router.post(
     '/register-provider',
-    (req, res, next) => {
-        upload.fields([
-            { name: 'adhaarCard', maxCount: 2 },
-            { name: 'panCard', maxCount: 1 },
-            { name: 'qualificationProof', maxCount: 1 },
-            { name: 'photo', maxCount: 1 }
+    // (req, res, next) => {
+    //     upload.fields([
+    //         { name: 'adhaarCard', maxCount: 2 },
+    //         { name: 'panCard', maxCount: 1 },
+    //         { name: 'qualificationProof', maxCount: 1 },
+    //         { name: 'photo', maxCount: 1 }
 
-        ])(req, res, (err) => {
-            if (err) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'File upload error',
-                    error: err.message
-                });
-            }
-            next();
-        });
-    },
+    //     ])(req, res, (err) => {
+    //         if (err) {
+    //             return res.status(400).json({
+    //                 success: false,
+    //                 message: 'File upload error',
+    //                 error: err.message
+    //             });
+    //         }
+    //         next();
+    //     });
+    // },
     CreateProvider
 );
 router.put('/update-provider-documents/:providerId', upload.fields([
@@ -88,7 +89,7 @@ router.post('/addPortfolio', protect, (req, res, next) => {
 router.get('/get-all-provider', getAllProvider)
 router.delete('/delete-provider/:id', deleteprovider)
 
-
+router.put('/provider_verify/:id', accountVerification)
 
 
 
@@ -205,6 +206,9 @@ router.get('/get-provider-service-by-id/:providerId', getProviderServiceById)
 router.put('/update-provider-service/:providerId', updateProviderService)
 router.delete('/delete-provider-service/:providerId', deleteProviderService)
 router.get('/get-service-by-provider/:providerId/:category', findbyProvider);
+
+router.post('/create-call',createCall)
+router.get('/call_status-call',call_status)
 
 
 module.exports = router;

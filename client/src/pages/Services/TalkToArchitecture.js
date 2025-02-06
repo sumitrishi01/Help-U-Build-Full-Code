@@ -21,6 +21,8 @@ function TalkToArchitect() {
   const UserData = JSON.parse(Data)
   const [walletAmount, setWalletAmount] = useState(0);
   const [role, setRole] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [allProviderService, setAllProviderService] = useState([])
   const [formData, setFormData] = useState({
     userId: '',
     providerId: "",
@@ -49,10 +51,11 @@ function TalkToArchitect() {
     try {
       const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider');
       const allData = data.data.filter((item) => item.type === 'Architect');
-      setAllProviders(allData);
-      setFilteredProviders(allData);
+      const shownProvider = allData.filter((item) => item.accountVerified === 'Verified')
+      setAllProviders(shownProvider);
+      setFilteredProviders(shownProvider);
     } catch (error) {
-      console.error("Internal server error in fetching providers");
+      console.error("Internal server error in fetching providers", error);
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
     }
   };
@@ -62,6 +65,48 @@ function TalkToArchitect() {
     }
     handleFetchProvider();
   }, [])
+
+  useEffect(() => {
+    const handleFetchProviderAllService = async () => {
+      try {
+        setLoading(true)
+        const all = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider-service');
+        const allData = all.data.data
+        const filterData = allData.filter((item) => item.category === 'Residential')
+        setAllProviderService(filterData)
+        setLoading(false)
+      } catch (error) {
+        console.log("Internal server error", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    handleFetchProviderAllService()
+  }, [])
+
+  const handleFetchProviderService = async (providerId) => {
+    setLoading(true);
+    try {
+      // Fetch services for the selected category
+      const { data } = await axios.get(
+        `https://api.helpubuild.co.in/api/v1/get-service-by-provider/${providerId}/Residential`
+      );
+
+      // Find the service data for the selected category
+      const serviceData = data.data.find(
+        (service) => service.category === 'Residential'
+      );
+
+      const price = serviceData.conceptDesignWithStructure;
+
+      return price;
+
+    } catch (error) {
+      console.error('Error fetching provider data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const applyFilters = () => {
     let sortedData = [...allProviders];
@@ -233,6 +278,16 @@ function TalkToArchitect() {
       toast.error(error?.response?.data?.message || 'Failed to Reacharge. Please try again.');
     }
   };
+
+  const handleFilterProviderService = (id) => {
+    const filteredData = allProviderService.filter((item) => item.provider.toString() === id);
+    return filteredData[0]?.conceptDesignWithStructure;
+  };
+
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <>
@@ -454,6 +509,7 @@ function TalkToArchitect() {
                               "Not Available"
                             )}
                           </p>
+                          <p className="text-small text-muted mb-1">{`100/sq.yd. ${handleFilterProviderService(item._id) || ''} * 900`}</p>
                         </div>
                       </div>
                       <div className="text-end contact-btn">

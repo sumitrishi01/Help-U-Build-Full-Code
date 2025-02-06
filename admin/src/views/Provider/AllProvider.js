@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     CTableDataCell,
     CTableRow,
@@ -11,7 +12,9 @@ import {
     CModalHeader,
     CModalTitle,
     CModalBody,
-    CModalFooter
+    CModalFooter,
+    CFormSelect,
+    CFormInput
 } from '@coreui/react';
 import Table from '../../components/Table/Table';
 import axios from 'axios';
@@ -19,11 +22,16 @@ import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
 function AllProvider() {
+    const navigate = useNavigate();
     const [providers, setProviders] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
     const [currentPage, setCurrentPage] = React.useState(1);
     const [modalVisible, setModalVisible] = React.useState(false);
     const [selectedTransition, setSelectedTransition] = React.useState([]);
+    const [verificationModal, setVerificationModal] = React.useState(false);
+    const [selectedProvider, setSelectedProvider] = React.useState(null);
+    const [accountVerified, setAccountVerified] = React.useState('Pending');
+    const [verificationRejectReason, setVerificationRejectReason] = React.useState('');
     const itemsPerPage = 10;
 
     const fetchProviders = async () => {
@@ -80,6 +88,57 @@ function AllProvider() {
         }
     }
 
+    const handleChange = (e) => {
+        const { value } = e.target;
+        const providerId = e.target.getAttribute("data-id"); // Get provider ID
+
+        if (!providerId || providerId === "null" || providerId.length !== 24) {
+            toast.error("Invalid Provider ID. Please refresh and try again.");
+            return;
+        }
+
+        setAccountVerified(value);
+        setSelectedProvider(providerId);
+
+        if (value === 'Rejected') {
+            setVerificationRejectReason('');
+            setVerificationModal(true);
+        } else {
+            setVerificationRejectReason('');
+            handleAccountVerification(value, providerId); // Pass providerId explicitly
+        }
+    };
+
+
+    const handleAccountVerification = async (status, providerId = selectedProvider) => {
+        if (!providerId || providerId === "null" || providerId.length !== 24) {
+            toast.error("Invalid Provider ID. Please refresh and try again.");
+            return;
+        }
+
+        if (status === 'Rejected' && !verificationRejectReason) {
+            toast.error('Please provide a rejection reason.');
+            return;
+        }
+
+        try {
+            const res = await axios.put(
+                `https://api.helpubuild.co.in/api/v1/provider_verify/${providerId}`,
+                { accountVerified: status, verificationRejectReason }
+            );
+
+            toast.success(res?.data?.message || 'Account verification updated successfully.');
+            setVerificationRejectReason('');
+            setSelectedProvider(null); // Reset after successful update
+            fetchProviders();
+            setVerificationModal(false);
+        } catch (error) {
+            console.error("Internal server error", error);
+            toast.error(error?.response?.data?.message || 'Error verifying account.');
+        }
+    };
+
+
     const confirmDelete = (id) => {
         Swal.fire({
             title: 'Are you sure?',
@@ -105,6 +164,10 @@ function AllProvider() {
     const currentData = providers.slice(startIndex, startIndex + itemsPerPage);
     const totalPages = Math.ceil(providers.length / itemsPerPage);
 
+    const viewProviderDetails = (provider) => {
+        navigate(`/provider/${provider._id}`, { state: { provider } });
+    };
+
     const heading = [
         'S.No',
         'Profile Image',
@@ -115,6 +178,7 @@ function AllProvider() {
         'Wallet Amount',
         'Portfolio',
         'Is Banned',
+        'Profile Approve',
         'Chat Transition',
         'Action',
     ];
@@ -171,6 +235,17 @@ function AllProvider() {
                                 />
                             </CTableDataCell>
                             <CTableDataCell>
+                                <CFormSelect
+                                    value={item.accountVerified || "Pending"}
+                                    onChange={(e) => handleChange(e)}
+                                    data-id={item._id || ""} // Ensure ID is not null
+                                >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Verified">Verified</option>
+                                    <option value="Rejected">Rejected</option>
+                                </CFormSelect>
+                            </CTableDataCell>
+                            <CTableDataCell>
                                 <CButton
                                     color="info"
                                     size="sm"
@@ -182,6 +257,14 @@ function AllProvider() {
 
                             <CTableDataCell>
                                 <div className="action-parent">
+                                    <CButton
+                                        color="primary"
+                                        size="sm"
+                                        className="me-2"
+                                        onClick={() => viewProviderDetails(item)}
+                                    >
+                                        View Details
+                                    </CButton>
                                     <div
                                         className="delete"
                                         onClick={() => confirmDelete(item._id)}
@@ -261,6 +344,25 @@ function AllProvider() {
                     </CButton>
                 </CModalFooter>
             </CModal>
+
+            <CModal visible={verificationModal} onClose={() => setVerificationModal(false)}>
+                <CModalHeader>
+                    <CModalTitle>Account Verification</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <CFormInput
+                        type="text"
+                        placeholder="Enter rejection reason"
+                        value={verificationRejectReason}
+                        onChange={(e) => setVerificationRejectReason(e.target.value)}
+                    />
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="primary" onClick={() => handleAccountVerification('Rejected')}>Submit</CButton>
+                    <CButton color="secondary" onClick={() => setVerificationModal(false)}>Close</CButton>
+                </CModalFooter>
+            </CModal>
+
         </>
     );
 }

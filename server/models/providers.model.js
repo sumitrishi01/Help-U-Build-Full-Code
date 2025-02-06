@@ -201,8 +201,15 @@ const ProviderProfileSchema = new mongoose.Schema({
                 type: Number,
             }
         }
-    ]
-
+    ],
+    accountVerified: {
+        type: String,
+        default: 'Pending',
+        enum: ['Pending', 'Verified', 'Rejected']
+    },
+    verificationRejectReason: {
+        type: String,
+    },
 });
 
 // Password hashing

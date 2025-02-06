@@ -13,6 +13,7 @@ import AllUser from './views/User/AllUser'
 import AllChatRoom from './views/ChatRoom/AllChatRoom'
 import AllProvider from './views/Provider/AllProvider'
 import AllWithdraw from './views/Withdraw/AllWithdraw'
+import ProviderDetails from './views/Provider/ProviderDetails'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -117,6 +118,7 @@ const routes = [
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
   { path: '/notifications/modals', name: 'Modals', element: Modals },
+  { path: '/provider/:id', name: 'Provider Detail', element: ProviderDetails },
 
   { path: '/widgets', name: 'Widgets', element: Widgets },
 
@@ -177,9 +179,7 @@ const routes = [
 
   // withdraw routes here 
   { path: '/withdraw', name: 'Withdraw Request', element: Cards, exact: true },
-  // { path: '/blogs/add_blogs', name: 'Add Blogs', element: AddBlogs },
   { path: '/withdraw/all_withdraw', name: 'All Withdraw Request', element: AllWithdraw },
-  // { path: '/blogs/edit_blogs/:id', name: 'Edit Blogs', element: EditBlogs },
 ]
 
 export default routes

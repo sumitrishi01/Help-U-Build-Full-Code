@@ -15,15 +15,14 @@ Cloudinary.config({
 
 exports.CreateProvider = async (req, res) => {
     try {
-        // console.log("im hit")
         // console.log(req.files)
-        const { adhaarCard, panCard, qualificationProof } = req.files || {};
-        if (!adhaarCard || !panCard || !qualificationProof) {
-            return res.status(400).json({
-                success: false,
-                message: 'All required documents (Adhaar, Pan Card, Qualification Proof) must be uploaded.'
-            });
-        }
+        // const { adhaarCard, panCard, qualificationProof } = req.files || {};
+        // if (!adhaarCard || !panCard || !qualificationProof) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: 'All required documents (Adhaar, Pan Card, Qualification Proof) must be uploaded.'
+        //     });
+        // }
         const { type, name, email, password, DOB, age, language, mobileNumber, gstDetails, coaNumber, expertiseSpecialization, location } = req.body;
         const existingMobile = await providersModel.findOne({ mobileNumber });
         const existingEmail = await providersModel.findOne({ email });
@@ -44,16 +43,16 @@ exports.CreateProvider = async (req, res) => {
 
 
         // Upload images to Cloudinary
-        const uploadedFiles = {};
-        if (adhaarCard) {
-            uploadedFiles.adhaarCard = await uploadToCloudinary(adhaarCard[0].buffer);
-        }
-        if (panCard) {
-            uploadedFiles.panCard = await uploadToCloudinary(panCard[0].buffer);
-        }
-        if (qualificationProof) {
-            uploadedFiles.qualificationProof = await uploadToCloudinary(qualificationProof[0].buffer);
-        }
+        // const uploadedFiles = {};
+        // if (adhaarCard) {
+        //     uploadedFiles.adhaarCard = await uploadToCloudinary(adhaarCard[0].buffer);
+        // }
+        // if (panCard) {
+        //     uploadedFiles.panCard = await uploadToCloudinary(panCard[0].buffer);
+        // }
+        // if (qualificationProof) {
+        //     uploadedFiles.qualificationProof = await uploadToCloudinary(qualificationProof[0].buffer);
+        // }
         // if (photo) {
         //     uploadedFiles.photo = await uploadToCloudinary(photo[0].buffer);
         // }
@@ -72,9 +71,9 @@ exports.CreateProvider = async (req, res) => {
             // expertiseSpecialization: expertiseSpecialization.split(','),
             location,
             // photo: uploadedFiles.photo,
-            adhaarCard: uploadedFiles.adhaarCard,
-            panCard: uploadedFiles.panCard,
-            qualificationProof: uploadedFiles.qualificationProof
+            // adhaarCard: uploadedFiles.adhaarCard,
+            // panCard: uploadedFiles.panCard,
+            // qualificationProof: uploadedFiles.qualificationProof
         });
 
         // Save the provider
@@ -646,6 +645,66 @@ exports.deleteprovider = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Provider deleted successfully",
+        })
+    } catch (error) {
+        console.error("Internal server error", error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+}
+
+exports.accountVerification = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { verificationRejectReason, accountVerified } = req.body;
+
+        if (!accountVerified) {
+            return res.status(400).json({
+                success: false,
+                message: "Account verified not found",
+                error: "Account verified not found"
+            })
+        }
+
+        const findProvider = await providersModel.findById(id);
+        if (!findProvider) {
+            return res.status(500).json({
+                success: false,
+                message: "Provider not founded",
+                error: "Provider not founded"
+            })
+        }
+
+        if (accountVerified === 'Rejected') {
+            findProvider.accountVerified = accountVerified;
+            findProvider.verificationRejectReason = verificationRejectReason;
+            const email = findProvider?.email;
+
+            // Send welcome email
+            const emailOptions = {
+                email: email,
+                subject: "Account Rejected",
+                message: `${verificationRejectReason}`,
+            }
+
+            await sendEmail(emailOptions);
+
+            await findProvider.save();
+            return res.status(200).json({
+                success: true,
+                message: "Account rejected successfully",
+            })
+        }
+
+        findProvider.accountVerified = accountVerified;
+        findProvider.verificationRejectReason = '';
+        await findProvider.save();
+        return res.status(200).json({
+            success: true,
+            message: "Account verified successfully",
         })
     } catch (error) {
         console.error("Internal server error", error);

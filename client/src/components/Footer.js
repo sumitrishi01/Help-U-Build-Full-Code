@@ -6,8 +6,8 @@ import './footer.css'
 const Footer = () => {
   return (
     <div>
-      <section style={{ background: "#042F66" }} class="as_padderTop80 footer-shap-parent">
-        <div class="container footer-shap">
+      <section style={{ background: "#042F66" }} class=" footer-shap-parent">
+        <div class="container">
           <div class="row footer-shap-child">
             <div class="col-lg-12">
               <div class="as_footer_inner ">
