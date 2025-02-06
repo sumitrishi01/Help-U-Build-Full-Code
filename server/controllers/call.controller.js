@@ -40,11 +40,7 @@ exports.createCall = async (req, res) => {
             CallerId: ExoPhone,
             StatusCallback: 'https://api.helpubuild.co.in/api/v1/call_status',
             StatusCallbackContentType: 'application/json',
-            StatusCallbackEvents: ['terminal', 'answered'],
-            Record: "true"
         }).toString();
-
-        "hello"
 
         const response = await axios.post(callUrl, formBody, {
             headers: {
