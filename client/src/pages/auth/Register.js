@@ -11,7 +11,8 @@ function Register() {
         cPassword: ''
     })
     const [isPasswordShow, setIsPasswordShow] = useState(false)
-
+    const location = new URLSearchParams(window.location.search)
+    const redirectPath = location.get('redirect') || {}
     const [loading, setloading] = useState(false)
 
     const handleChange = (e) => {
@@ -34,11 +35,11 @@ function Register() {
         }
 
         try {
-            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register', formData)
-            // console.log(res.data)
+            const res = await axios.post('http://localhost:5000/api/v1/register', formData)
+           
             toast.success(res.data.message)
 
-            window.location.href = `/otp-verification/user?email=${formData.email}&expires=${res.data?.data}`
+            window.location.href = `/otp-verification/user?email=${formData.email}&expires=${res.data?.data}&redirect=${redirectPath}`
             setloading(false)
         } catch (error) {
             console.log(error);

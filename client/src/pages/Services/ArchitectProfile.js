@@ -5,6 +5,8 @@ import { HiBadgeCheck } from "react-icons/hi";
 import { useParams } from 'react-router-dom';
 import StarRating from '../../components/StarRating/StarRating';
 import { GetData } from '../../utils/sessionStoreage';
+import ModelOfPriceAndTime from './ModelOfPriceAndTime';
+import CallLoader from './CallLoader';
 // import { GetData } from '../../utils/sessionStoreage'
 
 function ArchitectProfile() {
@@ -15,6 +17,8 @@ function ArchitectProfile() {
     const [reviews, setReviews] = useState([]);
     const Data = GetData('user')
     const UserData = JSON.parse(Data)
+    const [open, setOpen] = useState(false)
+    const [time, setTime] = useState('0')
     // console.log("UserData",UserData)
     const [VenderType, setVenderType] = useState('');
     const [ratingCounts, setRatingCounts] = useState({
@@ -34,14 +38,14 @@ function ArchitectProfile() {
     const [selectedCategory, setSelectedCategory] = useState('Residential'); // Default category
     const [allService, setAllService] = useState({});
     const [profileLoading, setProfileLoading] = useState(true);
-    //   const [loading, setLoading] = useState(false);
+    const [callLoader, setCallLoader] = useState(false);
 
     const handleFetchProvider = async (providerId) => {
         setLoading(true);
         try {
             // Fetch services for the selected category
             const { data } = await axios.get(
-                `https://api.helpubuild.co.in/api/v1/get-service-by-provider/${providerId}/${selectedCategory}`
+                `http://localhost:5000/api/v1/get-service-by-provider/${providerId}/${selectedCategory}`
             );
 
             // Find the service data for the selected category
@@ -62,7 +66,6 @@ function ArchitectProfile() {
         }
     };
 
-    // console.log("allService",allService)
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
@@ -97,7 +100,7 @@ function ArchitectProfile() {
                 userId: UserData._id,
             }
             try {
-                const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm)
+                const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm)
                 window.location.href = '/chat'
             } catch (error) {
                 console.log("Internal server error", error)
@@ -115,7 +118,7 @@ function ArchitectProfile() {
     const fetchProfile = async (id) => {
         setProfileLoading(true)
         try {
-            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
+            const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
             setProfile(data.data);
             setVenderType(data.data.type)
             setProfileLoading(false);
@@ -132,7 +135,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
+                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);
@@ -158,6 +161,76 @@ function ArchitectProfile() {
         }
     };
 
+    const callCulateMaxTimeForCall = async (walletAmount, pricePerMinute) => {
+        try {
+            const fixedAmount = Number(parseFloat(walletAmount).toFixed(2));
+            const PricePerMin = Number(pricePerMinute);
+
+            if (PricePerMin === 0) {
+                throw new Error("Price per minute cannot be zero.");
+            }
+
+            const maxTimeForCall = (fixedAmount / PricePerMin) * 60;
+            return maxTimeForCall;
+
+        } catch (error) {
+            console.error("Error calculating max time for call:", error);
+            return 0;
+        }
+    };
+
+
+    const showModelOfPrice = async () => {
+        if (UserData && profile) {
+            if (UserData.role === 'provider') {
+                return toast.error("Access Denied: Providers are not authorized to access this feature.");
+            } else {
+                const data = await callCulateMaxTimeForCall(UserData?.walletAmount, profile.pricePerMin)
+                setOpen(true)
+                setTime(data)
+            }
+        } else {
+            toast.error("Please login to calculate maximum time for call")
+        }
+    }
+    const handleClose = () => {
+        setOpen(false)
+        setTime('0')
+    }
+
+
+
+    const connectWithProviderWithCall = async () => {
+        setCallLoader(true)
+        if (!UserData) {
+            window.location.href = `/login?redirect=${window.location.href}`
+            return toast.error('Login first')
+        }
+
+
+        try {
+
+            const res = await axios.post('http://localhost:5000/api/v1/create-call', {
+                userId: UserData._id,
+                providerId: id,
+                UserWallet: UserData?.walletAmount,
+                ProviderProfileMin: profile.pricePerMin,
+                max_duration_allowed: time
+            })
+            console.log("res", res.data)
+            setOpen(false)
+            setTime('0')
+            setTimeout(() => (
+                setCallLoader(false)
+            ), 5000)
+        } catch (error) {
+            console.log(error)
+            setCallLoader(false)
+        }
+    }
+
+
+
     useEffect(() => {
         handleFetchReview();
     }, [])
@@ -176,6 +249,9 @@ function ArchitectProfile() {
 
     if (profileLoading) {
         return <div className="text-center">Loading profile...</div>;
+    }
+    if (callLoader) {
+        return <CallLoader />
     }
 
     return (
@@ -259,7 +335,7 @@ function ArchitectProfile() {
 
                             <div className='col-xl-4 col-lg-4 col-md-6 col-12'>
                                 <div className='connect-area'>
-                                    <button className={`btn ${profile.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.callStatus} ><i class="fa-solid fa-phone-volume"></i> Call</button>
+                                    <button onClick={() => showModelOfPrice()} className={`btn ${profile.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.callStatus} ><i class="fa-solid fa-phone-volume"></i> Call</button>
                                     <button onClick={() => handleActiveTime("Chat")} disabled={!profile.chatStatus} className={`btn mt-2 ${profile.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
                                     <button className={`btn mt-2 ${profile.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`} disabled={!profile.meetStatus}><i class="fa-solid fa-video"></i> Video</button>
                                 </div>
@@ -545,6 +621,9 @@ function ArchitectProfile() {
                     </div>
 
                 </section>
+                {
+                    open && <ModelOfPriceAndTime seconds={time} UserData={UserData} Profile={profile} onClose={handleClose} startCall={connectWithProviderWithCall} />
+                }
             </div>
         </>
     )

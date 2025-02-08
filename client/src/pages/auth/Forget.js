@@ -17,7 +17,7 @@ function Forget() {
     setLoading(true); // Set loading to true when request starts
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', {
+      const response = await axios.post('http://localhost:5000/api/v1/forgot-password', {
         email,
         newPassword,
       });
@@ -47,7 +47,7 @@ function Forget() {
     setLoading(true); // Set loading to true when request starts
 
     try {
-      const response = await axios.post(`https://api.helpubuild.co.in/api/v1/verify/password`, {
+      const response = await axios.post(`http://localhost:5000/api/v1/verify/password`, {
         email,
         otp,
         password: newPassword

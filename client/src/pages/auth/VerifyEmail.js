@@ -5,6 +5,8 @@ import toast from 'react-hot-toast'
 import { setData } from '../../utils/sessionStoreage';
 
 const VerifyEmail = () => {
+    const location = new URLSearchParams(window.location.search)
+    const redirectPath = location.get('redirect') || {}
     const [query] = useSearchParams();
     const email = query.get("email");
     const ExpiresTime = query.get("expires");
@@ -77,7 +79,7 @@ const VerifyEmail = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post(`https://api.helpubuild.co.in/api/v1/verify/email`, {
+            const response = await axios.post(`http://localhost:5000/api/v1/verify/email`, {
                 email,
                 otp: otpString,
             });
@@ -86,7 +88,7 @@ const VerifyEmail = () => {
             setData('token', token)
             setData('islogin', token ? true : false)
             setData('user', user)
-            window.location.href = '/'
+            window.location.href = redirectPath || '/'
         } catch (error) {
             toast.error(
                 error?.response?.data?.message ||
@@ -104,7 +106,7 @@ const VerifyEmail = () => {
             setTimer(0); // Reset timer on resend
 
             try {
-                const response = await axios.post(`https://api.helpubuild.co.in/api/v1/resend-otp/email`, {
+                const response = await axios.post(`http://localhost:5000/api/v1/resend-otp/email`, {
                     email,
                 });
                 // alert(response.data.message);

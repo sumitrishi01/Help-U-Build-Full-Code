@@ -31,7 +31,7 @@ router.post('/verify/:type', verifyEmail);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.get('/get-user-by-id/:id', getUserById);
-router.put('/update-user-password/:userId',updateUserPassword)
+router.put('/update-user-password/:userId', updateUserPassword)
 router.get('/total-recharge-amount', getTotalRechargeAmount);
 
 //providers registration related routes
@@ -177,8 +177,8 @@ router.get('/get-chat-by-id/:id', getChatById)
 router.put('/update-available-status/:providerId', updateAvailable)
 router.put('/mark-user-chats-as-read/:userId', markUserChatsAsRead);
 router.put('/mark-provider-chats-as-read/:providerId', markProviderChatsAsRead);
-router.delete('/delete-chat-room/:chatRoomId',deleteChatRoom)
-router.get('/get-chat-by-room/:chatRoomId',getchatByRoom)
+router.delete('/delete-chat-room/:chatRoomId', deleteChatRoom)
+router.get('/get-chat-by-room/:chatRoomId', getchatByRoom)
 
 // recharge route here 
 router.post('/create-payment/:userId', createPayment);
@@ -207,8 +207,9 @@ router.put('/update-provider-service/:providerId', updateProviderService)
 router.delete('/delete-provider-service/:providerId', deleteProviderService)
 router.get('/get-service-by-provider/:providerId/:category', findbyProvider);
 
-router.post('/create-call',createCall)
-router.get('/call_status-call',call_status)
+router.post('/create-call', createCall)
+router.get('/call_status-call', call_status)
+
 
 
 module.exports = router;

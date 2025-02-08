@@ -53,6 +53,7 @@ const io = new Server(server, {
 })
 
 app.locals.socketIo = io;
+app.set('socketIo', io)
 
 const activeTimers = {};
 const roomMembers = {};
@@ -61,8 +62,6 @@ let providerconnect;
 io.on('connection', (socket) => {
     console.log('A new client connected:', socket.id);
 
-
-    // Join a specific room
     socket.on('join_room', async ({ userId, astrologerId, role }, callback) => {
         try {
             const room = `${userId}_${astrologerId}`;
@@ -94,10 +93,9 @@ io.on('connection', (socket) => {
         }
     });
 
-    // Handle the first message from the user
     socket.on('message', async ({ room, message, senderId, timestamp, role }) => {
         try {
-            const isFirstMessage = !activeTimers[room]; // Check if this is the first message
+            const isFirstMessage = !activeTimers[room]; 
             const roomData = roomMembers[socket.id];
 
             if (role === 'user' && isFirstMessage) {
