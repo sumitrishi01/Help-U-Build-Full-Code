@@ -208,7 +208,7 @@ router.delete('/delete-provider-service/:providerId', deleteProviderService)
 router.get('/get-service-by-provider/:providerId/:category', findbyProvider);
 
 router.post('/create-call', createCall)
-router.get('/call_status-call', call_status)
+router.post('/call_status-call', call_status)
 
 
 
