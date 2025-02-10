@@ -14,7 +14,7 @@ function Forget() {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', { email, newPassword });
+      const response = await axios.post('https://try.helpubuild.co.in/api/v1/forgot-password', { email, newPassword });
 
       if (response.data.success) {
         toast.success('OTP has been sent to your email!');

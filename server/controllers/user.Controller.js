@@ -115,15 +115,16 @@ exports.verifyEmail = async (req, res) => {
             return res.status(404).json({ success: false, message: `${accountType} account not found with that email.` });
         }
 
-        console.log("Fetch Account:", account)
+        // console.log("Fetch Account:", account)
         let accountOtp, otpExpiresAt, verificationMessage, newPassword;
-
+        
         if (type === 'email' && accountType === "User") {
             accountOtp = account.otp;
             otpExpiresAt = account.expiresAt;
             verificationMessage = "Email verified successfully.";
         } else if (type === 'password') {
             accountOtp = account.resetPasswordOtp;
+            console.log("otp",accountOtp)
             otpExpiresAt = account.resetPasswordExpiresAt;
             verificationMessage = "OTP verified for password reset.";
             newPassword = account.newPassword;
@@ -150,7 +151,7 @@ exports.verifyEmail = async (req, res) => {
             account.otp = null;
             account.expiresAt = null;
         } else if (type === 'password') {
-          
+
             account.Password = newPassword;
             account.resetPasswordOtp = null;
             account.resetPasswordExpiresAt = null;
@@ -410,7 +411,7 @@ exports.logout = (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email, newPassword } = req.body;
-        // console.log("body",req.body)
+
         if (!email) {
             return res.status(400).json({ success: false, message: "Please provide your email address." });
         }
@@ -419,12 +420,9 @@ exports.forgotPassword = async (req, res) => {
         let isProvider = false;
 
         if (!user) {
-            // console.log("i am in provider")
             user = await Provider.findOne({ email });
-            // console.log("i am in provider",user)
             isProvider = true;
         }
-
 
         if (!user) {
             return res.status(404).json({
@@ -432,6 +430,7 @@ exports.forgotPassword = async (req, res) => {
                 message: `No account found with that email address${isProvider ? " for provider" : " for user"}.`
             });
         }
+
 
         const { otp, expiresAt } = generateOtp(6, 120000);
         user.resetPasswordOtp = otp;
@@ -448,6 +447,8 @@ exports.forgotPassword = async (req, res) => {
 
         await sendEmail(emailContent);
         await user.save();
+
+        console.log("save user", user)
 
         return res.status(200).json({
             success: true,
