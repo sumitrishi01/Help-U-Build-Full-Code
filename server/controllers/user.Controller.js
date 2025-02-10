@@ -199,11 +199,11 @@ exports.Changepassword = async (req, res) => {
      
 
    
-        account.Password = password;
+        account.password = password;
 
         // Clear OTP fields
-        account.resetPasswordOtp = null;
-        account.resetPasswordExpiresAt = null;
+        // account.resetPasswordOtp = null;
+        // account.resetPasswordExpiresAt = null;
 
         await account.save();
         console.log("Password updated successfully:", account);
