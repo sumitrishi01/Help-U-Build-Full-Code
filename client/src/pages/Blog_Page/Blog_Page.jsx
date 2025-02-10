@@ -23,7 +23,7 @@ function Blog_Page() {
   
     useEffect(() => {
       fetchBlogs()
-    })
+    },[])
   
     return (
       <div>

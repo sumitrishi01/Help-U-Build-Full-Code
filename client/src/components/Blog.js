@@ -30,7 +30,7 @@ const Blog = () => {
 
   useEffect(() => {
     fetchBlogs()
-  })
+  },[])
 
   return (
     <div>
