@@ -49,10 +49,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: ["https://helpubuild.co.in", "https://try.helpubuild.co.in"], // Allowed Origins
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allowed HTTP Methods
-    allowedHeaders: ["Content-Type", "Authorization"], // Allowed Headers
-    credentials: true // Allow Cookies & Authentication Headers
+    origin: ["https://helpubuild.co.in", "https://try.helpubuild.co.in"], 
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
+    allowedHeaders: ["Content-Type", "Authorization"], 
+    credentials: true 
 }));
 
 
