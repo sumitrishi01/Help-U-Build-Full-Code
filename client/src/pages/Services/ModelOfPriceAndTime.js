@@ -1,7 +1,7 @@
 import "./ModelOfPriceAndTime.css"
 
 const ModelOfPriceAndTime = ({ seconds, UserData, Profile, onClose ,startCall}) => {
-  const { name: userName, walletAmount, PhoneNumber } = UserData || {}
+  const { name:userName, walletAmount, PhoneNumber } = UserData || {}
   const { name: profileName, pricePerMin, type } = Profile || {}
 
   const minutes = Math.floor(seconds / 60)

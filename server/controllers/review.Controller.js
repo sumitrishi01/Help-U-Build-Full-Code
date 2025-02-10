@@ -3,16 +3,23 @@ const Provider = require('../models/providers.model');
 
 exports.createReview = async (req, res) => {
     try {
-        const { rating, review, providerId, userId } = req.body;
+        console.log(req.body)
+        const { rating, review, provider_id, user_id } = req.body;
 
-        if (!rating || !review || !providerId || !userId) {
+        if (!rating || !review ) {
             return res.status(400).json({
                 success: false,
-                message: 'All fields (rating, review, providerId, userId) are required.'
+                message: 'All fields (rating, review) are required.'
+            });
+        }
+        if(!user_id){
+            return res.status(400).json({
+                success: false,
+                message: 'Please log in first to submit your review. 😊'
             });
         }
 
-        const vendor = await Provider.findById(providerId);
+        const vendor = await Provider.findById(provider_id);
 
         if (rating < 1 || rating > 5) {
             return res.status(400).json({
@@ -24,19 +31,19 @@ exports.createReview = async (req, res) => {
         const newRating = new Review({
             rating,
             review,
-            providerId,
-            userId,
+            providerId:provider_id,
+            userId:user_id,
         });
 
         await newRating.save();
 
-        const ratings = await Review.find({ providerId });
+        const ratings = await Review.find({ providerId:provider_id });
         const totalRatings = ratings.length;
         const sumOfRatings = ratings.reduce((sum, rating) => sum + rating.rating, 0);
         const newAverageRating = (sumOfRatings / totalRatings).toFixed(1);
 
         await Review.updateMany(
-            { providerId },
+            { providerId:provider_id },
             { averageRating: newAverageRating }
         );
 
@@ -52,6 +59,7 @@ exports.createReview = async (req, res) => {
             message: 'Rating created successfully and average rating updated.'
         });
     } catch (error) {
+        console.error('Internal server error in creating review:', error);
         res.status(500).json({
             success: false,
             message: "Internal server error",

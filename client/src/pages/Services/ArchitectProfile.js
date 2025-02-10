@@ -7,6 +7,8 @@ import StarRating from '../../components/StarRating/StarRating';
 import { GetData } from '../../utils/sessionStoreage';
 import ModelOfPriceAndTime from './ModelOfPriceAndTime';
 import CallLoader from './CallLoader';
+import ReviewAdd from './ReviewAdd';
+import RatingSummary from './RatingSummary';
 // import { GetData } from '../../utils/sessionStoreage'
 
 function ArchitectProfile() {
@@ -18,6 +20,7 @@ function ArchitectProfile() {
     const Data = GetData('user')
     const UserData = JSON.parse(Data)
     const [open, setOpen] = useState(false)
+    const [user, setUser] = useState(null)
     const [time, setTime] = useState('0')
     // console.log("UserData",UserData)
     const [VenderType, setVenderType] = useState('');
@@ -59,6 +62,22 @@ function ArchitectProfile() {
             } else {
                 setAllService({});
             }
+        } catch (error) {
+            console.error('Error fetching provider data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFetchUser = async (providerId) => {
+        setLoading(true);
+        try {
+            // Fetch services for the selected category
+            const { data } = await axios.get(
+                `https://api.helpubuild.co.in/api/v1/get-user-by-id/${UserData?._id}`
+            );
+
+            setUser(data.data)
         } catch (error) {
             console.error('Error fetching provider data', error);
         } finally {
@@ -194,9 +213,13 @@ function ArchitectProfile() {
             if (UserData.role === 'provider') {
                 return toast.error("Access Denied: Providers are not authorized to access this feature.");
             } else {
-                const data = await callCulateMaxTimeForCall(UserData?.walletAmount, profile.pricePerMin)
-                setOpen(true)
-                setTime(data)
+                await handleFetchUser()
+                console.log("seconds", user)
+                setTimeout(async () => {
+                    const data = await callCulateMaxTimeForCall(user?.walletAmount, profile.pricePerMin)
+                    setOpen(true)
+                    setTime(data)
+                }, 1400)
             }
         } else {
             toast.error("Please login to calculate maximum time for call")
@@ -256,6 +279,7 @@ function ArchitectProfile() {
 
 
     useEffect(() => {
+        handleFetchUser()
         handleFetchReview();
     }, [])
 
@@ -547,106 +571,71 @@ function ArchitectProfile() {
                             </div>
                         </div>
                     </div>
+                    <ReviewAdd user_id={user?._id} provider_id={id} />
+
                     <div className='container-fluid architecture-section-p'>
                         <div className='row mt-4'>
                             <div className='col-lg-6'>
-                                <div className="card prfile-custom-card  p-4 mb-4">
-                                    <h5 className="mb-3">Rating &amp; Reviews</h5>
-                                    <div className="d-flex align-items-center mb-3">
-                                        <span className="rating-value me-3">{profile.averageRating || 0}</span>
-                                        <StarRating rating={profile.averageRating || 0} />
-                                    </div>
-                                    <p className="mb-4">
-                                        <small>
-                                            <i className="bi bi-person" /> {reviews.length} total
-                                        </small>
-                                    </p>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <span className="me-2">5</span>
-                                        <div className="progress flex-grow-1">
-                                            <div
-                                                className="progress-bar rating-bar rating-bar-5"
-                                                role="progressbar"
-                                                style={{ width: `${ratingPercentages[5]}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <span className="me-2">4</span>
-                                        <div className="progress flex-grow-1">
-                                            <div
-                                                className="progress-bar rating-bar rating-bar-5"
-                                                role="progressbar"
-                                                style={{ width: `${ratingPercentages[4]}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <span className="me-2">3</span>
-                                        <div className="progress flex-grow-1">
-                                            <div
-                                                className="progress-bar rating-bar rating-bar-5"
-                                                role="progressbar"
-                                                style={{ width: `${ratingPercentages[3]}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center mb-2">
-                                        <span className="me-2">2</span>
-                                        <div className="progress flex-grow-1">
-                                            <div
-                                                className="progress-bar rating-bar rating-bar-5"
-                                                role="progressbar"
-                                                style={{ width: `${ratingPercentages[2]}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="d-flex align-items-center">
-                                        <span className="me-2">1</span>
-                                        <div className="progress flex-grow-1">
-                                            <div
-                                                className="progress-bar rating-bar rating-bar-5"
-                                                role="progressbar"
-                                                style={{ width: `${ratingPercentages[1]}%` }}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+                             
+                                <RatingSummary
+                                profile={profile}
+                                reviews={reviews}
+                                ratingPercentages={ratingPercentages}
+                                />
 
                             </div>
                             <div className='col-lg-6'>
-                                <div className='review-title'>
-                                    <h5 className="mb-4 card bg-white p-3 rounded">User Reviews</h5>
-                                </div>
-                                <div className='user-review-area'>
-                                    {
-                                        reviews && reviews.map((item, index) => (
-                                            <div className="review-card">
-                                                <div key={index} className="d-flex align-items-start">
-                                                    <img
-                                                        src={item?.userId?.ProfileImage?.imageUrl || `https://ui-avatars.com/api/?background=random&name=${item?.userId?.name}`}
-                                                        alt={item?.userId?.name}
-                                                        className="review-profile-image me-3"
-                                                    />
-                                                    <div>
-                                                        <h6 className="mb-1">{item?.userId?.name}</h6>
-                                                        {/* {console.log(item)} */}
-                                                        <div className="review-stars"><StarRating rating={item.averageRating} /></div>
-                                                        <p className="mt-2 mb-0">{item.review}</p>
+                                
+                                <div className="user-reviews-container">
+                                    <div className="reviews-header">
+                                        <h3>User Reviews</h3>
+                                        <div className="reviews-stats">
+                                            <span className="review-count">{reviews?.length || 0} Reviews</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="reviews-list">
+                                        {reviews && reviews.reverse().map((item, index) => (
+                                            <div key={index} className="review-item">
+                                                <div className="review-user-info">
+                                                    <div className="user-avatar-container">
+                                                        <img
+                                                            src={item?.userId?.ProfileImage?.imageUrl ||
+                                                                `https://ui-avatars.com/api/?background=random&name=${item?.userId?.name}`}
+                                                            alt={item?.userId?.name}
+                                                            className="user-avatar"
+                                                        />
+                                                        <span className="user-status"></span>
+                                                    </div>
+                                                    <div className="user-details">
+                                                        <h6 className="user-name">{item?.userId?.name}</h6>
+                                                        <div className="review-meta">
+                                                            <StarRating rating={item.averageRating} />
+                                                            <span className="review-date">
+                                                                {new Date(item.createdAt).toLocaleDateString('en-US', {
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    year: 'numeric'
+                                                                })}
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div className="review-content">
+                                                    <p>{item.review}</p>
+                                                </div>
                                             </div>
-                                        ))
-                                    }
-
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
 
                 </section>
                 {
-                    open && <ModelOfPriceAndTime seconds={time} UserData={UserData} Profile={profile} onClose={handleClose} startCall={connectWithProviderWithCall} />
+                    open && <ModelOfPriceAndTime seconds={time} UserData={user} Profile={profile} onClose={handleClose} startCall={connectWithProviderWithCall} />
                 }
             </div>
         </>

@@ -391,7 +391,7 @@ i.fa.fa-search {
 
 /* review area */
 .user-review-area {
-  height: 450px;
+  height: 280px;
   overflow-y: scroll;
   padding: 5px 15px 10px 0px;
 }

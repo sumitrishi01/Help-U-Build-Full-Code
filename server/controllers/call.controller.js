@@ -138,7 +138,7 @@ exports.call_status = async (req, res) => {
     try {
 
         const callStatusQuery = req.query;
-  
+
         if (!callStatusQuery.from_number || !callStatusQuery.to_number) {
             return res.status(400).json({
                 success: false,
@@ -190,7 +190,7 @@ exports.call_status = async (req, res) => {
             findHistory.start_time = callStatusQuery.start_time;
             findHistory.end_time = callStatusQuery.end_time;
             findHistory.providerId.is_on_call = false;
-         
+
             await findHistory.providerId.save();
             findHistory.cancel_reason = 'Provider did not answer the call.';
             await findHistory.save();
@@ -213,7 +213,7 @@ exports.call_status = async (req, res) => {
             findHistory.providerId.walletAmount += Number(HowManyCostOfTalkTime);
             findHistory.userId.walletAmount -= Number(HowManyCostOfTalkTime);
             findHistory.providerId.is_on_call = false;
-         
+
             await findHistory.providerId.save();
             await findHistory.userId.save();
         }
@@ -251,6 +251,27 @@ exports.call_status = async (req, res) => {
 
 
 
+exports.update_profile_status = async (id) => {
+    try {
+        console.log("I am in update_profile_status", id)
+        console.log("I am Hit")
+        const user = await Provider.findById(id).select('-chatTransition');
+        console.log("before is_on_chat ", user.is_on_chat)
+
+        console.log("I am user", user)
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        user.is_on_chat = !user.is_on_chat; // Toggle the status
+        await user.save(); // Save changes to the database
+        console.log("update is_on_chat ", user.is_on_chat)
+        return user;
+    } catch (error) {
+        console.log(error)
+        throw new Error('Failed to update user profile status');
+    }
+};
 
 
 

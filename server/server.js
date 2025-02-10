@@ -14,8 +14,9 @@ const router = require('./routes/routes');
 const { singleUploadImage } = require('./middlewares/Multer');
 const Chat = require('./models/chatAndPayment.Model');
 const { chatStart, chatEnd, chatStartFromProvider } = require('./controllers/user.Controller');
-const mongoose = require('mongoose')
-// Middlewares
+const mongoose = require('mongoose');
+const { update_profile_status } = require('./controllers/call.controller');
+
 ConnectDB()
 
 const limiter = rateLimit({
@@ -37,25 +38,10 @@ const limiter = rateLimit({
 
 app.set(express.static('public'))
 app.use('/public', express.static('public'))
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    next();
-});
-
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-    origin: (origin, callback) => {
-        callback(null, origin || "*");
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
-}));
+app.use(cors());
 
 const server = createServer(app);
 const io = new Server(server, {
@@ -92,8 +78,10 @@ io.on('connection', (socket) => {
 
             if (role === 'provider') {
                 const result = await chatStartFromProvider(userId, astrologerId);
+
                 socket.to(room).emit('provider_connected', { room });
-                // console.log("iam hit")
+                console.log("iam hit result", result, astrologerId)
+                await update_profile_status(astrologerId)
                 if (!result.success) {
                     socket.emit('error_message', { message: result.message });
                     return callback({ success: false, message: result.message });
@@ -187,7 +175,7 @@ io.on('connection', (socket) => {
 
     socket.on('provider_connected', ({ room }) => {
         console.log('Provider connected to room:', room);
-
+        console.log(room)
         // Clear the 1-minute timer if it's active
         if (activeTimers[room]) {
             console.log(`Clearing timer for room: ${room}`);
@@ -264,8 +252,8 @@ io.on('connection', (socket) => {
             if (role === 'provider') {
                 providerconnect = true;
                 console.log("providerconnect", providerconnect)
-                console.log('Provider disconnected. Waiting for user to disconnect to end the chat.');
-                // Notify the user that the provider disconnected
+                console.log('Provider disconnected. Waiting for user to disconnect to end the chat.', astrologerId);
+                await update_profile_status(astrologerId)
                 if (userSocket) {
                     io.to(userSocket).emit('provider_disconnected', { message: 'The provider has left the chat.' });
                 }
@@ -273,10 +261,10 @@ io.on('connection', (socket) => {
             } else if (role === 'user') {
                 console.log('User disconnected. Checking provider status...');
                 if (providerconnect) {
-                    // console.log("i am in providerconnect")
+
                     roomData.providerConnected = true;
                 }
-                // If the provider was connected at some point, end the chat
+
                 if (roomData.providerConnected) {
                     console.log('Both user and provider connected at some point. Running chatEnd...');
                     try {
