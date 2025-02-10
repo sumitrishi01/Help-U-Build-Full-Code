@@ -22,12 +22,15 @@ const CallHistorySchema = new Schema({
 
     start_time: {
         type: Number,
+        default: 0
     },
     end_time: {
-        type: Number
+        type: Number,
+        default: 0
     },
     TalkTime: {
         type: Number,
+        default: 0
     },
     providerId: {
         type: Schema.Types.ObjectId,

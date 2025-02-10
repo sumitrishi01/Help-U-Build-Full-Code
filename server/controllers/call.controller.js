@@ -168,7 +168,10 @@ exports.call_status = async (req, res) => {
                 callHistory: findHistory
             });
         }
-        if (callStatusQuery?.to_number_status) {
+        if (callStatusQuery?.to_number_status === "CANCEL") {
+            findHistory.status = callStatusQuery.status;
+            findHistory.start_time = callStatusQuery.start_time;
+            findHistory.end_time = callStatusQuery.end_time;
             findHistory.to_number_status = callStatusQuery.to_number_status;
             findHistory.cancel_reason = 'Provider did not answer the call.';
             await findHistory.save();
