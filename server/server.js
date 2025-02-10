@@ -37,11 +37,25 @@ const limiter = rateLimit({
 
 app.set(express.static('public'))
 app.use('/public', express.static('public'))
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+});
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        callback(null, origin || "*");
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+}));
 
 const server = createServer(app);
 const io = new Server(server, {
@@ -95,7 +109,7 @@ io.on('connection', (socket) => {
 
     socket.on('message', async ({ room, message, senderId, timestamp, role }) => {
         try {
-            const isFirstMessage = !activeTimers[room]; 
+            const isFirstMessage = !activeTimers[room];
             const roomData = roomMembers[socket.id];
 
             if (role === 'user' && isFirstMessage) {

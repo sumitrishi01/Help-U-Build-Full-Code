@@ -33,7 +33,7 @@ function Forget() {
         setIsOtpSent(false); // Hide OTP field if request fails
       }
     } catch (err) {
-        console.log("Internal server error",err)
+      console.log("Internal server error", err)
       setError('An error occurred. Please try again.');
       setMessage('');
     } finally {
@@ -44,33 +44,43 @@ function Forget() {
   // Handle OTP form submission
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when request starts
+    setLoading(true); // Start loading
 
     try {
-      const response = await axios.post(`https://api.helpubuild.co.in/api/v1/verify/password`, {
-        email,
-        otp,
-        password: newPassword
-      });
+      const response = await axios.post(
+        "https://api.helpubuild.co.in/api/v1/verify/password",
+        {
+          email,
+          otp,
+          password: newPassword
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+          },
+          withCredentials: true,
+        }
+      );
 
       if (response.data.success) {
-        toast.success('OTP verified successfully.')
-        setMessage('OTP verified successfully. You can now reset your password.');
-        setError('');
-        window.location.href = '/login'
-
+        toast.success("OTP verified successfully.");
+        setMessage("OTP verified successfully. You can now reset your password.");
+        setError("");
+        window.location.href = "/login";
       } else {
         setError(response.data.message);
-        setMessage('');
+        setMessage("");
       }
     } catch (err) {
-      setError('An error occurred while verifying the OTP. Please try again.');
-      console.log("Internal server error", err)
-      setMessage('');
+      setError("An error occurred while verifying the OTP. Please try again.");
+      console.log("Internal server error", err);
+      setMessage("");
     } finally {
-      setLoading(false); // Set loading to false after request finishes
+      setLoading(false); // Stop loading
     }
   };
+
 
   return (
     <div className="container mt-5">
