@@ -49,12 +49,13 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-    origin: ["https://helpubuild.co.in", "https://try.helpubuild.co.in"], 
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
-    allowedHeaders: ["Content-Type", "Authorization"], 
-    credentials: true 
+    origin: (origin, callback) => {
+        callback(null, origin || "*");
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
 }));
-
 
 const server = createServer(app);
 const io = new Server(server, {
