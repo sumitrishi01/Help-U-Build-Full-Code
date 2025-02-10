@@ -35,7 +35,7 @@ function Register() {
         }
 
         try {
-            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register', formData)
+            const res = await axios.post('https://try.helpubuild.co.in/api/v1/register', formData)
            
             toast.success(res.data.message)
 

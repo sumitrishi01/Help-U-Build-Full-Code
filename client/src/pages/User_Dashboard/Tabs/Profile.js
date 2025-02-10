@@ -43,7 +43,7 @@ const Profile = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `https://api.helpubuild.co.in/api/v1/get-single-provider/${UserId}`
+        `https://try.helpubuild.co.in/api/v1/get-single-provider/${UserId}`
       );
       const allData = data.data;
       setFormData({
@@ -80,7 +80,7 @@ const Profile = () => {
       };
 
       const response = await axios.put(
-        `https://api.helpubuild.co.in/api/v1/update-provider-profile/${UserId}`,
+        `https://try.helpubuild.co.in/api/v1/update-provider-profile/${UserId}`,
         payload,
         {
           headers: {
