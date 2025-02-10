@@ -60,6 +60,9 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    newPassword:{
+        type: String
+    },
     about: {
         type: String
     },

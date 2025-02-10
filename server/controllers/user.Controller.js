@@ -93,15 +93,22 @@ exports.registeruser = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
     try {
         const { type } = req.params;
-        // console.log("body",req.body)
+        if (!type) {
+            return res.status(400).json({ success: false, message: "Invalid type provided." });
+        }
         const { email, otp, password } = req.body;
-        // console.log("otp",otp)
+        const errors = [];
+        if (!email) errors.push("Please enter an email");
+        if (!otp) errors.push("Please enter the OTP");
 
-        // Check if the account is a user
-        let account = await User.findOne({ email });
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+
+
         let accountType = "User";
+        let account = await User.findOne({ email });
 
-        // If user not found, check if it's a provider
         if (!account) {
             account = await Provider.findOne({ email });
             accountType = "Provider";
@@ -111,7 +118,7 @@ exports.verifyEmail = async (req, res) => {
             return res.status(404).json({ success: false, message: `${accountType} account not found with that email.` });
         }
 
-        let accountOtp, otpExpiresAt, verificationMessage;
+        let accountOtp, otpExpiresAt, verificationMessage, newPassword;
 
         if (type === 'email' && accountType === "User") {
             accountOtp = account.otp;
@@ -119,12 +126,13 @@ exports.verifyEmail = async (req, res) => {
             verificationMessage = "Email verified successfully.";
         } else if (type === 'password') {
             accountOtp = account.resetPasswordOtp;
-            console.log("account", account)
+            newPassword = account.newPassword
             otpExpiresAt = account.resetPasswordExpiresAt;
             verificationMessage = "OTP verified for password reset.";
         } else {
             return res.status(400).json({ success: false, message: "Invalid verification type or unauthorized email verification for providers." });
         }
+
 
         if (accountOtp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP." });
@@ -139,18 +147,19 @@ exports.verifyEmail = async (req, res) => {
             account.otp = null;
             account.expiresAt = null;
         } else if (type === 'password') {
-            account.Password = password;
+            account.Password = newPassword;
             account.resetPasswordOtp = null;
             account.resetPasswordExpiresAt = null;
         }
 
         await account.save();
-
-        // return res.status(200).json({ success: true, message: verificationMessage });
         await sendToken(account, res, 200, verificationMessage)
+
+
     } catch (error) {
         console.error("Error during verification:", error);
         return res.status(500).json({ success: false, message: "An error occurred during verification." });
+
     }
 };
 
@@ -424,7 +433,7 @@ exports.forgotPassword = async (req, res) => {
         const { otp, expiresAt } = generateOtp(6, 120000);
         user.resetPasswordOtp = otp;
         user.resetPasswordExpiresAt = expiresAt;
-
+        user.newPassword = newPassword
         const emailContent = {
             email: email,
             subject: "Password Reset Request",
