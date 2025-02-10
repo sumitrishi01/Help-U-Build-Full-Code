@@ -168,6 +168,54 @@ exports.verifyEmail = async (req, res) => {
 };
 
 
+exports.Changepassword = async (req, res) => {
+    try {
+        const { email, otp, password } = req.body;
+        console.log("Received data:", req.body);
+
+        if (!email) return res.status(400).json({ success: false, message: "Please enter an email" });
+        if (!otp) return res.status(400).json({ success: false, message: "Please enter the OTP" });
+        if (!password) return res.status(400).json({ success: false, message: "Please enter a new password" });
+
+        // Find user by email
+        const account = await User.findOne({ email });
+        if (!account) return res.status(404).json({ success: false, message: "User not found" });
+
+        const accountOtp = account.resetPasswordOtp;
+        console.log("accountOtp",accountOtp)
+        if (!accountOtp) {
+            return res.status(400).json({ success: false, message: "OTP not found or expired, request a new one." });
+        }
+        const otpExpiresAt = new Date(account.resetPasswordExpiresAt);
+        
+        console.log("Stored OTP:", accountOtp, "User entered OTP:", otp);
+
+        // Validate OTP
+        if (accountOtp !== otp) {
+            return res.status(400).json({ success: false, message: "Invalid OTP." });
+        }
+
+     
+
+   
+        account.Password = password;
+
+        // Clear OTP fields
+        account.resetPasswordOtp = null;
+        account.resetPasswordExpiresAt = null;
+
+        await account.save();
+        console.log("Password updated successfully:", account);
+
+        const verificationMessage = "Password changed successfully.";
+        await sendToken(account, res, 200, verificationMessage);
+
+    } catch (error) {
+        console.error("Error during password change:", error);
+        return res.status(500).json({ success: false, message: "An error occurred during password change." });
+    }
+};
+
 exports.resendOtp = async (req, res) => {
     try {
         const { type } = req.params;

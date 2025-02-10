@@ -1,5 +1,5 @@
 const express = require('express');
-const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword, getTotalRechargeAmount } = require('../controllers/user.Controller');
+const { registeruser, getAllUsers, getSingleUserById, updateProfile, login, logout, deleteAccount, banUserToggle, verifyEmail, resendOtp, forgotPassword, getUserById, createPayment, PaymentVerify, getSingleUser, updateUserPassword, getTotalRechargeAmount, Changepassword } = require('../controllers/user.Controller');
 const { protect } = require('../middlewares/Protect');
 const { CreateProvider, GetMyProfile, addPortfolio, getAllProvider, getSingleProvider, updateProvider, updateDocuments, updatePassword, updateAvailable, updateBankDetail, updateIsBanned, deleteprovider, accountVerification, getProviderStatus } = require('../controllers/provider.controller');
 const multer = require('multer');
@@ -28,6 +28,7 @@ router.put('/user/update-profile/:id', upload.single('ProfileImage'), updateProf
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/verify/:type', verifyEmail);
+router.post('/Changepassword', Changepassword);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.get('/get-user-by-id/:id', getUserById);
