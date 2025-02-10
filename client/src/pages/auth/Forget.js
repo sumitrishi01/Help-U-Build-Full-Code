@@ -7,35 +7,24 @@ function Forget() {
   const [newPassword, setNewPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [error, setError] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false); // Track loading state
+  const [loading, setLoading] = useState(false);
 
-
-  // Handle first form submission (email and newPassword)
   const handleSubmitFirst = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when request starts
+    setLoading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', {
-        email,
-        newPassword,
-      });
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', { email, newPassword });
 
       if (response.data.success) {
-        toast.success('Password update request successful. OTP has been sent to your email!')
-        setMessage('Password update request successful. OTP has been sent to your email!');
-        setError('');
-        setIsOtpSent(true); // Show OTP field after successful password request
+        toast.success('OTP has been sent to your email!');
+        setIsOtpSent(true);
       } else {
-        setError(response.data.message);
-        setMessage('');
-        setIsOtpSent(false);
+        toast.error(response.data.message || 'Something went wrong!');
       }
     } catch (err) {
-      console.log(error)
-      setLoading(false);
+      console.log("Real Api Error: " + err)
+      toast.error(err?.response?.data?.message || 'Server error, please try again later.');
     } finally {
       setLoading(false);
     }
@@ -43,89 +32,52 @@ function Forget() {
 
   const handleSubmitOtp = async (e) => {
     e.preventDefault();
-
-    if (!email || !otp || !newPassword) {
-      toast.error("Please fill in all fields.");
-      return;
-    }
-
-    setLoading(true); // Start loading
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        "https://api.helpubuild.co.in/api/v1/verify/password",
-        { email, otp, password: newPassword },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true, // Ensure cookies/session-based auth works
-        }
-      );
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
 
       if (response.data.success) {
-        toast.success("OTP verified successfully.");
-        setMessage("OTP verified successfully. You can now reset your password.");
-        setError("");
-        window.location.href = "/login"; // Redirect after success
+        toast.success('OTP verified successfully. Redirecting to login...');
+        window.location.href = '/login';
       } else {
-        setError(response.data.message);
-        setMessage("");
+        toast.error(response.data.message || 'Invalid OTP, please try again.');
       }
     } catch (err) {
-      console.error("Internal server error", err?.response?.data || err);
-      await fallBackFnc()
-      setMessage("");
+      await FallBackOtpSubmit()
+      console.log("Real Api Error: " + err)
+
+      // toast.error(err?.response?.data?.message || 'Verification failed, please try again.');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 
-  const fallBackFnc = async (e) => {
+
+
+  const FallBackOtpSubmit = async (e) => {
     e.preventDefault();
-
-    // if (!email || !otp || !newPassword) {
-    //   toast.error("Please fill in all fields.");
-    //   return;
-    // }
-
-    setLoading(true); 
-
+    setLoading(true);
+    console.log("Try Api Run: ")
     try {
-      const response = await axios.post(
-        "https://try.helpubuild.co.in/api/v1/verify/password",
-        { email, otp, password: newPassword },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true, // Ensure cookies/session-based auth works
-        }
-      );
+      const response = await axios.post('https://api.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
 
       if (response.data.success) {
-        toast.success("OTP verified successfully.");
-        setMessage("OTP verified successfully. You can now reset your password.");
-        setError("");
-        window.location.href = "/login"; // Redirect after success
+        toast.success('OTP verified successfully. Redirecting to login...');
+        window.location.href = '/login';
       } else {
-        setError(response.data.message);
-        setMessage("");
+        toast.error(response.data.message || 'Invalid OTP, please try again.');
       }
-      setLoading(false); 
-    } catch (err) {
-      console.error("Internal server error", err?.response?.data || err);
-      await fallBackFnc()
-      setLoading(false); 
+      console.log("Try Api Run response: ", response)
 
-      setMessage("");
+    } catch (err) {
+      console.log("Try Api Run err: ", err)
+
+      toast.error(err?.response?.data?.message || 'Verification failed, please try again.');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
-
- 
-
 
   return (
     <div className="container mt-5">
@@ -134,68 +86,29 @@ function Forget() {
           <div className="card shadow-lg">
             <div className="card-body">
               <h3 className="text-center mb-4">Forgot Password</h3>
-
-              {message && <div className="alert alert-success">{message}</div>}
-              {error && <div className="alert alert-danger">{error}</div>}
-
               {!isOtpSent ? (
-                // First form to submit email and new password
                 <form onSubmit={handleSubmitFirst}>
                   <div className="form-group mb-3">
-                    <label htmlFor="email">Email Address</label>
-                    <input
-                      type="email"
-                      id="email"
-                      className="form-control"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    <label>Email Address</label>
+                    <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   </div>
-
                   <div className="form-group mb-3">
-                    <label htmlFor="newPassword">New Password</label>
-                    <input
-                      type="password"
-                      id="newPassword"
-                      className="form-control"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      required
-                      minLength="7"
-                    />
+                    <label>New Password</label>
+                    <input type="password" className="form-control" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength="7" />
                     <small className="text-danger">Password must be at least 7 characters long.</small>
                   </div>
-
                   <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-                    {loading ? (
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    ) : (
-                      'Submit'
-                    )}
+                    {loading ? <span className="spinner-border spinner-border-sm"></span> : 'Submit'}
                   </button>
                 </form>
               ) : (
-                // OTP form to verify OTP
                 <form onSubmit={handleSubmitOtp}>
                   <div className="form-group mb-3">
-                    <label htmlFor="otp">Enter OTP</label>
-                    <input
-                      type="text"
-                      id="otp"
-                      className="form-control"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      required
-                    />
+                    <label>Enter OTP</label>
+                    <input type="text" className="form-control" value={otp} onChange={(e) => setOtp(e.target.value)} required />
                   </div>
-
                   <button type="submit" className="btn btn-primary w-100" disabled={loading}>
-                    {loading ? (
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    ) : (
-                      'Verify OTP'
-                    )}
+                    {loading ? <span className="spinner-border spinner-border-sm"></span> : 'Verify OTP'}
                   </button>
                 </form>
               )}
