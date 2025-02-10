@@ -11,35 +11,66 @@ function Forget() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false); // Track loading state
 
-  // Handle first form submission (email and newPassword)
-  const handleSubmitFirst = async (e) => {
-    e.preventDefault();
-    setLoading(true); // Set loading to true when request starts
+  const fallBackFnc = async (e) => {
+    e?.preventDefault?.(); // Prevent default if `e` exists
+    setLoading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', {
-        email,
-        newPassword,
-      });
+        const response = await axios.post('https://try.helpubuild.co.in/api/v1/forgot-password', {
+            email,
+            newPassword,
+        });
 
-      if (response.data.success) {
-        toast.success('Password update request successful. OTP has been sent to your email!')
-        setMessage('Password update request successful. OTP has been sent to your email!');
-        setError('');
-        setIsOtpSent(true); // Show OTP field after successful password request
-      } else {
-        setError(response.data.message);
-        setMessage('');
-        setIsOtpSent(false); // Hide OTP field if request fails
-      }
+        if (response.data.success) {
+            toast.success('Password update request successful. OTP has been sent to your email!');
+            setMessage('Password update request successful. OTP has been sent to your email!');
+            setError('');
+            setIsOtpSent(true);
+        } else {
+            setError(response.data.message);
+            setMessage('');
+            setIsOtpSent(false);
+        }
     } catch (err) {
-      console.log("Internal server error", err)
-      setError('An error occurred. Please try again.');
-      setMessage('');
+        console.log("Fallback Error:", err);
+        setError('An error occurred while processing your request. Please try again.');
+        setMessage('');
     } finally {
-      setLoading(false); // Set loading to false after request finishes
+        setLoading(false);
     }
-  };
+};
+
+const handleSubmitFirst = async (e) => {
+    e.preventDefault();
+    
+    if (!email || !newPassword) {
+        toast.error('Please enter a valid email and new password.');
+        return;
+    }
+
+    setLoading(true);
+
+    try {
+        const response = await axios.post('https://api.helpubuild.co.in/api/v1/forgot-password', {
+            email,
+            newPassword,
+        });
+
+        if (response.data.success) {
+            toast.success('Password update request successful. OTP has been sent to your email!');
+            setMessage('Password update request successful. OTP has been sent to your email!');
+            setError('');
+            setIsOtpSent(true);
+        } else {
+            setError(response.data.message);
+            setMessage('');
+            setIsOtpSent(false);
+        }
+    } catch (err) {
+        console.log("Primary API Failed, trying fallback...");
+        await fallBackFnc(); // Call fallback if the primary request fails
+    }
+};
 
   // Handle OTP form submission
   const handleSubmitOtp = async (e) => {
