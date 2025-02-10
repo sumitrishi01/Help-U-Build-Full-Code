@@ -178,7 +178,8 @@ exports.Changepassword = async (req, res) => {
         if (!password) return res.status(400).json({ success: false, message: "Please enter a new password" });
 
         // Find user by email
-        const account = await User.findOne({ email });
+        const account = await Provider.findOne({ email:email });
+        console.log(account)
         if (!account) return res.status(404).json({ success: false, message: "User not found" });
 
         const accountOtp = account.resetPasswordOtp;
