@@ -24,7 +24,7 @@ function UpdateServices() {
         try {
             // Send the selected category along with providerId to the backend
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-service-by-provider/${UserId}/${selectedCategory}`
+                `https://api.helpubuild.co.in/api/v1/get-service-by-provider/${UserId}/${selectedCategory}`
             );
             
     
@@ -93,7 +93,7 @@ function UpdateServices() {
             };
         try {
             await axios.put(
-                `http://localhost:5000/api/v1/update-provider-service/${UserId}`,
+                `https://api.helpubuild.co.in/api/v1/update-provider-service/${UserId}`,
                 finalData,
                 {
                     headers: {

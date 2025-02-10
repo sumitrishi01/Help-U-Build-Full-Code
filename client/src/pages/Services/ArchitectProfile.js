@@ -7,7 +7,6 @@ import StarRating from '../../components/StarRating/StarRating';
 import { GetData } from '../../utils/sessionStoreage';
 import ModelOfPriceAndTime from './ModelOfPriceAndTime';
 import CallLoader from './CallLoader';
-import { fetchProviderData } from '../../utils/CheckStatus';
 // import { GetData } from '../../utils/sessionStoreage'
 
 function ArchitectProfile() {
@@ -46,7 +45,7 @@ function ArchitectProfile() {
         try {
             // Fetch services for the selected category
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-service-by-provider/${providerId}/${selectedCategory}`
+                `https://api.helpubuild.co.in/api/v1/get-service-by-provider/${providerId}/${selectedCategory}`
             );
 
             // Find the service data for the selected category
@@ -67,6 +66,15 @@ function ArchitectProfile() {
         }
     };
 
+    const fetchProviderData = async function (id) {
+        try {
+            const response = await axios.post(`https://api.helpubuild.co.in/api/v1/provider_status/${id}`);
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching provider data:", error.message);
+            return error?.response?.data || { success: false, message: "Unknown error occurred" };
+        }
+    };
 
     const handleCategoryChange = (category) => {
         setSelectedCategory(category);
@@ -101,7 +109,7 @@ function ArchitectProfile() {
                 userId: UserData._id,
             }
             try {
-                const res = await axios.post('http://localhost:5000/api/v1/create-chat', newForm)
+                const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm)
                 window.location.href = '/chat'
             } catch (error) {
                 console.log("Internal server error", error)
@@ -119,7 +127,7 @@ function ArchitectProfile() {
     const fetchProfile = async (id) => {
         setProfileLoading(true)
         try {
-            const { data } = await axios.get(`http://localhost:5000/api/v1/get-single-provider/${id}`);
+            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-provider/${id}`);
             setProfile(data.data);
             setVenderType(data.data.type)
             setProfileLoading(false);
@@ -136,7 +144,7 @@ function ArchitectProfile() {
     const handleFetchReview = async () => {
         try {
             const { data } = await axios.get(
-                `http://localhost:5000/api/v1/get-review-by-providerId/${id}`
+                `https://api.helpubuild.co.in/api/v1/get-review-by-providerId/${id}`
             );
             console.log("Reviews fetched:", data.data);
             setReviews(data.data);
@@ -207,12 +215,21 @@ function ArchitectProfile() {
             window.location.href = `/login?redirect=${window.location.href}`
             return toast.error('Login first')
         }
-        const data = fetchProviderData(id)
-        if (data) {
-            console.log(data)
-            toast.error("Unable to connect with the provider. Please try again later.")
-            return
+        try {
+            const data = await fetchProviderData(id);  // Ensure `await` is used
+            console.log("Data", data);
+
+            if (!data.success) {
+                setCallLoader(false);
+                return toast.error(data.message || "Provider is not available");
+            }
+        } catch (error) {
+            console.error("Error fetching provider data:", error);
+            setCallLoader(false);
+            return;
         }
+
+
 
 
         try {

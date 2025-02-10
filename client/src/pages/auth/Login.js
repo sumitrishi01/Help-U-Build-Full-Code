@@ -29,7 +29,7 @@ function Login() {
 
         e.preventDefault()
         try {
-            const { data } = await axios.post('http://localhost:5000/api/v1/login', logindata, {
+            const { data } = await axios.post('https://api.helpubuild.co.in/api/v1/login', logindata, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*`',
@@ -151,7 +151,7 @@ function Login() {
                                                 </a>
                                                 <p className=" mt-3 pb-lg-2 text-white">
                                                     Don't have an account? {""}
-                                                    <a href={`/user-register?redirect=${redirectPath}`} className="text-warning">
+                                                    <a href={`/user-register`} className="text-warning">
                                                         Register here
                                                     </a>
                                                 </p>

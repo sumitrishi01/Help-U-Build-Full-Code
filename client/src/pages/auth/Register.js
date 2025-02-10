@@ -35,14 +35,14 @@ function Register() {
         }
 
         try {
-            const res = await axios.post('http://localhost:5000/api/v1/register', formData)
+            const res = await axios.post('https://api.helpubuild.co.in/api/v1/register', formData)
            
             toast.success(res.data.message)
 
             window.location.href = `/otp-verification/user?email=${formData.email}&expires=${res.data?.data}&redirect=${redirectPath}`
             setloading(false)
         } catch (error) {
-            console.log(error);
+            console.log(error?.response?.data);
             setloading(false)
             toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Invalid Error")
         }
