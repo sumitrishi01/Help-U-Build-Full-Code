@@ -373,31 +373,7 @@ exports.login = async (req, res) => {
             return res.status(400).json({ success: false, message: "The password you entered is incorrect. Please try again." });
         }
 
-        // If the user's email is not verified
-        // if (!user.isVerified) {
-        //     const { otp, expiresAt } = generateOtp(6, 120000);
-        //     user.otp = otp;
-        //     user.expiresAt = expiresAt;
-
-        //     const emailContent = {
-        //         email: user.email || user.profileData.email,
-        //         subject: "Verify Your Email Address",
-        //         message: `Hello,\n\n` +
-        //             `It seems your email address is not verified yet. We need you to verify your email address. Please use the OTP below:\n\n` +
-        //             `OTP: ${otp}\n` +
-        //             `This OTP is valid for 2 minutes (expires at: ${new Date(expiresAt).toISOString()}).\n\n` +
-        //             `Thank you for being with us! Please verify your email address and enjoy our services.\n`,
-        //     };
-
-        //     await sendEmail(emailContent);
-        //     await user.save();
-        //     return res.status(200).json({
-        //         success: true,
-        //         message: "We've sent you a verification email. Please check your inbox!"
-        //     });
-        // }
-
-        // If the user or provider is banned
+       
         if (user.isBanned) {
             return res.status(403).json({
                 success: false,
