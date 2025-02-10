@@ -30,8 +30,8 @@ function Forget() {
     }
   };
 
-  const handleSubmitOtp = async (e) => {
-    e.preventDefault();
+  const handleSubmitOtp = async (event) => {
+    event.preventDefault();
     setLoading(true);
 
     try {
@@ -44,7 +44,7 @@ function Forget() {
         toast.error(response.data.message || 'Invalid OTP, please try again.');
       }
     } catch (err) {
-      await FallBackOtpSubmit()
+      await FallBackOtpSubmit(event)
       console.log("Real Api Error: " + err)
 
       // toast.error(err?.response?.data?.message || 'Verification failed, please try again.');
