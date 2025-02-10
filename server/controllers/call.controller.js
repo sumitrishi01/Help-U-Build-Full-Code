@@ -52,6 +52,19 @@ exports.createCall = async (req, res) => {
             });
         }
 
+        if (provider.is_on_chat) {
+            return res.status(400).json({
+                success: false,
+                message: "This provider is already on chat. Please choose another provider to make a call.",
+            });
+        }
+
+        if (provider.is_on_call) {
+            return res.status(400).json({
+                success: false,
+                message: "Another User  already on a call with this provider. Please choose another provider to make a call.",
+            });
+        }
 
         const userNumber = user?.PhoneNumber;
         const providerNumber = provider?.mobileNumber;
@@ -95,6 +108,8 @@ exports.createCall = async (req, res) => {
             max_duration_allowed: max_duration_allowed,
         })
 
+        provider.is_on_call = true;
+        await provider.save()
         await newCallData.save();
         return res.status(200).json({
             success: true,
@@ -123,6 +138,7 @@ exports.call_status = async (req, res) => {
     try {
 
         const callStatusQuery = req.query;
+  
         if (!callStatusQuery.from_number || !callStatusQuery.to_number) {
             return res.status(400).json({
                 success: false,
@@ -142,7 +158,6 @@ exports.call_status = async (req, res) => {
             });
         }
 
-
         // Calculate talk time
         const startTime = parseInt(callStatusQuery.start_time);
         const endTime = parseInt(callStatusQuery.end_time);
@@ -160,6 +175,8 @@ exports.call_status = async (req, res) => {
             findHistory.start_time = callStatusQuery.start_time;
             findHistory.end_time = callStatusQuery.end_time;
             findHistory.TalkTime = (talkTimeInSeconds / 60).toFixed(2);
+            findHistory.providerId.is_on_call = false;
+            await findHistory.providerId.save();
             await findHistory.save()
             return res.status(200).json({
                 success: true,
@@ -169,10 +186,12 @@ exports.call_status = async (req, res) => {
             });
         }
         if (callStatusQuery?.to_number_status === "CANCEL") {
-            findHistory.status = callStatusQuery.status;
+            findHistory.status = callStatusQuery.to_number_status;
             findHistory.start_time = callStatusQuery.start_time;
             findHistory.end_time = callStatusQuery.end_time;
-            findHistory.to_number_status = callStatusQuery.to_number_status;
+            findHistory.providerId.is_on_call = false;
+         
+            await findHistory.providerId.save();
             findHistory.cancel_reason = 'Provider did not answer the call.';
             await findHistory.save();
             return res.status(200).json({
@@ -193,7 +212,8 @@ exports.call_status = async (req, res) => {
             }
             findHistory.providerId.walletAmount += Number(HowManyCostOfTalkTime);
             findHistory.userId.walletAmount -= Number(HowManyCostOfTalkTime);
-
+            findHistory.providerId.is_on_call = false;
+         
             await findHistory.providerId.save();
             await findHistory.userId.save();
         }

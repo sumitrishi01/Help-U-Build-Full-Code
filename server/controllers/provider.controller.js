@@ -731,3 +731,55 @@ const uploadToCloudinary = (fileBuffer) => {
         stream.end(fileBuffer);
     });
 };
+
+exports.getProviderStatus = async (req, res) => {
+    try {
+        const { provider_id } = req.params;
+
+        // Validate provider ID
+        if (!provider_id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Provider ID is required.',
+            });
+        }
+
+        // Fetch provider from database
+        const provider = await providersModel.findById(provider_id);
+        if (!provider) {
+            return res.status(404).json({
+                success: false,
+                message: 'Provider not found.',
+            });
+        }
+
+        // Check provider status
+        if (provider.is_on_chat) {
+            return res.status(403).json({
+                success: false,
+                message: 'Provider is currently on chat.',
+            });
+        }
+
+        if (provider.is_on_call) {
+            return res.status(403).json({
+                success: false,
+                message: 'Provider is currently on a call.',
+            });
+        }
+
+        // If provider is available
+        return res.status(200).json({
+            success: true,
+            message: 'Provider is available.',
+        });
+
+    } catch (error) {
+        console.error('Error fetching provider status:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while fetching provider status.',
+            error: error.message,
+        });
+    }
+};

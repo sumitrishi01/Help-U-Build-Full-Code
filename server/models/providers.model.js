@@ -210,6 +210,18 @@ const ProviderProfileSchema = new mongoose.Schema({
     verificationRejectReason: {
         type: String,
     },
+    is_on_call: {
+        type: Boolean,
+        default: false
+    },
+    is_on_meet: {
+        type: Boolean,
+        default: false
+    },
+    is_on_chat: {
+        type: Boolean,
+        default: false
+    }
 });
 
 // Password hashing

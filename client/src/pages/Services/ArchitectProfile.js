@@ -7,6 +7,7 @@ import StarRating from '../../components/StarRating/StarRating';
 import { GetData } from '../../utils/sessionStoreage';
 import ModelOfPriceAndTime from './ModelOfPriceAndTime';
 import CallLoader from './CallLoader';
+import { fetchProviderData } from '../../utils/CheckStatus';
 // import { GetData } from '../../utils/sessionStoreage'
 
 function ArchitectProfile() {
@@ -205,6 +206,12 @@ function ArchitectProfile() {
         if (!UserData) {
             window.location.href = `/login?redirect=${window.location.href}`
             return toast.error('Login first')
+        }
+        const data = fetchProviderData(id)
+        if (data) {
+            console.log(data)
+            toast.error("Unable to connect with the provider. Please try again later.")
+            return
         }
 
 
