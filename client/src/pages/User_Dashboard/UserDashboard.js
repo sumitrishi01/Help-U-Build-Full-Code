@@ -91,7 +91,7 @@ const UserDashboard = () => {
 
       });
       toast.success('Portfolio uploaded successfully');
-      // console.log('Upload success:', response.data);
+      setUploading(false);
       window.location.reload()
     } catch (error) {
       console.error('Upload error:', error);
@@ -178,6 +178,23 @@ const UserDashboard = () => {
     }
   };
 
+  if(token === null){
+    return <div className="container my-5 text-center">
+      <div className="w-100">
+        <img
+          src="https://i.ibb.co/C56bwYQ/401-Error-Unauthorized-pana.png"
+          alt="401 Unauthorized"
+          className="img-fluid mx-auto d-block mb-4"
+          style={{ maxWidth: '80%', height: 'auto' }}
+        />
+      </div>
+      <p className="fs-4 text-muted">You are not authorized to view this page.</p>
+      <a href="/login" className="btn btn-outline-danger as_btn btn-lg mt-3">
+        <i className="fas fa-sign-in-alt me-2"></i>
+        Login
+      </a>
+    </div>
+  }
   if (loading) {
     return <div>Loading...</div>
   }

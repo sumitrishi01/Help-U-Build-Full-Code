@@ -121,27 +121,8 @@ exports.createCall = async (req, res) => {
 
 exports.call_status = async (req, res) => {
     try {
-        const defaultCallStatus = {
-            from_number: '9079036042',
-            from_number_answer_time: '17',
-            to_number: '7905423609',
-            to_number_answer_time: '5',
-            answer_time: '5',
-            status: 'FAILED',
-            recording_url: 'https://media.cloudshope.com/recordings/1/1739001734.588470.wav',
-            from_number_status: 'Answered',
-            to_number_status: 'ANSWER',
-            uniqueid: '1739001734.588470',
-            call_type: 'c2c',
-            start_time: '1739001744',
-            end_time: '1739001765',
-            cli_number: '6746754788'
-        };
 
-
-
-        const callStatusQuery = req.query && Object.keys(req.query).length > 0 ? req.query : defaultCallStatus;
-
+        const callStatusQuery = req.query;
         if (!callStatusQuery.from_number || !callStatusQuery.to_number) {
             return res.status(400).json({
                 success: false,
@@ -187,6 +168,17 @@ exports.call_status = async (req, res) => {
                 callHistory: findHistory
             });
         }
+        if (callStatusQuery?.to_number_status) {
+            findHistory.to_number_status = callStatusQuery.to_number_status;
+            findHistory.cancel_reason = 'Provider did not answer the call.';
+            await findHistory.save();
+            return res.status(200).json({
+                success: true,
+                message: "To Number Status Received successfully.",
+                callData: callStatusQuery,
+                callHistory: findHistory
+            });
+        }
 
         let HowManyCostOfTalkTime = 0;
         if (talkTimeInSeconds > 0) {
@@ -209,6 +201,7 @@ exports.call_status = async (req, res) => {
         findHistory.end_time = callStatusQuery.end_time;
         findHistory.cost_of_call = HowManyCostOfTalkTime;
         findHistory.TalkTime = (talkTimeInSeconds / 60).toFixed(2);
+        findHistory.money_deducetation_amount = HowManyCostOfTalkTime
         findHistory.recording_url = callStatusQuery.recording_url;
         await findHistory.save();
 

@@ -26,7 +26,7 @@ const CallHistorySchema = new Schema({
     end_time: {
         type: Number
     },
-    TalkTime:{
+    TalkTime: {
         type: Number,
     },
     providerId: {
@@ -46,7 +46,15 @@ const CallHistorySchema = new Schema({
     max_duration_allowed: {
         type: Number,
     },
-    cost_of_call:{
+    cost_of_call: {
+        type: Number,
+        default: 0
+    },
+    cancel_reason: {
+        type: String,
+        default: null
+    },
+    money_deducetation_amount: {
         type: Number,
         default: 0
     }

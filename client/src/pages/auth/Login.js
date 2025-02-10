@@ -37,7 +37,7 @@ function Login() {
                     'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token'
                 }
             });
-console.log(data)
+            console.log(data)
             const { token, user, message } = data
             setData('token', token)
             setData('islogin', token ? true : false)
@@ -46,14 +46,31 @@ console.log(data)
 
             if (user.role === 'provider') {
                 if (user.isProfileComplete === false) {
-                    window.location.href = `/profile-page/${user._id}`
-                    // toast.error('Please complete your profile before login.')
-                    // return;
+                    window.location.href = `/profile-page/${user._id}`;
+                    toast.error('Please complete your profile before login.');
+                    return;
+                } else {
+                    console.log("I am else");
+                    toast.success(message);
+            
+                    if (redirectPath && typeof redirectPath === 'string' && redirectPath.trim() !== "") {
+                        console.log("redirectPath", redirectPath);
+                        toast.success(message);
+                        window.location.href = redirectPath;
+                    } else if (redirectPath && typeof redirectPath === 'object' && Object.keys(redirectPath).length === 0) {
+                        toast.success(message);
+                        window.location.href = '/';
+                    } else {
+                        toast.success(message);
+                        window.location.href = '/';
+                    }
                 }
+            } else {
+                toast.success(message);
+                window.location.href = '/';
             }
+            
 
-            toast.success(message)
-            window.location.href = redirectPath || '/'
         } catch (error) {
             console.log(error)
             console.log('An err or occurred. Please try again.')
