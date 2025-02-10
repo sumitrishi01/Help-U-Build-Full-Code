@@ -96,15 +96,12 @@ exports.verifyEmail = async (req, res) => {
         if (!type) {
             return res.status(400).json({ success: false, message: "Invalid type provided." });
         }
+
         const { email, otp, password } = req.body;
-        const errors = [];
-        if (!email) errors.push("Please enter an email");
-        if (!otp) errors.push("Please enter the OTP");
+        console.log("Received data:", req.body);
 
-        if (errors.length > 0) {
-            return res.status(400).json({ success: false, errors });
-        }
-
+        if (!email) return res.status(400).json({ success: false, message: "Please enter an email" });
+        if (!otp) return res.status(400).json({ success: false, message: "Please enter the OTP" });
 
         let accountType = "User";
         let account = await User.findOne({ email });
@@ -118,6 +115,7 @@ exports.verifyEmail = async (req, res) => {
             return res.status(404).json({ success: false, message: `${accountType} account not found with that email.` });
         }
 
+        console.log("Fetch Account:", account)
         let accountOtp, otpExpiresAt, verificationMessage, newPassword;
 
         if (type === 'email' && accountType === "User") {
@@ -126,20 +124,25 @@ exports.verifyEmail = async (req, res) => {
             verificationMessage = "Email verified successfully.";
         } else if (type === 'password') {
             accountOtp = account.resetPasswordOtp;
-            newPassword = account.newPassword
             otpExpiresAt = account.resetPasswordExpiresAt;
             verificationMessage = "OTP verified for password reset.";
+            newPassword = account.newPassword;
         } else {
             return res.status(400).json({ success: false, message: "Invalid verification type or unauthorized email verification for providers." });
         }
 
+        console.log("Stored OTP:", accountOtp, "User entered OTP:", otp);
+
+        if (!accountOtp) {
+            return res.status(400).json({ success: false, message: "OTP not found or expired, request a new one." });
+        }
 
         if (accountOtp !== otp) {
             return res.status(400).json({ success: false, message: "Invalid OTP." });
         }
 
-        if (Date.now() > otpExpiresAt) {
-            return res.status(400).json({ success: false, message: "OTP has expired." });
+        if (!otpExpiresAt || Date.now() > otpExpiresAt) {
+            return res.status(400).json({ success: false, message: "OTP has expired. Please request a new one." });
         }
 
         if (type === 'email') {
@@ -147,19 +150,19 @@ exports.verifyEmail = async (req, res) => {
             account.otp = null;
             account.expiresAt = null;
         } else if (type === 'password') {
+          
             account.Password = newPassword;
             account.resetPasswordOtp = null;
             account.resetPasswordExpiresAt = null;
         }
 
         await account.save();
-        await sendToken(account, res, 200, verificationMessage)
-
+        console.log("Save account", account);
+        await sendToken(account, res, 200, verificationMessage);
 
     } catch (error) {
         console.error("Error during verification:", error);
         return res.status(500).json({ success: false, message: "An error occurred during verification." });
-
     }
 };
 
