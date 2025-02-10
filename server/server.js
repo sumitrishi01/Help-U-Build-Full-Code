@@ -8,7 +8,7 @@ const cors = require('cors')
 const ConnectDB = require('./Config/DataBase');
 const cookieParser = require('cookie-parser')
 const axios = require('axios')
-
+const morgan = require('morgan');
 const { rateLimit } = require('express-rate-limit');
 const router = require('./routes/routes');
 const { singleUploadImage } = require('./middlewares/Multer');
@@ -72,7 +72,17 @@ app.set('socketIo', io)
 const activeTimers = {};
 const roomMembers = {};
 let providerconnect;
+morgan.token('origin', (req) => req.headers.origin || 'Unknown Origin');
 
+app.use(morgan(':method :url :status :response-time ms - Origin: :origin'));
+
+// Middleware to capture response status and log it
+app.use((req, res, next) => {
+    res.on('finish', () => {
+        console.log(`[REQUEST STATUS] ${req.method} ${req.originalUrl} - ${res.statusCode} from ${req.headers.origin || 'Unknown'}`);
+    });
+    next();
+});
 io.on('connection', (socket) => {
     console.log('A new client connected:', socket.id);
 
