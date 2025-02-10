@@ -24,7 +24,7 @@ const StepWizard = () => {
 
     const fetchCurrentLocation = async () => {
         try {
-            const res = await axios.post("https://try.helpubuild.co.in/Fetch-Current-Location", {
+            const res = await axios.post("https://api.helpubuild.co.in/Fetch-Current-Location", {
                 lat: coords.latitude,
                 lng: coords.longitude
             });
@@ -53,7 +53,7 @@ const StepWizard = () => {
         if (!validatePhone()) return;
         setLoading(true);
         try {
-            const res = await axios.post("https://try.helpubuild.co.in/api/v1/register-provider", memberData);
+            const res = await axios.post("https://api.helpubuild.co.in/api/v1/register-provider", memberData);
             toast.success(res.data.message);
             setData("token", res.data.token);
             setData("islogin", !!res.data.token);

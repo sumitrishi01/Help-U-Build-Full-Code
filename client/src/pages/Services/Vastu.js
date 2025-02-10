@@ -29,7 +29,7 @@ const Vastu = () => {
   const handleFetchUser = async () => {
     try {
       const UserId = UserData?._id;
-      const { data } = await axios.get(`https://try.helpubuild.co.in/api/v1/get-single-user/${UserId}`);
+      const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-single-user/${UserId}`);
 
       const formattedAmount = data.data.walletAmount.toFixed(2);
 
@@ -47,7 +47,7 @@ const Vastu = () => {
 
   const handleFetchProvider = async () => {
     try {
-      const { data } = await axios.get('https://try.helpubuild.co.in/api/v1/get-all-provider');
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-provider');
       const allData = data.data.filter((item) => item.type === 'Vastu');
       const shownProvider = allData.filter((item) => item.accountVerified === 'Verified')
       setAllProviders(shownProvider);
@@ -165,7 +165,7 @@ const Vastu = () => {
         providerId: providerId, // Include providerId
       };
       try {
-        const res = await axios.post('https://try.helpubuild.co.in/api/v1/create-chat', newForm);
+        const res = await axios.post('https://api.helpubuild.co.in/api/v1/create-chat', newForm);
         window.location.href = '/chat';
       } catch (error) {
         console.error("Internal server error", error);
@@ -196,7 +196,7 @@ const Vastu = () => {
 
       const UserId = UserData?._id;
 
-      const res = await axios.post(`https://try.helpubuild.co.in/api/v1/create-payment/${UserId}`, {
+      const res = await axios.post(`https://api.helpubuild.co.in/api/v1/create-payment/${UserId}`, {
         price: amount
       })
       // console.log("Order", res.data.data)
@@ -211,7 +211,7 @@ const Vastu = () => {
           name: 'Help U Build',
           description: 'Doing Recharge',
           order_id: order?.id || '',
-          callback_url: "https://try.helpubuild.co.in/api/v1/verify-payment",
+          callback_url: "https://api.helpubuild.co.in/api/v1/verify-payment",
           prefill: {
             name: UserData?.name,
             email: UserData?.email,
