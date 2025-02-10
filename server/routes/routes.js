@@ -28,7 +28,7 @@ router.put('/user/update-profile/:id', upload.single('ProfileImage'), updateProf
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/verify/:type', verifyEmail);
-router.put('/Changepassword', Changepassword);
+router.post('/Changepassword', Changepassword);
 router.post('/resend-otp/:type', resendOtp);
 router.post('/forgot-password', forgotPassword);
 router.get('/get-user-by-id/:id', getUserById);
