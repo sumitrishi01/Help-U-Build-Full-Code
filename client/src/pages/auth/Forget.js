@@ -35,7 +35,7 @@ function Forget() {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
+      const response = await axios.post('https://try.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
 
       if (response.data.success) {
         toast.success('OTP verified successfully. Redirecting to login...');
@@ -60,7 +60,7 @@ function Forget() {
     setLoading(true);
     console.log("Try Api Run: ")
     try {
-      const response = await axios.post('https://api.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
+      const response = await axios.post('https://try.helpubuild.co.in/api/v1/verify/password', { email, otp, password: newPassword });
 
       if (response.data.success) {
         toast.success('OTP verified successfully. Redirecting to login...');
