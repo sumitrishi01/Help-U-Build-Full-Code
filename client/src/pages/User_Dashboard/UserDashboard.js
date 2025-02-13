@@ -219,23 +219,24 @@ const UserDashboard = () => {
   }
   return (
     <div className='userdashboard-body-bg'>
-      <div className="w-75 mx-auto py-5 h-100 ">
+      <div className="w-100 mx-auto py-5 h-100 px-2">
         <div className="row d-flex justify-content-center align-items-center h-100">
           <div className="col col-xl-12">
             <div className="card  profile-card-header" style={{ borderRadius: 15 }}>
               <div className="card-body p-4">
                 <div className="d-flex justify-content-between">
                   <div>
-                    <div style={{ alignItems: 'center' }} className='d-flex mb-2'>
+                    <div style={{ alignItems: 'center' }} className='mb-2 providerProfileHeading'>
                       <a href="#!">
-                        <div style={{ position: 'relative' }}>
+                        <div className='' style={{ position: 'relative' }}>
                           <img
                             src={myProfile?.photo?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(myProfile.name || 'User')}&background=random`}
                             alt="avatar"
-                            className="img-fluid d-flex object-cover rounded-circle me-3"
+                            className="img-fluid object-cover rounded-circle me-3"
                             style={{
                               width: '80px',
                               height: '80px',
+                              display:'flex'
                             }}
                           />
                           {myProfile?.isVerified && (
@@ -258,8 +259,9 @@ const UserDashboard = () => {
                       </a>
                       <h3 className="mb-3">{myProfile.name}</h3>
                     </div>
-                    <p className="small mb-0">
-                      <i className="fas fa-star fa-lg text-warning" />{" "}<span>{myProfile?.type}</span>
+                    <p className="small mb-2">
+                      {/* <i className="fas fa-star fa-lg text-warning" />{" "} */}
+                      <span>{myProfile?.type}</span>
                       <span className="mx-2">|</span>
                       {`₹ ${myProfile.pricePerMin}/min`} <span className="mx-2">|</span>
 
@@ -529,7 +531,7 @@ const UserDashboard = () => {
         <>
           {activeTab === 'Portfolio' && (
             <div className="w-100 py-4 mt-5 mb-3">
-              <div className='d-flex align-item-center justify-content-between'>
+              <div style={{display:'flex'}} className='align-item-center justify-content-between'>
                 <div>
                   <h2>
                     <i className="fas fa-briefcase text-primary me-2" />
@@ -561,7 +563,7 @@ const UserDashboard = () => {
                 {
                   reUploadTrue && (
                     <>
-                      <div style={{ marginTop: '-44px' }} className="text-end  ">
+                      <div className="text-end portfolio-design ">
                         <button
                           onClick={() => setReUploadTrue(false)}
                           className="btn mb-3 btn-outline-info me-3 btn-lg view-portfolio-btn"

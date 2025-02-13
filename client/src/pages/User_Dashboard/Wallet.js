@@ -63,48 +63,51 @@ function Wallet({ data }) {
 
     return (
         <div className="container wallet-list mt-4">
-            <div className="d-flex justify-content-between mb-3">
+            <div style={{display:'flex'}} className=" gap-2 justify-content-between mb-3">
                 <input
                     type="text"
-                    className="form-control w-25"
+                    className="form-control wallet-search"
                     placeholder="Search by Name"
                     value={searchTerm}
                     onChange={handleSearch}
                 />
                 <button className="btn btn-info sortbtn" onClick={handleSort}>
-                    Sort by Date {sortOrder === 'asc' ? '↑' : '↓'}
+                    <p className='shortText'>Sort by Date</p> {sortOrder === 'asc' ? '↑' : '↓'}
                 </button>
             </div>
 
             <div className="table-container">
-                <table className="table table-bordered table-striped custom-table">
-                    <thead>
-                        <tr>
-                            <th>User Name</th>
-                            <th>Deduction (₹)</th>
-                            <th>Date</th>
-                            <th>Duration</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentItems.length > 0 ? (
-                            currentItems.map((transition, index) => (
-                                <tr key={index}>
-                                    <td>
-                                        <span className="ml-2">{transition.user?.name}</span>
-                                    </td>
-                                    <td>{transition.deductionAmount ? transition.deductionAmount.toFixed(2) : '0.00'}</td>
-                                    <td>{new Date(transition.Date).toLocaleString()}</td>
-                                    <td>{calculateDuration(transition.startChatTime, transition.endingChatTime)}</td>
-                                </tr>
-                            ))
-                        ) : (
-                            <div>
-                                <p className=' mb-0'>There in no previous chat history.</p>
-                            </div>
-                        )}
-                    </tbody>
-                </table>
+                <div className="table-responsive">
+                    <table className="table table-bordered table-striped custom-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Deduction (₹)</th>
+                                <th>Date</th>
+                                <th>Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {currentItems.length > 0 ? (
+                                currentItems.map((transition, index) => (
+                                    <tr key={index}>
+                                        <td>
+                                            <span className="ml-2">{transition.user?.name}</span>
+                                        </td>
+                                        <td>{transition.deductionAmount ? transition.deductionAmount.toFixed(2) : '0.00'}</td>
+                                        <td>{new Date(transition.Date).toLocaleString()}</td>
+                                        <td>{calculateDuration(transition.startChatTime, transition.endingChatTime)}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <div>
+                                    <p className=' mb-0'>There in no previous chat history.</p>
+                                </div>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
 
                 {/* Pagination */}
                 <div className="pagination">

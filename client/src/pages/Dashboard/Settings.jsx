@@ -27,7 +27,7 @@ function Settings({ myProfile }) {
 
     return (
         <>
-            <ul className="nav w-100 mt-4 nav-pills mb-4 justify-content-between" id="ex1" role="tablist">
+            <ul className="nav w-100 mt-4 nav-pills mb-4 justify-content-evenly gap-2" id="ex1" role="tablist">
                 {tabs.map((tab) => (
                     <li className="nav-item" role="presentation" key={tab.id}>
                         <a

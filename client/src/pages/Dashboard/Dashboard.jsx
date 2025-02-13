@@ -141,7 +141,7 @@ function Dashboard() {
   return (
     <>
       <div className='userdashboard-body-bg'>
-        <div className="w-75 mx-auto py-5 h-100">
+        <div className="w-100 px-2 mx-auto py-5 h-100">
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col col-xl-12">
               <div className="card profile-card-header" style={{ borderRadius: 15 }}>
@@ -190,7 +190,7 @@ function Dashboard() {
                         <h3 className="p-0 m-0">{myProfile.name}</h3>
                       </div>
                       <p className="small mb-0">
-                        <i className="fas fa-star fa-lg text-warning" />{" "}
+                        {/* <i className="fas fa-star fa-lg text-warning" />{" "} */}
                         {`${myProfile.email}`}
                         <span className="mx-2">|</span>
                         {`${myProfile.PhoneNumber}`}
@@ -221,7 +221,7 @@ function Dashboard() {
                       >
                         settings
                       </span>
-                      <span className="ms-3 me-4">|</span>
+                      {/* <span className="ms-3 me-4">|</span> */}
                     </p>
                     <button
                       type="button"
