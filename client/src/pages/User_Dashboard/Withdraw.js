@@ -43,19 +43,19 @@ function Withdraw({ data }) {
   return (
     <div className="container wallet-list mt-4">
       <div className="table-container">
-        <table className="table table-bordered table-striped custom-table">
-          <thead>
-            <tr>
-              <th>Amount</th>
-              <th>Commission Percent</th>
-              <th>Commission Amount</th>
-              <th>Final Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              currentItems.length > 0 ? (
+        <div className="table-responsive"> {/* Added this div for responsiveness */}
+          <table className="table table-bordered table-striped custom-table">
+            <thead>
+              <tr>
+                <th>Amount</th>
+                <th>Commission Percent</th>
+                <th>Commission Amount</th>
+                <th>Final Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
                 currentItems.map((item, index) => (
                   <tr key={index}>
                     <td>{item.amount ? item.amount.toFixed(2) : '0.00'}</td>
@@ -65,14 +65,14 @@ function Withdraw({ data }) {
                     <td>{item.status}</td>
                   </tr>
                 ))
-              ): (
-                <div>
-                  <p className=' mb-0'>There in no previous transactions.</p>
-                </div>
-              )
-            }
-          </tbody>
-        </table>
+              ) : (
+                <tr>
+                  <td colSpan="5" className="text-center">There are no previous transactions.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
         <div className="pagination">
@@ -102,6 +102,7 @@ function Withdraw({ data }) {
         </div>
       </div>
     </div>
+
   );
 }
 

@@ -3128,7 +3128,7 @@ li.as_info_box p {
 .modal .modal-dialog {
   margin: 0 auto;
   transform: none !important;
-  width: 500px;
+  /* width: 500px; */
   display: flex;
   align-items: center;
   justify-content: center;
