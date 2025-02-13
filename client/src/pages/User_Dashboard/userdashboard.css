@@ -71,7 +71,7 @@ hr:not([size]) {
     }
 }
 
-@media(max-width:425px) {
+@media(max-width:475px) {
     .btn-lg {
         width: 100%;
         font-size: 11px;
