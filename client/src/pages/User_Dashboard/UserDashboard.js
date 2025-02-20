@@ -9,6 +9,7 @@ import Settings from './Settings.js';
 import './userdashboard.css';
 import Wallet from './Wallet.js';
 import Withdraw from './Withdraw.js';
+import Reviews from '../../components/Reviews.js';
 
 const UserDashboard = () => {
   const [files, setFiles] = useState([]);
@@ -32,7 +33,7 @@ const UserDashboard = () => {
     if (data) {
       setToken(data);
     }
-    if(UserData){
+    if (UserData) {
       setProviderId(UserData._id)
     }
   };
@@ -110,22 +111,22 @@ const UserDashboard = () => {
   const [finalAmount, setFinalAmount] = useState(0);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [commissionPercent,setCommissionPercent] = useState(0)
+  const [commissionPercent, setCommissionPercent] = useState(0)
 
   const handleFetchCommission = async () => {
     try {
-      const {data} = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-commision')
+      const { data } = await axios.get('https://api.helpubuild.co.in/api/v1/get-all-commision')
       const commissiondata = data.data
       // console.log("commission",commissiondata[0]?.commissionPercent)
       setCommissionPercent(commissiondata[0]?.commissionPercent)
     } catch (error) {
-      console.log("Internale server error",error)
+      console.log("Internale server error", error)
     }
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     handleFetchCommission();
-  },[])
+  }, [])
 
   const handleAmountChange = (e) => {
     const inputAmount = parseFloat(e.target.value) || 0;
@@ -173,12 +174,12 @@ const UserDashboard = () => {
         toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
       }
     } catch (error) {
-      console.log("Failed to create withdrawal request. Please try again.",error)
+      console.log("Failed to create withdrawal request. Please try again.", error)
       toast.error(error?.response?.data?.errors?.[0] || error?.response?.data?.message || "Please try again later");
     }
   };
 
-  if(token === null){
+  if (token === null) {
     return <div className="container my-5 text-center">
       <div className="w-100">
         <img
@@ -302,7 +303,7 @@ const UserDashboard = () => {
                       Portfolio
                     </span>
                   </p>
-                  
+
                   <p onClick={() => setActiveTab('Wallet')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
                     <i className="fas fa-link ms-4 me-2" />{" "}
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Wallet' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
@@ -317,47 +318,14 @@ const UserDashboard = () => {
                     </span>
                   </p>
 
-                  <p onClick={() => setActiveTab('Gallery')} style={{ fontWeight: '700' }} className="mb-0 cursor-pointer text-uppercase">
-                    <i className="fas fa-ellipsis-h ms-4 me-2" />{" "}
+                  <p onClick={() => setActiveTab('Gallery')} style={{ fontWeight: '700' }} className="mb-0 ms-4 me-2 cursor-pointer text-uppercase">
+
                     <span style={{ cursor: 'pointer' }} className={`cursor-pointer ${activeTab === 'Gallery' ? 'text-danger fw-bold text-decoration-underline' : ''}`}>
                       Gallery
                     </span>
                     <span className="ms-3 me-4">|</span>
                   </p>
-                  <p>
-                    <a href="#!">
-                      <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-2.webp"
-                        alt="avatar"
-                        className="img-fluid rounded-circle user-thumb me-1"
-                        width={35}
-                      />
-                    </a>
-                    <a href="#!">
-                      <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-3.webp"
-                        alt="avatar"
-                        className="img-fluid rounded-circle user-thumb me-1"
-                        width={35}
-                      />
-                    </a>
-                    <a href="#!">
-                      <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-4.webp"
-                        alt="avatar"
-                        className="img-fluid rounded-circle user-thumb me-1"
-                        width={35}
-                      />
-                    </a>
-                    <a href="#!">
-                      <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/Avatars/avatar-5.webp"
-                        alt="avatar"
-                        className="img-fluid rounded-circle user-thumb me-3"
-                        width={35}
-                      />
-                    </a>
-                  </p>
+
 
                   <button
                     type="button"
@@ -410,34 +378,6 @@ const UserDashboard = () => {
                 <UploadGallery isShow={showGalleryUpload} token={token} />
               ) : (
                 <>
-                  {/* Show Demo Gallery if no images exist */}
-                  {(!myProfile?.portfolio?.GalleryImages || myProfile.portfolio.GalleryImages.length === 0) && (
-                    <>
-                      <h2 className="text-center text-primary mb-4">Demo Gallery</h2>
-                      <div className="row">
-                        {[
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Slides/1.webp",
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Square/1.webp",
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Vertical/1.webp",
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Slides/1.webp",
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Square/1.webp",
-                          "https://mdbcdn.b-cdn.net/img/Photos/Thumbnails/Vertical/1.webp",
-                        ].map((src, index) => (
-                          <div key={index} className="col-12 col-md-4 mb-4">
-                            <img
-                              src={src}
-                              alt={`Demo ${index + 1}`}
-                              className="w-100 shadow-1-strong rounded custom-img-height"
-                              style={{
-                                maxHeight: "200px",
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
 
                   <div className=" my-5">
 
@@ -515,12 +455,22 @@ const UserDashboard = () => {
                       <div className="text-center">
                         <h3 className="text-danger">No images available in the gallery!</h3>
                         <p className="text-muted">Please upload images to view them in your gallery.</p>
+                        <div className="add-gallery-btn ">
+                          <button
+                            onClick={() => setShowGalleryUpload(!showGalleryUpload)}
+                            className="btn btn-outline-danger btn-lg"
+                          >
+                            <i className="fas fa-image me-2"></i>
+                            Add Gallery
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
 
                 </>
               )}
+              <Reviews/>
             </div>
 
           </div>
@@ -701,7 +651,7 @@ const UserDashboard = () => {
                     Enter Amount
                   </label>
                   <input
-                    style={{border:'1px solid #0000001a'}}
+                    style={{ border: '1px solid #0000001a' }}
                     type="number"
                     className="form-control"
                     id="amount"

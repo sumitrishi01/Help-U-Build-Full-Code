@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Toast } from 'react-bootstrap';
+import Swal from "sweetalert2"
+
 import { GetData } from '../../../utils/sessionStoreage';
 import toast from 'react-hot-toast';
-
+import './statuts.css'
 function StatusPage() {
     const Data = GetData('user');
     const UserData = JSON.parse(Data);
@@ -11,7 +12,7 @@ function StatusPage() {
     const [statuses, setStatuses] = useState({
         chatStatus: "",
         callStatus: "",
-        meetStatus: "",
+
     });
 
     const handleFetchProvider = async () => {
@@ -23,7 +24,7 @@ function StatusPage() {
             setStatuses({
                 chatStatus: allData.chatStatus || '',
                 callStatus: allData.callStatus || '',
-                meetStatus: allData.meetStatus || ''
+
             });
         } catch (error) {
             console.log('Error fetching provider data', error);
@@ -39,14 +40,19 @@ function StatusPage() {
         const updatedStatus = !statuses[statusType];
         const previousStatuses = { ...statuses };
         setStatuses({ ...statuses, [statusType]: updatedStatus });
-    
+
         try {
             const response = await axios.put(
                 `https://api.helpubuild.co.in/api/v1/update-available-status/${providerId}`,
                 { [statusType]: updatedStatus }
             );
             if (response.data.success) {
-                toast.success(response.data.message);
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: `${response.data.message}`,
+                })
+
             } else {
                 toast.error('Failed to update status');
                 setStatuses(previousStatuses); // Revert to previous state on failure
@@ -57,46 +63,52 @@ function StatusPage() {
             setStatuses(previousStatuses); // Revert to previous state on failure
         }
     };
-    
+
 
     return (
-        <div className="mt-5">
-            <h1 className="text-center mb-4">Provider Availability Status</h1>
-            <div className="card p-4 shadow">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span>Chat Availability</span>
-                    <div className="form-check form-switch">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="chatStatus"
-                            checked={statuses.chatStatus}
-                            onChange={() => handleToggle('chatStatus')}
-                        />
+        <div className="provider-section">
+            <h1 className="provider-heading">Provider Availability Status</h1>
+
+            <div className="provider-grid">
+                <div className="provider-card">
+                    <div className="provider-card-content">
+                        <div className="provider-image-container">
+                            <img
+                                src="https://img.freepik.com/premium-vector/chat-symbol-talk-dialogue-messenger-online-support-concept_370567-1990.jpg"
+                                alt="Chat icon"
+                                className="provider-image"
+                            />
+                        </div>
+                        <h3 className="provider-title">Chat</h3>
+                        <label className="provider-toggle">
+                            <input
+                                type="checkbox"
+                                checked={statuses.chatStatus}
+                                onChange={() => handleToggle('chatStatus')}
+                            />
+                            <span className="provider-toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span>Call Availability</span>
-                    <div className="form-check form-switch">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="callStatus"
-                            checked={statuses.callStatus}
-                            onChange={() => handleToggle('callStatus')}
-                        />
-                    </div>
-                </div>
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <span>Meet Availability</span>
-                    <div className="form-check form-switch">
-                        <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="meetStatus"
-                            checked={statuses.meetStatus}
-                            onChange={() => handleToggle('meetStatus')}
-                        />
+
+                <div className="provider-card">
+                    <div className="provider-card-content">
+                        <div className="provider-image-container">
+                            <img
+                                src="https://img.freepik.com/free-vector/telephone-call-icon-3d-vector-illustration-social-media-symbol-networking-sites-apps-cartoon-style-isolated-white-background-online-communication-digital-marketing-concept_778687-1734.jpg?w=360"
+                                alt="Call icon"
+                                className="provider-image"
+                            />
+                        </div>
+                        <h3 className="provider-title">Call</h3>
+                        <label className="provider-toggle call">
+                            <input
+                                type="checkbox"
+                                checked={statuses.callStatus}
+                                onChange={() => handleToggle('callStatus')}
+                            />
+                            <span className="provider-toggle-slider"></span>
+                        </label>
                     </div>
                 </div>
             </div>

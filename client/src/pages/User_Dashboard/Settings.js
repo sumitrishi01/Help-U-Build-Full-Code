@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './Settings.css'; // Import custom CSS for styling
 import Profile from './Tabs/Profile';
-import { Documnets } from './Tabs/Documnets';
+import Documents, { Documnets } from './Tabs/Documnets';
 import Password from './Tabs/Password';
 import Enquiry from './Tabs/Enquiry';
 import ShareProfile from './Tabs/ShareProfile'; // New ShareProfile component
@@ -67,7 +67,7 @@ let tabs;
       {/* Tab Content */}
       <div className="tab-content">
         {activeTab === 1 && <Profile />}
-        {activeTab === 2 && <Documnets />}
+        {activeTab === 2 && <Documents />}
         {activeTab === 3 && <BankDetail />}
         {activeTab === 4 && <Password />}
         {activeTab === 5 && <StatusPage />}

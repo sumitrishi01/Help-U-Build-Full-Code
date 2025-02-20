@@ -509,7 +509,12 @@ function TalkToArchitect() {
                               "Not Available"
                             )}
                           </p>
-                          <p className="text-small text-muted mb-1">{`100/sq.yd. ${handleFilterProviderService(item._id) || ''} * 900`}</p>
+                          {/* <h1>{handleFilterProviderService(item._id)}</h1> */}
+                          <p style={{whiteSpace:'nowrap'}} className="text-small text-muted mb-1">
+                            {`Rs ${handleFilterProviderService(item._id) * 900} for 100 Sq.Yrds ${handleFilterProviderService(item._id) || 'Sq. Yrds'} * 900`}
+                          </p>
+
+                          {/* <p className="text-small text-muted mb-1">{`100/sq.yd. ${handleFilterProviderService(item._id) || ''} * 900`}</p> */}
                         </div>
                       </div>
                       <div className="text-end contact-btn">
@@ -517,7 +522,7 @@ function TalkToArchitect() {
                           <div className='connect-area'>
                             <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.callStatus} className={`btn samebtn ${item.callStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-phone-volume"></i> Call</button>
                             <button onClick={() => handleActiveTime("Chat", item)} style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.chatStatus} className={`btn samebtn mt-2 ${item.chatStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-regular fa-comments"></i> Chat</button>
-                            <button style={{ fontSize: '15px', padding: '3px', width: '52%' }} disabled={!item.meetStatus} className={`btn samebtn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
+                            <button style={{ fontSize: '15px', padding: '3px', width: '52%', visibility: "hidden" }} disabled={!item.meetStatus} className={`btn samebtn mt-2 ${item.meetStatus === true ? 'profile-chat-btn' : 'profile-call-btn'}`}><i class="fa-solid fa-video"></i> Video</button>
                           </div>
                         </div>
                       </div>

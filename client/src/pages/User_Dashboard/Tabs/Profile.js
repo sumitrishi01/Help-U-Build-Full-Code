@@ -2,14 +2,10 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { GetData } from '../../../utils/sessionStoreage';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2'
 
 const Profile = () => {
-  // const { coords, isGeolocationAvailable, isGeolocationEnabled } = useGeolocated({
-  //   positionOptions: {
-  //     enableHighAccuracy: false,
-  //   },
-  //   userDecisionTimeout: 5000,
-  // });
+
   const Data = GetData('user');
   const UserData = JSON.parse(Data);
   const UserId = UserData?._id;
@@ -22,7 +18,7 @@ const Profile = () => {
     language: '',
     mobileNumber: '',
     coaNumber: '',
-    // location: '',
+    location: '',
     pricePerMin: '',
     bio: '',
     expertiseSpecialization: '',
@@ -53,7 +49,7 @@ const Profile = () => {
         language: allData.language || '',
         mobileNumber: allData.mobileNumber || '',
         coaNumber: allData.coaNumber || '',
-        // location: allData.location || '',
+        location: allData.location || '',
         pricePerMin: allData.pricePerMin || '',
         bio: allData.bio || '',
         expertiseSpecialization: allData.expertiseSpecialization || '',
@@ -89,8 +85,14 @@ const Profile = () => {
         }
       );
 
-      // console.log('Update Response:', response.data);
-      toast.success('Profile updated successfully!');
+      console.log('Update Response:', response.data);
+      Swal.fire({
+        title: 'Profile Updated!',
+        text: response.data.message,
+        icon: 'success', // use lowercase
+        confirmButtonText: 'Cool'
+      });
+   
     } catch (error) {
       console.log('Error updating profile:', error.response?.data || error.message);
       toast.error(error?.response?.data?.message || 'Failed to update profile. Please try again.');
@@ -213,9 +215,9 @@ const Profile = () => {
               onChange={handleChange}
             />
           </div>
-          {/* <div className="col-md-6 mb-3">
+          <div className="col-md-6 mb-3">
             <label htmlFor="location" className="form-label">
-              Location
+              Billing address
             </label>
             <input
               type="text"
@@ -225,7 +227,7 @@ const Profile = () => {
               value={formData.location}
               onChange={handleChange}
             />
-          </div> */}
+          </div>
           <div className="col-md-6">
             <label htmlFor="yearOfExperience" className="form-label">
               Year Of Experience

@@ -15,14 +15,7 @@ Cloudinary.config({
 
 exports.CreateProvider = async (req, res) => {
     try {
-        // console.log(req.files)
-        // const { adhaarCard, panCard, qualificationProof } = req.files || {};
-        // if (!adhaarCard || !panCard || !qualificationProof) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: 'All required documents (Adhaar, Pan Card, Qualification Proof) must be uploaded.'
-        //     });
-        // }
+      
         const { type, name, email, password, DOB, age, language, mobileNumber, gstDetails, coaNumber, expertiseSpecialization, location } = req.body;
         const existingMobile = await providersModel.findOne({ mobileNumber });
         const existingEmail = await providersModel.findOne({ email });
