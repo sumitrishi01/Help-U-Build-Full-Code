@@ -133,7 +133,7 @@ const VerifyEmail = () => {
                     Enter the one-time password (OTP) sent to <strong>{email}</strong> to verify your account.
                 </p>
 
-                <div id="otp" className="d-flex justify-content-center mb-4">
+                <div id="otp" style={{display: 'flex'}} className=" justify-content-center mb-4">
                     {otp.map((digit, index) => (
                         <input
                             key={index}

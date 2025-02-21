@@ -112,18 +112,7 @@ const Cards = () => {
                                   <MdOutlineChatBubble className="text-success" size={24} />
                                 </Link>
                               </li>
-                              <li className="list-inline-item">
-                                <Link
-                                  className="btn btn-light shadow-sm rounded-circle p-3 Own-card_icon-btn"
-                                  href="#"
-                                  title="Video Call"
-                                  data-bs-toggle="tooltip"
-                                  data-bs-placement="top"
-                                  data-bs-title="Video Call"
-                                >
-                                  <FaVideo className="text-danger" size={24} />
-                                </Link>
-                              </li>
+                            
                             </ul>
                           </div>
 

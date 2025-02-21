@@ -36,6 +36,10 @@ import Forget from "./pages/auth/Forget";
 import FailedPayment from "./pages/FailedPayment/FailedPayment";
 import { generateToken, messaging } from "./FireBaseNotification/firebase";
 import { onMessage } from "firebase/messaging";
+import PrivacyPolicy from "./pages/Policies/PrivacyPolicy";
+import Cancellation from "./pages/Policies/Cancellation";
+import Disclaimer from "./pages/Policies/Disclaimer";
+import TermCondition from "./pages/Policies/Term&Condition";
 // Scroll to top component
 function ScrollToTop() {
   const location = useLocation();
@@ -100,6 +104,13 @@ function App() {
         <Route path="/forget-password" element={<Forget />} />
         <Route path="/successfull-recharge" element={<SuccessFull />} />
         <Route path="/payment-failure" element={<FailedPayment />} />
+
+        {/* Policies */}
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/cancellation-refund-policy" element={<Cancellation />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/terms-and-conditions" element={<TermCondition />} />
+
       </Routes>
       <Toaster />
       <Footer />

@@ -498,9 +498,9 @@ i.fa.fa-search {
     font-size: 1.25rem;
   }
 
-  .medium-device-balance {
+  /* .medium-device-balance {
     display: none;
-  }
+  } */
 
   .medium-device-recharge {
     display: none !important;
@@ -522,9 +522,32 @@ i.fa.fa-search {
   }
 
   .modal-content {
-    width: 63%;
-    margin-left: -40px;
+    width: 85%;
+    /* margin-left: -40px; */
   }
 }
 
 /* architect profile responsive css */
+
+.portfolio-design{
+  margin-top: -44px;
+}
+
+.wallet-search{
+  width: 25%;
+}
+
+@media (max-width:550px) {
+  .portfolio-design{
+    margin-top: 0px;
+  }
+  .wallet-search{
+    width: 100%;
+  }
+  .shortText{
+    display: none;
+  }
+  .providerProfileHeading{
+    display: flex;
+  }
+}
