@@ -9,7 +9,7 @@ import toast from 'react-hot-toast';
 import AccessDenied from '../../components/AccessDenied/AccessDenied';
 // import Login from '../auth/Login'
 
-const ENDPOINT = 'https://api.helpubuild.co.in/';
+const ENDPOINT = 'http://localhost:5000/';
 
 const ChatDemo = () => {
     // const [messageReaded,setMessageReaded] = useState(false)
@@ -25,6 +25,7 @@ const ChatDemo = () => {
     const [isProviderConnected, setIsProviderConnected] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0)
     const [isActive, setIsActive] = useState(false);
+    const [status, setStatus] = useState('offline');
 
     // console.log("message",UserData._id)
     const id = UserData?._id || ''
@@ -34,7 +35,7 @@ const ChatDemo = () => {
     const handleChatStart = async (chatId) => {
         // console.log("chatId", chatId);
         try {
-            const { data } = await axios.get(`https://api.helpubuild.co.in/api/v1/get-chat-by-id/${chatId}`);
+            const { data } = await axios.get(`http://localhost:5000/api/v1/get-chat-by-id/${chatId}`);
 
             setMessage([]);
             const allData = data.data;
@@ -87,6 +88,11 @@ const ChatDemo = () => {
         socket.on('return_message', (data) => {
             // console.log('Received message:', data);
             setMessages((prev) => [...prev, data]);
+        });
+
+        socket.on('user_status', ({ userId, astrologerId, status }) => {
+            console.log(`User ${userId} or Provider ${astrologerId} is now ${status}`);
+            setStatus(status);
         });
 
         socket.on('error_message', (data) => {
@@ -288,8 +294,8 @@ const ChatDemo = () => {
 
         try {
             const url = UserData?.role === "provider"
-                ? `https://api.helpubuild.co.in/api/v1/get-chat-by-providerId/${UserData._id}`
-                : `https://api.helpubuild.co.in/api/v1/get-chat-by-userId/${UserData._id}`;
+                ? `http://localhost:5000/api/v1/get-chat-by-providerId/${UserData._id}`
+                : `http://localhost:5000/api/v1/get-chat-by-userId/${UserData._id}`;
 
             const { data } = await axios.get(url);
             const allData = data.data.reverse(); // Reverse the data to show latest chats first
@@ -312,7 +318,7 @@ const ChatDemo = () => {
         // return window.location.href = '/login'
         return <AccessDenied />
     }
-    // console.log(socket)
+    console.log("status",status);
     return (
         <section className=' hitesh_styling' style={{ backgroundColor: '#CDC4F9' }}>
             <div className="container py-5">
